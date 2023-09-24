@@ -1,0 +1,6 @@
+*/bin
+*/obj
+/.vs
+/storage
+/Uhost.Core/appsettings.json
+launchsettings.json
