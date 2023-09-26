@@ -46,7 +46,7 @@ services:
       rm -rf /app/*;
       dotnet ef database update --project Uhost.Core --context PostgreSqlDbContext;
       dotnet publish -r linux-x64 -p:PublishSingleFile=true --self-contained true -p:UseAppHost=true -c Release -o /app;
-      /app/Uhost.Console loaddefaultdata --file default-data.json"
+      /app/Uhost.Console loaddefaultdata --file /app/default-data.json"
 
   # app runner
   app:
