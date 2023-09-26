@@ -1,0 +1,40 @@
+﻿using Uhost.Core.Attributes.Validation;
+using Uhost.Core.Properties;
+using Entity = Uhost.Core.Data.Entities.User;
+
+namespace Uhost.Core.Models.User
+{
+    public class UserBaseModel : BaseModel<Entity>
+    {
+        [StringLengthValidation(maxLength: 64)]
+        public string Name { get; set; }
+
+        [StringLengthValidation(maxLength: 512)]
+        public string Description { get; set; }
+
+        [RegExpValidation("^[a-zA-Z0-9_]*$")]
+        [StringLengthValidation(maxLength: 24)]
+        public string Login { get; set; }
+
+        [EnumValidation(typeof(Entity.Themes), nameof(Entity.Themes.Dark), ErrorMessageResourceType = typeof(CoreStrings), ErrorMessageResourceName = nameof(CoreStrings.User_Error_ThemeFail))]
+        public string Theme { get; set; }
+
+        public override Entity FillEntity(Entity entity)
+        {
+            entity.Name = Name?.Trim() ?? string.Empty;
+            entity.Desctiption = Description?.Trim() ?? string.Empty;
+            entity.Login = Login.Trim();
+            entity.Theme = Theme.Trim();
+
+            return entity;
+        }
+
+        public override void LoadFromEntity(Entity entity)
+        {
+            Name = entity.Name;
+            Description = entity.Desctiption;
+            Login = entity.Login;
+            Theme = entity.Theme;
+        }
+    }
+}

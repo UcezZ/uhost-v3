@@ -1,0 +1,74 @@
+version: "3"
+services:
+  pgsql:
+    extends:
+      file: support.yml
+      service: pgsql
+
+  redis:
+    extends:
+      file: support.yml
+      service: redis
+
+  adminer:
+    extends:
+      file: support.yml
+      service: adminer
+
+  redis-commander:
+    extends:
+      file: support.yml
+      service: redis-commander
+
+  mailhog:
+    extends:
+      file: support.yml
+      service: mailhog
+
+  # app builder
+  builder:
+    image: ucezz/dotnet-sdk-gdi:5.0
+    container_name: "${APP_NAME}-builder"
+    volumes:
+      - "../:/src"
+      - "./appsettings.json:/src/Uhost.Core/appsettings.json"
+      # - "./launchSettings.json:/src/Uhost.Core/Properties/launchSettings.json"
+      - "../storage:/storage"
+      - app_volume:/app
+    working_dir: /src
+    depends_on:
+      pgsql:
+        condition: service_started
+      redis:
+        condition: service_started
+    command: >
+      bash -c "
+      rm -rf /app/*;
+      dotnet ef database update --project Uhost.Core --context PostgreSqlDbContext;
+      dotnet publish -r linux-x64 -p:PublishSingleFile=true --self-contained true -p:UseAppHost=true -c Release -o /app;"
+
+  # app runner
+  app:
+    image: ucezz/dotnet-aspnet-gdi:5.0
+    container_name: "${APP_NAME}-app"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "${ASPNETCORE_ENVIRONMENT}"
+    ports:
+      - "${FORWARD_HOST}:${FORWARD_HTTP_PORT}:5000"
+    volumes:
+      - "../storage:/storage"
+      - app_volume:/app
+    working_dir: /app
+    depends_on:
+      pgsql:
+        condition: service_started
+      redis:
+        condition: service_started
+      builder:
+        condition: service_completed_successfully
+    command: ./Uhost.Console loaddefaultdata --file default-data.json
+    entrypoint: ./Uhost.Web
+
+volumes:
+  app_volume:
+  db_volume:

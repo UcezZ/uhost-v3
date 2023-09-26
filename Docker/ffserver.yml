@@ -1,0 +1,7 @@
+version: "3"
+services:
+  ffmpeg:
+    container_name: "${APP_NAME}-ffmpeg"
+    image: ucezz/ffmpeg:6.0
+    volumes:
+      - ../storage:/storage

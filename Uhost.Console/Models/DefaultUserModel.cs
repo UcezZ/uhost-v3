@@ -1,0 +1,51 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+using Uhost.Core;
+using Uhost.Core.Common;
+using Uhost.Core.Models;
+using Entity = Uhost.Core.Data.Entities.User;
+using UserRoleEntity = Uhost.Core.Data.Entities.UserRole;
+
+namespace Uhost.Console.Models
+{
+    public class DefaultUserModel : BaseModel<Entity>
+    {
+        public int Id { get; set; }
+        public string Login { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Description { get; set; }
+        public string Password { get; set; }
+        public IEnumerable<int> RoleIds { get; set; }
+
+        public override Entity FillEntity(Entity entity)
+        {
+            entity.Id = Id;
+            entity.Login = Login;
+
+            if (!string.IsNullOrWhiteSpace(Name))
+            {
+                entity.Name = Name;
+            }
+            if (!string.IsNullOrEmpty(Description))
+            {
+                entity.Desctiption = Description;
+            }
+            if (!string.IsNullOrEmpty(Email))
+            {
+                entity.Email = Email;
+            }
+            if (!string.IsNullOrEmpty(Password))
+            {
+                entity.Password = Hasher.ComputeHash(Password + CoreSettings.PasswordSalt, Hasher.EncryptionMethod.SHA256);
+            }
+
+            entity.UserRoles = RoleIds?
+                .Distinct()
+                .Select(e => new UserRoleEntity { RoleId = e })
+                .ToList();
+
+            return entity;
+        }
+    }
+}

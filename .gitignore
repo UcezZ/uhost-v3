@@ -2,5 +2,7 @@
 */obj
 /.vs
 /storage
-/Uhost.Core/appsettings.json
-launchsettings.json
+appsettings.json
+default-data.json
+.env
+Uhost.Web.xml

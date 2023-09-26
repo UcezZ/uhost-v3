@@ -1,0 +1,1 @@
+@docker build -t ucezz/ffmpeg:5.1.2 "%~dp0"

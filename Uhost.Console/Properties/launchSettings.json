@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Uhost.Console": {
+      "commandName": "Project",
+      "commandLineArgs": "loaddefaultdata --file default-data.json"
+    }
+  }
+}

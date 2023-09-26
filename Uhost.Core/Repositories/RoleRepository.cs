@@ -1,0 +1,73 @@
+﻿using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Uhost.Core.Common;
+using Uhost.Core.Data;
+using Uhost.Core.Extensions;
+using Uhost.Core.Models;
+using Entity = Uhost.Core.Data.Entities.Role;
+using QueryModel = Uhost.Core.Models.Role.RoleQueryModel;
+
+namespace Uhost.Core.Repositories
+{
+    public class RoleRepository : BaseRepository<Entity>
+    {
+        public RoleRepository(PostgreSqlDbContext dbContext) : base(dbContext) { }
+
+        public IQueryable<Entity> PrepareQuery(QueryModel query)
+        {
+            IQueryable<Entity> q = DbSet
+                .Include(e => e.Rights);
+
+            if (query.Id > 0)
+            {
+                q = q.Where(e => e.Id == query.Id);
+            }
+            if (query.Ids != null)
+            {
+                q = q.Where(e => query.Ids.Contains(e.Id));
+            }
+            if (query.UserId > 0)
+            {
+                q = q.Where(e => e.UserRoles.Any(r => r.UserId == query.UserId));
+            }
+            if (query.ExcludedId > 0)
+            {
+                q = q.Where(e => e.Id != query.ExcludedId);
+            }
+            if (!string.IsNullOrEmpty(query.Name))
+            {
+                q = q.Where(e => e.Name == query.Name);
+            }
+            if (!query.IncludeDeleted)
+            {
+                q = q.Where(e => e.DeletedAt == null);
+            }
+
+            q = q.OrderBy(query);
+
+            return q;
+        }
+
+        public IQueryable<TModel> GetAll<TModel>(QueryModel query) where TModel : BaseModel<Entity>, new()
+        {
+            query ??= new QueryModel();
+            var q = PrepareQuery(query);
+
+            return Get<TModel>(q);
+        }
+
+        internal bool CheckIds(IEnumerable<int> ids, out int invalid)
+        {
+            var existing = DbSet
+                   .Where(e => ids.Contains(e.Id))
+                   .Select(e => e.Id)
+                   .ToList();
+
+            invalid = ids.FirstOrDefault(e => !existing.Contains(e));
+
+            return invalid == 0;
+        }
+    }
+}
