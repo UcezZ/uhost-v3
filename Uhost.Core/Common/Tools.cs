@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
@@ -39,19 +38,6 @@ namespace Uhost.Core.Common
                 RightNames = Enum.GetValues<Rights>().ToDictionary(e => e, e => e.ToString());
             }
         }
-
-        /// <summary>
-        /// Полный путь к исполняемому файлу
-        /// </summary>
-        public static string ExecutablePath =>
-            Assembly.GetEntryAssembly().Location;
-
-        /// <summary>
-        /// Полный путь к папке исполняемого файла
-        /// </summary>
-        public static string ExecutableDirectory =>
-            Path.GetDirectoryName(ExecutablePath);
-
 
         /// <summary>
         /// Пишет дамп объекта в файл

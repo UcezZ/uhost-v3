@@ -45,7 +45,8 @@ services:
       bash -c "
       rm -rf /app/*;
       dotnet ef database update --project Uhost.Core --context PostgreSqlDbContext;
-      dotnet publish -r linux-x64 -p:PublishSingleFile=true --self-contained true -p:UseAppHost=true -c Release -o /app;"
+      dotnet publish -r linux-x64 -p:PublishSingleFile=true --self-contained true -p:UseAppHost=true -c Release -o /app;
+      /app/Uhost.Console loaddefaultdata --file default-data.json"
 
   # app runner
   app:
@@ -66,7 +67,6 @@ services:
         condition: service_started
       builder:
         condition: service_completed_successfully
-    command: ./Uhost.Console loaddefaultdata --file default-data.json
     entrypoint: ./Uhost.Web
 
 volumes:
