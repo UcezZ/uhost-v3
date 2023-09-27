@@ -33,17 +33,17 @@ services:
 
   mongodb:
     extends:
-      file: support.yml
+      file: app.yml
       service: mongodb
 
   elasticsearch:
     extends:
-      file: support.yml
+      file: app.yml
       service: elasticsearch
 
   graylog:
     extends:
-      file: support.yml
+      file: app.yml
       service: graylog
 
   app:
@@ -90,8 +90,7 @@ services:
     image: zabbix/zabbix-server-pgsql
     environment:
       TZ: "Europe/Moscow"
-      DB_SERVER_HOST: pgsql
-      DB_SERVER_PORT: 5432
+      DB_SERVER_HOST: "pgsql"
       DB_SERVER_SCHEMA: "${PGSQL_SCHEMA}"
       POSTGRES_USER: "${PGSQL_USERNAME}"
       POSTGRES_PASSWORD: "${PGSQL_PASSWORD}"

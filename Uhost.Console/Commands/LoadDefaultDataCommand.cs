@@ -95,7 +95,7 @@ namespace Uhost.Console.Commands
                     WriteLine();
                 }
 
-                if (data.Roles != null)
+                if (data.Roles != null && data.Roles.Any())
                 {
                     WriteLine("Загрузка ролей");
 
@@ -109,9 +109,9 @@ namespace Uhost.Console.Commands
                     WriteLine();
                 }
 
-                if (data.Users != null)
+                if (data.Users != null && data.Users.Any())
                 {
-                    WriteLine("Загрузка ролей");
+                    WriteLine("Загрузка пользователей");
 
                     foreach (var model in data.Users)
                     {
