@@ -26,6 +26,21 @@ services:
       file: support.yml
       service: mailhog
 
+  mongodb:
+    extends:
+      file: support.yml
+      service: mongodb
+
+  elasticsearch:
+    extends:
+      file: support.yml
+      service: elasticsearch
+
+  graylog:
+    extends:
+      file: support.yml
+      service: graylog
+
   # app builder
   builder:
     image: ucezz/dotnet-sdk-gdi:5.0
@@ -71,4 +86,8 @@ services:
 
 volumes:
   app_volume:
-  db_volume:
+  postgres_volume:
+  graylog_volume:
+  mongo_volume:
+  redis_volume:
+  elasticsearch_volume:

@@ -31,6 +31,21 @@ services:
       file: app.yml
       service: builder
 
+  mongodb:
+    extends:
+      file: support.yml
+      service: mongodb
+
+  elasticsearch:
+    extends:
+      file: support.yml
+      service: elasticsearch
+
+  graylog:
+    extends:
+      file: support.yml
+      service: graylog
+
   app:
     extends:
       file: app.yml
@@ -50,6 +65,17 @@ services:
       - "--web.enable-lifecycle"
     ports:
       - "${FORWARD_HOST}:${FORWARD_PROMETHEUS_PORT}:9090"
+
+  postgres-exporter:
+    container_name: "${APP_NAME}-postgres-exporter"
+    image: wrouesnel/postgres_exporter:latest
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${PGSQL_USERNAME}:${PGSQL_PASSWORD}@pgsql:5432/${PGSQL_DATABASE}?sslmode=disable"
+    ports:
+      - 9187:9187
 
   grafana:
     image: grafana/grafana:9.2.10
@@ -113,60 +139,10 @@ services:
       - zabbix-server
       - pgsql
 
-  mongodb:
-    container_name: "${APP_NAME}-mongo"
-    image: mongo:3
-
-  # Elasticsearch: https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docker.html
-  elasticsearch:
-    container_name: "${APP_NAME}-elasticsearch"
-    image: elasticsearch:5.6.3
-    environment:
-      - http.host=0.0.0.0
-      - transport.host=localhost
-      - network.host=0.0.0.0
-      # Disable X-Pack security: https://www.elastic.co/guide/en/elasticsearch/reference/5.6/security-settings.html#general-security-settings
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    mem_limit: 1g
-
-  graylog:
-    container_name: "${APP_NAME}-graylog"
-    image: graylog/graylog:2.4.0-1
-    environment:
-      # CHANGE ME!
-      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
-      # Password: admin
-      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
-      - GRAYLOG_WEB_ENDPOINT_URI=http://127.0.0.1:9000/api
-    links:
-      - mongodb:mongo
-      - elasticsearch
-    depends_on:
-      - mongodb
-      - elasticsearch
-    ports:
-      # Graylog web interface and REST API
-      - "${FORWARD_HOST}:${FORWARD_GRAYLOG_PORT}:9000"
-      - "5044:5044/tcp" # Beats
-      - "5140:5140/udp" # Syslog
-      - "5140:5140/tcp" # Syslog
-      - "5555:5555/tcp" # RAW TCP
-      - "5555:5555/udp" # RAW TCP
-      - "12201:12201/tcp" # GELF TCP
-      - "12201:12201/udp" # GELF UDP
-      - "13301:13301/tcp" # Forwarder data
-      - "13302:13302/tcp" # Forwarder config
-    volumes:
-      - "graylog_data_volume:/usr/share/graylog/data/data"
-      - "graylog_journal_volume:/usr/share/graylog/data/journal"
-
 volumes:
   app_volume:
-  db_volume:
-  graylog_data_volume:
-  graylog_journal_volume:
+  postgres_volume:
+  graylog_volume:
+  mongo_volume:
+  redis_volume:
+  elasticsearch_volume:

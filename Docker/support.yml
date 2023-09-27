@@ -16,7 +16,7 @@ services:
       - "${FORWARD_HOST}:${FORWARD_PGSQL_PORT}:5432"
     volumes:
       - "./pginit.sh:/docker-entrypoint-initdb.d/init.sh"
-      - db_volume:/var/lib/postgresql/data
+      - postgres_volume:/var/lib/postgresql/data
     healthcheck:
       test:
         [
@@ -38,6 +38,8 @@ services:
     restart: unless-stopped
     ports:
       - "${FORWARD_HOST}:${FORWARD_REDIS_PORT}:6379"
+    volumes:
+      - redis_volume:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       retries: 3
@@ -79,5 +81,66 @@ services:
       - "${FORWARD_HOST}:${FORWARD_MAILHOG_PORT}:1025"
       - "${FORWARD_HOST}:${FORWARD_MAILHOG_DASHBOARD_PORT}:8025"
 
+  mongodb:
+    container_name: "${APP_NAME}-mongo"
+    image: mongo:3
+    volumes:
+      - mongo_db_volume:/data/db
+      - mongo_cfg_volume:/data/configdb
+
+  # Elasticsearch: https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docker.html
+  elasticsearch:
+    container_name: "${APP_NAME}-elasticsearch"
+    image: elasticsearch:5.6.3
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=localhost
+      - network.host=0.0.0.0
+      # Disable X-Pack security: https://www.elastic.co/guide/en/elasticsearch/reference/5.6/security-settings.html#general-security-settings
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch_volume:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    mem_limit: 1g
+
+  graylog:
+    container_name: "${APP_NAME}-graylog"
+    image: graylog/graylog:2.4.0-1
+    environment:
+      # CHANGE ME!
+      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
+      # Password: admin
+      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+      - GRAYLOG_WEB_ENDPOINT_URI=http://${FORWARD_HOST}:${FORWARD_GRAYLOG_PORT}/api
+    links:
+      - mongodb:mongo
+      - elasticsearch
+    depends_on:
+      - mongodb
+      - elasticsearch
+    ports:
+      # Graylog web interface and REST API
+      - "${FORWARD_HOST}:${FORWARD_GRAYLOG_PORT}:9000"
+      - "5044:5044/tcp" # Beats
+      - "5140:5140/udp" # Syslog
+      - "5140:5140/tcp" # Syslog
+      - "5555:5555/tcp" # RAW TCP
+      - "5555:5555/udp" # RAW TCP
+      - "12201:12201/tcp" # GELF TCP
+      - "12201:12201/udp" # GELF UDP
+      - "13301:13301/tcp" # Forwarder data
+      - "13302:13302/tcp" # Forwarder config
+    volumes:
+      - "graylog_volume:/usr/share/graylog/data"
+
 volumes:
-  db_volume:
+  postgres_volume:
+  graylog_volume:
+  mongo_db_volume:
+  mongo_cfg_volume:
+  redis_volume:
+  elasticsearch_volume:
