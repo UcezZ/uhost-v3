@@ -143,6 +143,7 @@ volumes:
   app_volume:
   postgres_volume:
   graylog_volume:
-  mongo_volume:
+  mongo_db_volume:
+  mongo_cfg_volume:
   redis_volume:
   elasticsearch_volume:
