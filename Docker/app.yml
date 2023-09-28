@@ -46,10 +46,25 @@ services:
       file: support.yml
       service: memcached
 
-  sentry:
+  sentry-migrations:
     extends:
       file: support.yml
-      service: sentry
+      service: sentry-migrations
+
+  sentry-cron:
+    extends:
+      file: support.yml
+      service: sentry-cron
+
+  sentry-worker:
+    extends:
+      file: support.yml
+      service: sentry-worker
+
+  sentry-web:
+    extends:
+      file: support.yml
+      service: sentry-web
 
   # app builder
   builder:

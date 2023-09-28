@@ -166,7 +166,9 @@ services:
       SENTRY_REDIS_HOST: "redis"
       SENTRY_REDIS_PORT: 6379
       SENTRY_REDIS_DB: 0
-    entrypoint: sentry upgrade --noinput
+    entrypoint: >
+      sentry upgrade --noinput
+      sentry createuser --email "${SENTRY_USER_EMAIL}" --password "${SENTRY_USER_PASSWORD}" --superuser --no-input
 
   sentry-cron:
     container_name: "${APP_NAME}-sentry-cron"

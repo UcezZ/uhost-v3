@@ -46,6 +46,31 @@ services:
       file: app.yml
       service: graylog
 
+  memcached:
+    extends:
+      file: app.yml
+      service: memcached
+
+  sentry-migrations:
+    extends:
+      file: app.yml
+      service: sentry-migrations
+
+  sentry-cron:
+    extends:
+      file: app.yml
+      service: sentry-cron
+
+  sentry-worker:
+    extends:
+      file: app.yml
+      service: sentry-worker
+
+  sentry-web:
+    extends:
+      file: app.yml
+      service: sentry-web
+
   app:
     extends:
       file: app.yml
