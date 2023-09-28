@@ -52,6 +52,8 @@ namespace Uhost.Web.Controllers
                     errorObj["innerStackTrace"] = e.StackTrace;
                 }
 
+
+
                 return ResponseHelper.Error(errorObj, code);
             }
 

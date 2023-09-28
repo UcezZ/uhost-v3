@@ -142,6 +142,8 @@ namespace Uhost.Web
                     IssuerSigningKey = WebSettings.Jwt.SecurityKey
                 };
             });
+
+            services.AddSentry();
         }
 
         /// <summary>
@@ -151,9 +153,13 @@ namespace Uhost.Web
         {
             app.UseExceptionHandler("/error");
 
+            app.UseFileServer();
+            app.UseRouting();
+
+            app.UseSentryTracing();
+
             if (env.IsDevelopment())
             {
-                app.UseSentryTracing();
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
@@ -161,9 +167,6 @@ namespace Uhost.Web
                     options.RoutePrefix = "swagger";
                 });
             }
-
-            app.UseFileServer();
-            app.UseRouting();
 
             app.UseHangfireDashboard("/hangfire", WebSettings.HangfireDashboardOptions);
             app.UseAuthentication();
