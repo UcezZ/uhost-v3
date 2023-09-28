@@ -82,8 +82,18 @@ services:
     container_name: "${APP_NAME}-grafana"
     depends_on:
       - pgsql
+      - postgres-exporter
+    links:
+      - pgsql
+      - postgres-exporter
     ports:
       - "${FORWARD_HOST}:${FORWARD_GRAFANA_PORT}:3000"
+
+  zabbix-java:
+    container_name: zabbix-java
+    image: zabbix/zabbix-java-gateway:alpine-6.0-latest
+    ports:
+      - 10052:10052
 
   zabbix-server:
     container_name: "${APP_NAME}-zabbix-server"
@@ -95,9 +105,10 @@ services:
       POSTGRES_USER: "${PGSQL_USERNAME}"
       POSTGRES_PASSWORD: "${PGSQL_PASSWORD}"
       POSTGRES_DB: "${PGSQL_DATABASE}"
-      #ZBX_JAVAGATEWAY : zabbix-java
+      ZBX_JAVAGATEWAY: zabbix-java
     depends_on:
       - pgsql
+      - zabbix-java
 
   zabbix-web:
     container_name: "${APP_NAME}-zabbix-web"
@@ -114,6 +125,8 @@ services:
       ZBX_SERVER_HOST: zabbix-server
     ports:
       - "${FORWARD_HOST}:${FORWARD_ZABBIX_PORT}:8080"
+    links:
+      - zabbix-server:zabbix-server
     depends_on:
       - pgsql
       - zabbix-server
@@ -133,7 +146,8 @@ services:
       POSTGRES_DB: "${PGSQL_DATABASE}"
       ZBX_HOSTNAME: zabbix-server
     links:
-      - "zabbix-server:zabbix-server"
+      - zabbix-server:zabbix-server
+      - pgsql:pgsql
     depends_on:
       - zabbix-server
       - pgsql
