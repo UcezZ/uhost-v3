@@ -19,6 +19,9 @@ namespace Uhost.Web
             _app = builder.Build();
         }
 
-        static void Main(string[] args) => _app.Run();
+        static void Main(string[] args)
+        {
+            _app.Run();
+        }
     }
 }

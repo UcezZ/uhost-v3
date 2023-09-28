@@ -41,6 +41,16 @@ services:
       file: support.yml
       service: graylog
 
+  memcached:
+    extends:
+      file: support.yml
+      service: memcached
+
+  sentry:
+    extends:
+      file: support.yml
+      service: sentry
+
   # app builder
   builder:
     image: ucezz/dotnet-sdk-gdi:5.0
@@ -92,3 +102,4 @@ volumes:
   mongo_cfg_volume:
   redis_volume:
   elasticsearch_volume:
+  sentry_volume:

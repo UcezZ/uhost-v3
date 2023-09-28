@@ -89,69 +89,6 @@ services:
     ports:
       - "${FORWARD_HOST}:${FORWARD_GRAFANA_PORT}:3000"
 
-  zabbix-java:
-    container_name: zabbix-java
-    image: zabbix/zabbix-java-gateway:alpine-6.0-latest
-    ports:
-      - 10052:10052
-
-  zabbix-server:
-    container_name: "${APP_NAME}-zabbix-server"
-    image: zabbix/zabbix-server-pgsql
-    environment:
-      TZ: "Europe/Moscow"
-      DB_SERVER_HOST: "pgsql"
-      DB_SERVER_SCHEMA: "${PGSQL_SCHEMA}"
-      POSTGRES_USER: "${PGSQL_USERNAME}"
-      POSTGRES_PASSWORD: "${PGSQL_PASSWORD}"
-      POSTGRES_DB: "${PGSQL_DATABASE}"
-      ZBX_JAVAGATEWAY: zabbix-java
-    depends_on:
-      - pgsql
-      - zabbix-java
-
-  zabbix-web:
-    container_name: "${APP_NAME}-zabbix-web"
-    image: zabbix/zabbix-web-apache-pgsql
-    environment:
-      TZ: "Europe/Moscow"
-      DB_SERVER_HOST: pgsql
-      DB_SERVER_PORT: 5432
-      DB_SERVER_SCHEMA: "${PGSQL_SCHEMA}"
-      POSTGRES_USER: "${PGSQL_USERNAME}"
-      POSTGRES_PASSWORD: "${PGSQL_PASSWORD}"
-      POSTGRES_DB: "${PGSQL_DATABASE}"
-      ZBX_HOSTNAME: zabbix-server
-      ZBX_SERVER_HOST: zabbix-server
-    ports:
-      - "${FORWARD_HOST}:${FORWARD_ZABBIX_PORT}:8080"
-    links:
-      - zabbix-server:zabbix-server
-    depends_on:
-      - pgsql
-      - zabbix-server
-
-  zabbix-agent:
-    container_name: "${APP_NAME}-zabbix-agent"
-    image: zabbix/zabbix-agent2
-    privileged: true
-    environment:
-      TZ: "Europe/Moscow"
-      ZBX_SERVER_HOST: zabbix-server
-      DB_SERVER_HOST: pgsql
-      DB_SERVER_PORT: 5432
-      DB_SERVER_SCHEMA: "${PGSQL_SCHEMA}"
-      POSTGRES_USER: "${PGSQL_USERNAME}"
-      POSTGRES_PASSWORD: "${PGSQL_PASSWORD}"
-      POSTGRES_DB: "${PGSQL_DATABASE}"
-      ZBX_HOSTNAME: zabbix-server
-    links:
-      - zabbix-server:zabbix-server
-      - pgsql:pgsql
-    depends_on:
-      - zabbix-server
-      - pgsql
-
 volumes:
   app_volume:
   postgres_volume:
@@ -160,3 +97,4 @@ volumes:
   mongo_cfg_volume:
   redis_volume:
   elasticsearch_volume:
+  sentry_volume:

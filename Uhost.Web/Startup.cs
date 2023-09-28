@@ -153,6 +153,7 @@ namespace Uhost.Web
 
             if (env.IsDevelopment())
             {
+                app.UseSentryTracing();
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
