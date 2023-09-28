@@ -30,6 +30,10 @@ namespace Uhost.Core.Repositories
             {
                 q = q.Where(e => e.DeletedAt == null);
             }
+            if (query.ExcludedId > 0)
+            {
+                q = q.Where(e => e.Id != query.ExcludedId);
+            }
 
             q = q.OrderBy(query);
 

@@ -120,7 +120,7 @@ namespace Uhost.Web.Controllers
             }
             if (_service.Exists(model.Name, idParsed))
             {
-                return ResponseHelper.ErrorMessage(nameof(model.Name), ApiStrings.Role_Error_AlreadyExists);
+                return ResponseHelper.ErrorMessage(nameof(model.Name), ApiStrings.User_Error_AlreadyExists);
             }
 
             _service.Update(idParsed, model);
