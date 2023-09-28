@@ -143,43 +143,46 @@ services:
     container_name: "${APP_NAME}-memcached"
     image: memcached:1.6.21-alpine
 
-  sentry-migrations:
-    container_name: "${APP_NAME}-sentry-migrations"
-    image: sentry:latest
-    depends_on:
-      - redis
-      - pgsql
-      - memcached
-    links:
-      - redis
-      - pgsql
-      - memcached
-    volumes:
-      - sentry_volume:/var/lib/sentry/files
-    environment:
-      SENTRY_SECRET_KEY: "${SENTRY_SECRET}"
-      SENTRY_POSTGRES_HOST: "pgsql"
-      SENTRY_POSTGRES_PORT: 5432
-      SENTRY_DB_NAME: "${PGSQL_DATABASE_SENTRY}"
-      SENTRY_DB_USER: "${PGSQL_USERNAME}"
-      SENTRY_DB_PASSWORD: "${PGSQL_PASSWORD}"
-      SENTRY_REDIS_HOST: "redis"
-      SENTRY_REDIS_PORT: 6379
-      SENTRY_REDIS_DB: 0
-    entrypoint: sentry upgrade < /dev/null
+  # sentry-migrations:
+  #   container_name: "${APP_NAME}-sentry-migrations"
+  #   image: sentry:latest
+  #   depends_on:
+  #     - redis
+  #     - pgsql
+  #     - memcached
+  #   links:
+  #     - redis
+  #     - pgsql
+  #     - memcached
+  #   volumes:
+  #     - sentry_volume:/var/lib/sentry/files
+  #   environment:
+  #     SENTRY_SECRET_KEY: "${SENTRY_SECRET}"
+  #     SENTRY_POSTGRES_HOST: "pgsql"
+  #     SENTRY_POSTGRES_PORT: 5432
+  #     SENTRY_DB_NAME: "${PGSQL_DATABASE_SENTRY}"
+  #     SENTRY_DB_USER: "${PGSQL_USERNAME}"
+  #     SENTRY_DB_PASSWORD: "${PGSQL_PASSWORD}"
+  #     SENTRY_REDIS_HOST: "redis"
+  #     SENTRY_REDIS_PORT: 6379
+  #     SENTRY_REDIS_DB: 0
+  #   entrypoint: sentry upgrade < /dev/null
 
   sentry-cron:
     container_name: "${APP_NAME}-sentry-cron"
     image: sentry:latest
     depends_on:
-      pgsql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      memcached:
-        condition: service_healthy
-      sentry-migrations:
-        condition: service_completed_successfully
+      - redis
+      - pgsql
+      - memcached
+      # pgsql:
+      #   condition: service_healthy
+      # redis:
+      #   condition: service_healthy
+      # memcached:
+      #   condition: service_healthy
+      # sentry-migrations:
+      #   condition: service_completed_successfully
     links:
       - redis
       - pgsql
@@ -202,14 +205,17 @@ services:
     container_name: "${APP_NAME}-sentry-worker"
     image: sentry:latest
     depends_on:
-      pgsql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      memcached:
-        condition: service_healthy
-      sentry-migrations:
-        condition: service_completed_successfully
+      - redis
+      - pgsql
+      - memcached
+      # pgsql:
+      #   condition: service_healthy
+      # redis:
+      #   condition: service_healthy
+      # memcached:
+      #   condition: service_healthy
+      # sentry-migrations:
+      #   condition: service_completed_successfully
     links:
       - redis
       - pgsql
@@ -232,14 +238,23 @@ services:
     container_name: "${APP_NAME}-sentry-web"
     image: sentry:latest
     depends_on:
-      pgsql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      memcached:
-        condition: service_healthy
-      sentry-migrations:
-        condition: service_completed_successfully
+      - redis
+      - pgsql
+      - memcached
+      - sentry-worker
+      - sentry-migrations
+      # pgsql:
+      #   condition: service_healthy
+      # redis:
+      #   condition: service_healthy
+      # memcached:
+      #   condition: service_healthy
+      # sentry-cron:
+      #   condition: service_healthy
+      # sentry-worker:
+      #   condition: service_healthy
+      # sentry-migrations:
+      #   condition: service_completed_successfully
     links:
       - redis
       - pgsql
