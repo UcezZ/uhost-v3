@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Uhost.Core;
 using Uhost.Core.Common;
 using Uhost.Web.Attributes;
+using Uhost.Web.Common;
 using Uhost.Web.Properties;
 
 namespace Uhost.Web.Middleware
@@ -49,7 +49,7 @@ end";
         public ThrottleMiddleware(RequestDelegate next, IConnectionMultiplexer redis)
         {
             _next = next;
-            _redis = redis.GetDatabase(CoreSettings.RedisDatabase);
+            _redis = redis.GetDatabase();
         }
 
         public async Task Invoke(HttpContext context)

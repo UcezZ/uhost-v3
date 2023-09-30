@@ -38,6 +38,10 @@ namespace Uhost.Core.Repositories
             {
                 q = q.Where(e => e.Id != query.ExcludedId);
             }
+            if (!string.IsNullOrEmpty(query.LoginOrEmail))
+            {
+                q = q.Where(e => e.Login == query.LoginOrEmail || e.Email == query.LoginOrEmail);
+            }
 
             q = q.OrderBy(query);
 
@@ -50,6 +54,11 @@ namespace Uhost.Core.Repositories
             var q = PrepareQuery(query);
 
             return Get<TModel>(q);
+        }
+
+        internal int UpdateLastVisitAt(int id)
+        {
+            return Perform(e => e.LastVisitAt = DateTime.Now, e => e.Id == id);
         }
     }
 }

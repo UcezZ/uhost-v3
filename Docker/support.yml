@@ -10,6 +10,7 @@ services:
       PGPASSWORD: "${PGSQL_PASSWORD}"
       POSTGRES_DB: "${PGSQL_DATABASE}"
       POSTGRES_DB_SENTRY: "${PGSQL_DATABASE_SENTRY}"
+      POSTGRES_DB_LOGS: "${PGSQL_DATABASE_LOGS}"
       POSTGRES_USER: "${PGSQL_USERNAME}"
       POSTGRES_PASSWORD: "${PGSQL_PASSWORD}"
       POSTGRES_DB_SCHEMA: "${PGSQL_SCHEMA}"
@@ -90,35 +91,43 @@ services:
       - mongo_db_volume:/data/db
       - mongo_cfg_volume:/data/configdb
 
-  # Elasticsearch: https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docker.html
   elasticsearch:
     container_name: "${APP_NAME}-elasticsearch"
     image: elasticsearch:5.6.3
-    # command: elasticsearch -Des.cluster.name='graylog'
+    restart: always
     environment:
-      # - http.host=0.0.0.0
-      # - transport.host=localhost
-      # - network.host=0.0.0.0
-      # Disable X-Pack security: https://www.elastic.co/guide/en/elasticsearch/reference/5.6/security-settings.html#general-security-settings
-      - xpack.security.enabled=false
+      - http.host=0.0.0.0
+      - transport.host=localhost
+      - network.host=0.0.0.0
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    volumes:
-      - elasticsearch_volume:/usr/share/elasticsearch/data
+      - discovery.type=single-node
+      - xpack.security.enabled=false
     ulimits:
       memlock:
         soft: -1
         hard: -1
-    mem_limit: 1g
+    volumes:
+      - elasticsearch_volume:/usr/share/elasticsearch/data
 
   graylog:
     container_name: "${APP_NAME}-graylog"
     image: graylog/graylog:2.4.0-1
+    restart: always
     environment:
       # CHANGE ME!
       - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
       # Password: admin
       - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
       - GRAYLOG_WEB_ENDPOINT_URI=http://${FORWARD_HOST}:${FORWARD_GRAYLOG_PORT}/api
+      # - GRAYLOG_TRANSPORT_EMAIL_ENABLED=true
+      # - GRAYLOG_TRANSPORT_EMAIL_HOSTNAME=smtp.gmail.com
+      # - GRAYLOG_TRANSPORT_EMAIL_PORT=587
+      # - GRAYLOG_TRANSPORT_EMAIL_USE_AUTH=true
+      # - GRAYLOG_TRANSPORT_EMAIL_USE_TLS=true
+      # - GRAYLOG_TRANSPORT_EMAIL_AUTH_USERNAME=noreply@example.com
+      # - GRAYLOG_TRANSPORT_EMAIL_AUTH_PASSWORD=password
+      # - GRAYLOG_TRANSPORT_EMAIL_SUBJECT_PREFIX=[graylog]
+      # - GRAYLOG_TRANSPORT_EMAIL_FROM_EMAIL=noreply@example.com
     links:
       - mongodb:mongo
       - elasticsearch
@@ -126,17 +135,18 @@ services:
       - mongodb
       - elasticsearch
     ports:
-      # Graylog web interface and REST API
-      - "${FORWARD_HOST}:${FORWARD_GRAYLOG_PORT}:9000"
-      - "53:53"
-      - "5044:5044" # Beats
-      - "5140:5140" # Syslog
-      - "5555:5555" # RAW
-      - "12201:12201" # GELF TCP
-      - "13301:13301" # Forwarder data
-      - "13302:13302" # Forwarder config
+      # HTTP
+      - ${FORWARD_GRAYLOG_PORT}:9000
+      # Syslog TCP
+      - 1514:1514
+      # Syslog UDP
+      - 1514:1514/udp
+      # GELF TCP
+      - 12201:12201
+      # GELF UDP
+      - 12201:12201/udp
     volumes:
-      - "graylog_volume:/usr/share/graylog/data"
+      - "gaylog_volume:/usr/share/graylog/data"
 
   memcached:
     container_name: "${APP_NAME}-memcached"
@@ -269,7 +279,7 @@ services:
 
 volumes:
   postgres_volume:
-  graylog_volume:
+  gaylog_volume:
   mongo_db_volume:
   mongo_cfg_volume:
   redis_volume:

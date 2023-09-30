@@ -1,9 +1,9 @@
 {
     "yaml.schemas": {
         "https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json": [
-            "file:///x%3A/Common/Development/Uhost/Docker/app.yml",
-            "file:///x%3A/Common/Development/Uhost/Docker/support.yml",
-            "file:///x%3A/Common/Development/Uhost/Docker/lab4.yml"
+            "Docker/app.yml",
+            "Docker/support.yml",
+            "Docker/lab4.yml"
         ]
     }
 }

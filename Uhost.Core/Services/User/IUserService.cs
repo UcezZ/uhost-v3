@@ -9,6 +9,7 @@ namespace Uhost.Core.Services.User
     {
         Entity Add(UserCreateModel model);
         Entity Add(UserRegisterModel model);
+        Entity Auth(UserLoginQueryModel query);
         bool CheckRoleIds(IEnumerable<int> ids, out int invalid);
         void Delete(int id);
         bool Exists(string login, int excludedId = 0);
@@ -18,5 +19,6 @@ namespace Uhost.Core.Services.User
         void Update(int id, UserPasswordUpdateModel model);
         void Update(int id, UserCreateModel model);
         void Update(int id, UserBaseModel model);
+        int UpdateLastVisitAt(int id);
     }
 }

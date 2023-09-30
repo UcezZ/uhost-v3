@@ -56,6 +56,12 @@ namespace Uhost.Core.Data
                         e.RoleId
                     }));
 
+            builder.Entity<User>()
+                .HasOne(e => e.BlockedByUser)
+                .WithMany(e => e.BlockedUsers)
+                .HasForeignKey(e => e.BlockedByUserId)
+                .HasPrincipalKey(e => e.Id);
+
             // роль
             builder.Entity<Role>()
                 .HasMany(e => e.Rights)

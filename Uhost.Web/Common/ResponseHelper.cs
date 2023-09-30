@@ -6,7 +6,7 @@ using Uhost.Core.Extensions;
 using Uhost.Web.Properties;
 using static Uhost.Core.Data.Entities.Right;
 
-namespace Uhost.Core.Common
+namespace Uhost.Web.Common
 {
 
     // Класс содержит ф-ии которые помогают софрмировать ответ в соответсвии с принятым стандартом кодирования

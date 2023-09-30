@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Uhost.Core.Common;
 using Uhost.Core.Data;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.Role;
@@ -106,6 +107,22 @@ namespace Uhost.Core.Services.User
         public bool CheckRoleIds(IEnumerable<int> ids, out int invalid)
         {
             return _roleRepo.CheckIds(ids, out invalid);
+        }
+
+        public Entity Auth(UserLoginQueryModel query)
+        {
+            var entities = _repo
+                .PrepareQuery(new QueryModel { LoginOrEmail = query.Login })
+                .ToList();
+
+            var password = Hasher.ComputeHash(query.Password + CoreSettings.PasswordSalt, Hasher.EncryptionMethod.SHA256);
+
+            return entities.FirstOrDefault(e => e.Password == password);
+        }
+
+        public int UpdateLastVisitAt(int id)
+        {
+            return _repo.UpdateLastVisitAt(id);
         }
     }
 }

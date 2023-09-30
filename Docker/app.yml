@@ -71,11 +71,9 @@ services:
     image: ucezz/dotnet-sdk-gdi:5.0
     container_name: "${APP_NAME}-builder"
     volumes:
-      - "../:/src"
-      - "./appsettings.json:/src/Uhost.Core/appsettings.json"
-      - "../storage:/storage"
+      - ../:/src:ro
+      - ../storage:/storage
       - app_volume:/app
-    working_dir: /src
     depends_on:
       pgsql:
         condition: service_healthy
@@ -86,18 +84,24 @@ services:
     command: >
       bash -c "
       rm -rf /app/*;
+      mkdir -p /app/src;
+      rsync -vhra /src/ /app/src/ --include='**.gitignore' --exclude='/.git' --exclude='/Docker' --exclude='/.vscode' --filter=':- .gitignore' --delete-after;
+      cp -pf /src/Uhost.Core/appsettings.docker.json /app/src/Uhost.Core/appsettings.json || exit 1;
+      cp -pf /src/Uhost.Console/default-data.json /app/src/Uhost.Console/default-data.json || exit 1;
+      cd /app/src;
       dotnet ef database update --project Uhost.Core --context PostgreSqlDbContext;
+      dotnet ef database update --project Uhost.Core --context PostgreSqlLogDbContext;
       dotnet publish -r linux-x64 -p:PublishSingleFile=true --self-contained true -p:UseAppHost=true -c Release -o /app;
+      rm -rf /app/src;
       /app/Uhost.Console loaddefaultdata --file /app/default-data.json"
-    # logging:
-    #   driver: gelf
-    #   options:
-    #     gelf-address: udp://graylog:12201
-    # driver: "syslog"
-    # options:
-    #   syslog-address: "udp://graylog:5140"
-    #   syslog-format: "rfc5424"
-    #   tag: "builder"
+    logging:
+      # driver: gelf
+      # options:
+      #   gelf-address: udp://localhost:12201
+      driver: syslog
+      options:
+        syslog-address: udp://localhost:1514
+        tag: builder
 
   # app runner
   app:
@@ -111,6 +115,7 @@ services:
       - "../storage:/storage"
       - app_volume:/app
     working_dir: /app
+    restart: unless-stopped
     depends_on:
       pgsql:
         condition: service_healthy
@@ -121,20 +126,19 @@ services:
       builder:
         condition: service_completed_successfully
     entrypoint: ./Uhost.Web
-    # logging:
-    #   driver: gelf
-    #   options:
-    #     gelf-address: udp://graylog:12201
-    # driver: "syslog"
-    # options:
-    #   syslog-address: "udp://graylog:5140"
-    #   syslog-format: "rfc5424"
-    #   tag: "api"
+    logging:
+      # driver: gelf
+      # options:
+      #   gelf-address: udp://localhost:12201
+      driver: syslog
+      options:
+        syslog-address: udp://localhost:1514
+        tag: api
 
 volumes:
   app_volume:
   postgres_volume:
-  graylog_volume:
+  gaylog_volume:
   mongo_db_volume:
   mongo_cfg_volume:
   redis_volume:

@@ -3,10 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
-using Uhost.Core.Extensions;
 using Uhost.Core.Properties;
 using static System.Console;
 using static Uhost.Core.Common.Tools;
@@ -53,7 +50,7 @@ namespace Uhost.Core.Extensions
                     data,
                     SerializerSettings
                         .Having(e => e.Formatting = formatting)
-                        .Having(e => e.DateFormatString = DateTimeExtensions.DateTimeToApiFmt)
+                        .Having(e => e.DateFormatString = DateTimeExtensions.DateTimeApiFmt)
                 );
         }
 
@@ -321,23 +318,6 @@ namespace Uhost.Core.Extensions
             }
 
             return $"{sizeStr} {unit}";
-        }
-
-        /// <summary>
-        /// Получить ИД пользователя из <see cref="ClaimsPrincipal"/>
-        /// </summary>
-        public static bool TryGetUserId(this ClaimsPrincipal claims, out int userId)
-        {
-            var c = claims?.Claims?.FirstOrDefault(c => c.Type == "Id");
-
-            if (c == null || !c.Value.TryParsePositiveInt(out userId))
-            {
-                userId = default;
-
-                return false;
-            }
-
-            return true;
         }
     }
 }

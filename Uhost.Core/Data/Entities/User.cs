@@ -42,6 +42,15 @@ namespace Uhost.Core.Data.Entities
         [Column(TypeName = "timestamp")]
         public DateTime? LastVisitAt { get; set; }
 
+        [Column(TypeName = "timestamp")]
+        public DateTime? BlockedAt { get; set; }
+
+        public int? BlockedByUserId { get; set; }
+
+        public string BlockReason { get; set; }
+
+        public User BlockedByUser { get; set; }
+        public ICollection<User> BlockedUsers { get; set; }
         public ICollection<Role> Roles { get; set; }
         public ICollection<UserRole> UserRoles { get; set; }
         public ICollection<Video> Videos { get; set; }

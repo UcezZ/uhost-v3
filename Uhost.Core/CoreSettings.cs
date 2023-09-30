@@ -12,11 +12,9 @@ namespace Uhost.Core
     {
         private const string _jsonName = "appsettings.json";
 
-        public static string RedisConnectionString { get; private set; }
-
-        public static int RedisDatabase { get; private set; }
-
         public static string SqlConnectionString { get; private set; }
+
+        public static string SqlLogConnectionString { get; private set; }
 
         public static int SqlCommandTimeoutSeconds { get; private set; }
 

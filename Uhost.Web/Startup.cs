@@ -23,10 +23,12 @@ using Uhost.Core.Data;
 using Uhost.Core.Middleware;
 using Uhost.Core.Providers;
 using Uhost.Core.Services.HangfireScheduler;
+using Uhost.Core.Services.Log;
 using Uhost.Core.Services.Role;
 using Uhost.Core.Services.User;
 using Uhost.Web.Filters;
 using Uhost.Web.Middleware;
+using Uhost.Web.Services.Auth;
 
 namespace Uhost.Web
 {
@@ -54,12 +56,13 @@ namespace Uhost.Web
 
             services.AddHangfire(e => e.UsePostgreSqlStorage(CoreSettings.SqlConnectionString));
 
-            services
-                .AddEntityFrameworkNpgsql()
-                .AddDbContext<PostgreSqlDbContext>(e => e.UseNpgsql(CoreSettings.SqlConnectionString));
+            services.AddDbContext<PostgreSqlDbContext>(e => e.UseNpgsql(CoreSettings.SqlConnectionString));
+            services.AddDbContext<PostgreSqlLogDbContext>(e => e.UseNpgsql(CoreSettings.SqlLogConnectionString));
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<ILogService, LogService>();
 
             services.AddSingleton<IHangfireSchedulerService, HangfireSchedulerService>();
 
@@ -77,7 +80,6 @@ namespace Uhost.Web
             // Redis
             ConnectionMultiplexer.SetFeatureFlag("preventthreadtheft", true);
             services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(CoreSettings.RedisConfig));
-            services.AddScoped<IDatabase>(e => e.GetRequiredService<IConnectionMultiplexer>().GetDatabase(CoreSettings.RedisConfig.DefaultDatabase));
 
             if (LocalEnvironment.IsDev)
             {
@@ -133,7 +135,7 @@ namespace Uhost.Web
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
                 options.SecurityTokenValidators.Clear();
-                options.SecurityTokenValidators.Add(new RedisTokenHandler(ConnectionMultiplexer.Connect(CoreSettings.RedisConnectionString)));
+                options.SecurityTokenValidators.Add(new RedisTokenHandler(ConnectionMultiplexer.Connect(CoreSettings.RedisConfig)));
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,

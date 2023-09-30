@@ -3,6 +3,7 @@
 /.vs
 /storage
 appsettings.json
+appsettings.docker.json
 default-data.json
 .env
 Uhost.Web.xml

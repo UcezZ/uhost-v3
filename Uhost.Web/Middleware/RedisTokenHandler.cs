@@ -2,16 +2,19 @@
 using StackExchange.Redis;
 using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Xml;
 using Uhost.Core.Extensions;
 
-namespace Uhost.Core.Middleware
+namespace Uhost.Web.Middleware
 {
     public class RedisTokenHandler : SecurityTokenHandler
     {
-        private const string _keyPrefix = "authtoken_";
+        private const string _keyPrefix = "authtoken";
+        private static readonly ClaimsPrincipal _emptyClaims = new ClaimsPrincipal();
+
+        public static string RedisKey<TId, TJti>(TId id, TJti jti) =>
+            $"{_keyPrefix}_{id}_{jti}";
 
         #region Wrap override
         public override bool CanValidateToken => _tokenValidator.CanValidateToken;
@@ -37,13 +40,18 @@ namespace Uhost.Core.Middleware
             try
             {
                 var claim = _tokenValidator.ValidateToken(securityToken, validationParameters, out validatedToken);
-                var jwtId = claim.FindFirst(c => c.Type == "Id")?.Value;
-                var jti = claim.FindFirst(c => c.Type == "jti")?.Value ?? string.Empty;
-                string redisId = _connectionMultiplexer.GetDatabase(CoreSettings.RedisDatabase).StringGet(_keyPrefix + jti);
 
-                if (redisId == null || jwtId == null || jwtId != redisId || !claim.TryGetUserId(out var userId))
+                if (!claim.TryGetUserId(out var userId) || userId <= 0 || !claim.TryGetJti(out var jti))
                 {
-                    return new ClaimsPrincipal();
+                    return _emptyClaims;
+                }
+
+                var key = RedisKey(userId, jti);
+                var exists = _connectionMultiplexer.GetDatabase().KeyExists(key);
+
+                if (!exists)
+                {
+                    return _emptyClaims;
                 }
 
                 return claim;
@@ -59,10 +67,15 @@ namespace Uhost.Core.Middleware
         {
             var stringToken = _tokenValidator.WriteToken(token);
             if (token is JwtSecurityToken jwtToken &&
-                jwtToken.Claims.FirstOrDefault(e => e.Type == "Id")?.Value is string id &&
-                jwtToken.Claims.FirstOrDefault(e => e.Type == "jti")?.Value is string jti)
+                jwtToken.Claims.TryGetUserId(out var id) &&
+                jwtToken.Claims.TryGetJti(out var jti))
             {
-                _connectionMultiplexer.GetDatabase(CoreSettings.RedisDatabase).StringSet(_keyPrefix + jti, id, token.ValidTo - token.ValidFrom);
+                var key = RedisKey(id, jti);
+
+                _connectionMultiplexer
+                    .GetDatabase()
+                    .StringSet(key, string.Empty, token.ValidTo - token.ValidFrom);
+
                 return stringToken;
             }
             else
@@ -71,9 +84,12 @@ namespace Uhost.Core.Middleware
             }
         }
 
-        public int InvalidateToken(string jti)
+        public int InvalidateToken(int userId, string jti)
         {
-            var result = _connectionMultiplexer.GetDatabase(CoreSettings.RedisDatabase).StringGetDelete(_keyPrefix + jti);
+            var key = RedisKey(userId, jti);
+            var result = _connectionMultiplexer
+                .GetDatabase()
+                .StringGetDelete(key);
 
             return int.TryParse(result, out int num) ? num : 0;
         }

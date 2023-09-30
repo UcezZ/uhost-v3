@@ -5,25 +5,19 @@ using System.Reflection;
 using Uhost.Core.Data;
 using Uhost.Core.Models;
 
-namespace Uhost.Core.Common
+namespace Uhost.Core.Extensions
 {
     // Помощь в сортировке запросов
-    public static class SortHelper
+    public static class SortingExtensions
     {
         // Проверим, что параметр соответвует сортировке в прямом порядке
-        public static bool IsAsc(string param)
+        private static bool IsAsc(string param)
         {
             return string.IsNullOrEmpty(param) || param.Trim().ToLower() == "asc";
         }
 
-        // Нисходящий порядок сортировки
-        public static bool IsDesc(string param)
-        {
-            return !IsAsc(param);
-        }
-
         // Добавляем в строку ключевое слово направление сортировки
-        public static string SetDirection(string direct, string query = null)
+        private static string SetDirection(string direct, string query = null)
         {
             if (!string.IsNullOrEmpty(query))
             {
@@ -31,6 +25,7 @@ namespace Uhost.Core.Common
             }
             return "";
         }
+
         public static IQueryable<TEntity> OrderBy<TEntity>(this IQueryable<TEntity> source, BaseQueryModel query) where TEntity : BaseEntity =>
             source.OrderBy(SetDirection(query.SortDirection, query.SortBy));
 
@@ -66,7 +61,7 @@ namespace Uhost.Core.Common
                     // support to be sorted on child fields. 
                     var childProperties = propertyName.Split('.');
 
-                    property = SearchProperty(typeof(TEntity), childProperties[0]);
+                    property = typeof(TEntity).GetProperty(childProperties[0]);
 
                     if (property == null)
                     {
@@ -77,8 +72,7 @@ namespace Uhost.Core.Common
 
                     for (int i = 1; i < childProperties.Length; i++)
                     {
-                        var t = property.PropertyType;
-                        property = SearchProperty(t, childProperties[i]);
+                        property = property.PropertyType.GetProperty(childProperties[i]);
 
                         if (property == null)
                         {
@@ -90,8 +84,7 @@ namespace Uhost.Core.Common
                 }
                 else
                 {
-                    property = null;
-                    property = SearchProperty(type, propertyName);
+                    property = type.GetProperty(propertyName);
 
                     if (property == null)
                     {
@@ -110,17 +103,6 @@ namespace Uhost.Core.Common
             }
 
             return source.Provider.CreateQuery<TEntity>(queryExpr);
-        }
-
-        private static PropertyInfo SearchProperty(Type type, string propertyName)
-        {
-            return type.GetProperties().FirstOrDefault(
-                item => string.Equals(
-                    item.Name,
-                    propertyName,
-                    StringComparison.CurrentCultureIgnoreCase
-                )
-            );
         }
     }
 }

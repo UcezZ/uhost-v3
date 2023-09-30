@@ -8,7 +8,7 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using Uhost.Core.Common;
+using Uhost.Web.Common;
 using Uhost.Web.Properties;
 
 namespace Uhost.Web.Controllers
@@ -19,10 +19,10 @@ namespace Uhost.Web.Controllers
         private readonly IWebHostEnvironment _env;
         private readonly IDatabase _redis;
 
-        public ExceptionController(IWebHostEnvironment env, IDatabase redis)
+        public ExceptionController(IWebHostEnvironment env, IConnectionMultiplexer redis)
         {
             _env = env;
-            _redis = redis;
+            _redis = redis.GetDatabase();
         }
 
         [Route("error"), ApiExplorerSettings(IgnoreApi = true)]

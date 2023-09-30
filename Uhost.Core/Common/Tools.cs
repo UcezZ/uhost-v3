@@ -23,7 +23,7 @@ namespace Uhost.Core.Common
             MaxDepth = 512,
             CheckAdditionalContent = true,
             TypeNameHandling = TypeNameHandling.None,
-            DateFormatString = DateTimeExtensions.DateTimeToApiFmt
+            DateFormatString = DateTimeExtensions.DateTimeApiFmt
         };
 
         /// <summary>

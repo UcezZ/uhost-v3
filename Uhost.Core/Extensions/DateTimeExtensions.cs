@@ -5,30 +5,32 @@ namespace Uhost.Core.Extensions
 {
     public static class DateTimeExtensions
     {
-        public const string DateToDbFmt = "yyyy-MM-dd";
-        public const string DateToApiFmt = "dd-MM-yyyy";
-        public const string DateTimeToApiFmt = "dd-MM-yyyy HH:mm:ss";
-        public const string DateTimeToFileFmt = "yyyyMMdd-HHmmss";
-        public const string DateTimeToLogFmt = "HH:mm:ss.fff";
-        public const string TimeToApiFmt = "HH:mm";
+        public const string DateDbFmt = "yyyy-MM-dd";
+        public const string DateApiFmt = "dd-MM-yyyy";
+        public const string DateTimeApiFmt = "dd-MM-yyyy HH:mm:ss";
+        public const string DateTimeFileFmt = "yyyyMMdd-HHmmss";
+        public const string DateTimeLogFmt = "yyyy-MM-dd HH:mm:ss.fff";
+        public const string DateTimeHumanFmt = "dd.MM.yyyy HH:mm";
 
         private static readonly string[] _dateTimeFormats = new[]
         {
-            DateTimeToApiFmt,
-            DateToApiFmt,
-            DateToDbFmt,
-            DateTimeToFileFmt
+            DateTimeApiFmt,
+            DateApiFmt,
+            DateDbFmt,
+            DateTimeFileFmt,
+            DateTimeHumanFmt
         };
 
-        public static string ToApiFmt(this DateTime dt) => dt.ToString(DateTimeToApiFmt);
+        public static string ToApiFmt(this DateTime dt) => dt.ToString(DateTimeApiFmt);
 
-        public static string ToLogFmt(this DateTime dt) => dt.ToString(DateTimeToLogFmt);
+        public static string ToLogFmt(this DateTime dt) => dt.ToString(DateTimeLogFmt);
 
         /// <summary>
         /// Время для имени файла
         /// </summary>
-        public static string ToFileFmt(this DateTime dt) => dt.ToString(DateTimeToFileFmt);
+        public static string ToFileFmt(this DateTime dt) => dt.ToString(DateTimeFileFmt);
 
+        public static string ToHumanFmt(this DateTime dt) => dt.ToString(DateTimeHumanFmt);
 
         /// <summary>
         /// Парсим строку с датой и временем

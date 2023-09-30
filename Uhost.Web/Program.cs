@@ -25,7 +25,15 @@ namespace Uhost.Web
         {
             using (SentrySdk.Init(CoreSettings.SentryConfig.Configure))
             {
-                _app.Run();
+                try
+                {
+                    _app.Run();
+                }
+                catch (Exception e)
+                {
+                    SentrySdk.CaptureException(e);
+                    throw;
+                }
             }
         }
     }

@@ -1,19 +1,15 @@
 ﻿using Hangfire;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using Uhost.Core;
+using Uhost.Web.Config;
 
 namespace Uhost.Web
 {
-    public class WebSettings
+    public partial class WebSettings
     {
-        public sealed class JwtConfig
-        {
-            public string Key { get; set; }
-            public string Issuer { get; set; }
-            public string Audience { get; set; }
-            public SecurityKey SecurityKey => new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Key));
-        }
+        /// <summary>
+        /// Время жизни токена в минутах
+        /// </summary>
+        public static int AuthTokenTtlMinutes { get; private set; }
 
         /// <summary>
         /// Параметры JWT
