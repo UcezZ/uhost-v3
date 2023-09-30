@@ -4,16 +4,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Uhost.Core;
 using Uhost.Core.Common;
 using Uhost.Web.Attributes;
 using Uhost.Web.Properties;
 
-namespace Uhost.Core.Middleware
+namespace Uhost.Web.Middleware
 {
     /// <summary>
     /// Троттлинг запросов через <see cref="ThrottleAttribute"/>.
     /// </summary>
-    public class ThrottleHandler
+    public class ThrottleMiddleware
     {
         private const string _redisKeyPrefix = "throttle-middleware";
         private const string _lua = @"local key = @Key
@@ -30,10 +31,10 @@ else
 end";
         private static readonly IEnumerable<RouteInfo> _targets;
 
-        static ThrottleHandler()
+        static ThrottleMiddleware()
         {
             // маршруты
-            _targets = Web.Common.Tools.Routes
+            _targets = Common.Tools.Routes
 
                 // у методов контроллеров которых есть атрибут
                 .Where(e => e.ControllerMethod.CustomAttributes.Any(a => a.AttributeType == typeof(ThrottleAttribute)))
@@ -45,7 +46,7 @@ end";
         private readonly RequestDelegate _next;
         private readonly IDatabase _redis;
 
-        public ThrottleHandler(RequestDelegate next, IConnectionMultiplexer redis)
+        public ThrottleMiddleware(RequestDelegate next, IConnectionMultiplexer redis)
         {
             _next = next;
             _redis = redis.GetDatabase(CoreSettings.RedisDatabase);

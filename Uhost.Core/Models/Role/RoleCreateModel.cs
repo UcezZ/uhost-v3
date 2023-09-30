@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Uhost.Core.Attributes.Validation;
 using Uhost.Core.Extensions;
@@ -19,15 +18,18 @@ namespace Uhost.Core.Models.Role
         /// <summary>
         /// Коллекция ИД прав
         /// </summary>
-        public IEnumerable<int> RightIds { get; set; } = Array.Empty<int>();
+        public IEnumerable<int> RightIds { get; set; }
 
         public override Entity FillEntity(Entity entity)
         {
             entity.Name = Name?.TrimAll() ?? string.Empty;
-            entity.RoleRights = RightIds
-                .Distinct()
-                .Select(e => new RoleRightEntity { RightId = e })
-                .ToList();
+
+            if (RightIds != null)
+            {
+                entity.RoleRights ??= new List<RoleRightEntity>();
+                entity.RoleRights.Clear();
+                entity.RoleRights.AddRange(RightIds.Distinct().Select(e => new RoleRightEntity { RightId = e }));
+            }
 
             return entity;
         }

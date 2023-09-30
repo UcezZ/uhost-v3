@@ -147,6 +147,9 @@
   <data name="Role_Error_NotFoundById" xml:space="preserve">
     <value>Роль с даким ид. не найдена</value>
   </data>
+  <data name="Role_Error_NotFoundByIdFmt" xml:space="preserve">
+    <value>Роль с ид. {0} не найдена</value>
+  </data>
   <data name="User_Error_AlreadyExists" xml:space="preserve">
     <value>Пользователь с таким логином уже существует</value>
   </data>

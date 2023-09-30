@@ -17,11 +17,12 @@ namespace Uhost.Console.Models
         {
             entity.Id = Id;
             entity.Name = Name;
-            entity.RoleRights ??= new List<RoleRightEntity>();
 
             if (RightIds != null)
             {
-                entity.RoleRights.AddRangeDistinctBy(RightIds.Select(e => new RoleRightEntity { RightId = e }), e => e.RightId);
+                entity.RoleRights ??= new List<RoleRightEntity>();
+                entity.RoleRights.Clear();
+                entity.RoleRights.AddRange(RightIds.Distinct().Select(e => new RoleRightEntity { RightId = e }));
             }
 
             return entity;

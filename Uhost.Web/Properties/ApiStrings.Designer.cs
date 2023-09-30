@@ -151,6 +151,15 @@ namespace Uhost.Web.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Роль с ид. {0} не найдена.
+        /// </summary>
+        internal static string Role_Error_NotFoundByIdFmt {
+            get {
+                return ResourceManager.GetString("Role_Error_NotFoundByIdFmt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Пользователь с таким логином уже существует.
         /// </summary>
         internal static string User_Error_AlreadyExists {

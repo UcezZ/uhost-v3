@@ -2,6 +2,9 @@ Installing EF tools
 ```
 dotnet tool install --global dotnet-ef --version 5.0.10
 ```
+```
+dotnet tool install --global dotnet-ef --version 6.0.22
+```
 
 Add migration
 ```

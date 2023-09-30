@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using Uhost.Core.Common;
 using Uhost.Core.Data;
@@ -11,6 +12,9 @@ namespace Uhost.Core.Repositories
 {
     public class UserRepository : BaseRepository<Entity>
     {
+        protected override Func<IQueryable<Entity>, IQueryable<Entity>> DbSetUpdateTransformations => e => e
+            .Include(e => e.UserRoles);
+
         public UserRepository(PostgreSqlDbContext dbContext) : base(dbContext) { }
 
         public IQueryable<Entity> PrepareQuery(QueryModel query)

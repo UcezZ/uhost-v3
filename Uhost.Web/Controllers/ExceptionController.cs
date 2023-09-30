@@ -28,7 +28,7 @@ namespace Uhost.Web.Controllers
             var ctx = HttpContext.Features.Get<IExceptionHandlerFeature>();
             var exception = ctx?.Error;
 
-            if (_env.IsDevelopment() && ctx != null && exception != null)
+            if (_env.IsDevelopment() && exception != null)
             {
                 var errorObj = new Dictionary<string, string>();
                 var code = HttpStatusCode.InternalServerError;
@@ -51,8 +51,6 @@ namespace Uhost.Web.Controllers
                     errorObj["innerMessage"] = e.Message;
                     errorObj["innerStackTrace"] = e.StackTrace;
                 }
-
-
 
                 return ResponseHelper.Error(errorObj, code);
             }

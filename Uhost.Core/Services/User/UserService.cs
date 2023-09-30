@@ -39,7 +39,9 @@ namespace Uhost.Core.Services.User
 
         public object GetAllPaged(QueryModel query)
         {
-            var pager = _repo.GetAll<UserShortViewModel>(query).CreatePager(query);
+            var pager = _repo
+                .GetAll<UserShortViewModel>(query)
+                .CreatePager(query);
 
             return pager.Paginate();
         }
@@ -53,7 +55,7 @@ namespace Uhost.Core.Services.User
             if (model != null)
             {
                 model.Roles = _roleRepo
-                    .GetAll<RoleViewModel>(new RoleQueryModel { UserId = id })
+                    .GetAll<RoleShortViewModel>(new RoleQueryModel { UserId = id })
                     .ToList();
             }
 

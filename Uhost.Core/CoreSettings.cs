@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using Uhost.Core.Config;
 using static System.Console;
 
 namespace Uhost.Core
@@ -20,6 +21,10 @@ namespace Uhost.Core
         public static int SqlCommandTimeoutSeconds { get; private set; }
 
         public static string PasswordSalt { get; private set; }
+
+        public static RedisConfigWrapper RedisConfig { get; private set; }
+
+        public static SentryConfigWrapper SentryConfig { get; private set; }
 
         static CoreSettings() => Load(typeof(CoreSettings));
 

@@ -20,7 +20,6 @@ using System.Text;
 using Uhost.Core;
 using Uhost.Core.Common;
 using Uhost.Core.Data;
-using Uhost.Core.Extensions;
 using Uhost.Core.Middleware;
 using Uhost.Core.Providers;
 using Uhost.Core.Services.HangfireScheduler;
@@ -50,7 +49,8 @@ namespace Uhost.Web
         /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            //services.AddMvc(options => options.EnableEndpointRouting = false);
+            services.AddControllers();// options => options.EnableEndpointRouting = false);
 
             services.AddHangfire(e => e.UsePostgreSqlStorage(CoreSettings.SqlConnectionString));
 
@@ -63,6 +63,9 @@ namespace Uhost.Web
 
             services.AddSingleton<IHangfireSchedulerService, HangfireSchedulerService>();
 
+            // for NLog
+            services.AddHttpContextAccessor();
+
             // Кодировка
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -73,8 +76,7 @@ namespace Uhost.Web
 
             // Redis
             ConnectionMultiplexer.SetFeatureFlag("preventthreadtheft", true);
-
-            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(CoreSettings.RedisConnectionString));
+            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(CoreSettings.RedisConfig));
 
             if (LocalEnvironment.IsDev)
             {
@@ -96,7 +98,7 @@ namespace Uhost.Web
                         Scheme = "Bearer",
                         BearerFormat = "JWT",
                         In = ParameterLocation.Header,
-                        Description = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9....."
+                        Description = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                     });
 
                     options.AddSecurityRequirement(
@@ -142,8 +144,6 @@ namespace Uhost.Web
                     IssuerSigningKey = WebSettings.Jwt.SecurityKey
                 };
             });
-
-            services.AddSentry();
         }
 
         /// <summary>
@@ -152,11 +152,11 @@ namespace Uhost.Web
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseExceptionHandler("/error");
-
             app.UseFileServer();
             app.UseRouting();
 
-            app.UseSentryTracing();
+            app.UseMiddleware<ThrottleMiddleware>();
+            app.UseMiddleware<SentryLegacyMiddleware>();
 
             if (env.IsDevelopment())
             {
@@ -174,11 +174,12 @@ namespace Uhost.Web
 
             app.UseEndpoints(e => e.MapDefaultControllerRoute());
 
-            app.UseQueryThrottling();
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
+
+            //app.UseMvc();
 
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }

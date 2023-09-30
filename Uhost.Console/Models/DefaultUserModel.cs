@@ -2,6 +2,7 @@
 using System.Linq;
 using Uhost.Core;
 using Uhost.Core.Common;
+using Uhost.Core.Extensions;
 using Uhost.Core.Models;
 using Entity = Uhost.Core.Data.Entities.User;
 using UserRoleEntity = Uhost.Core.Data.Entities.UserRole;
@@ -39,11 +40,12 @@ namespace Uhost.Console.Models
             {
                 entity.Password = Hasher.ComputeHash(Password + CoreSettings.PasswordSalt, Hasher.EncryptionMethod.SHA256);
             }
-
-            entity.UserRoles = RoleIds?
-                .Distinct()
-                .Select(e => new UserRoleEntity { RoleId = e })
-                .ToList();
+            if (RoleIds != null)
+            {
+                entity.UserRoles ??= new List<UserRoleEntity>();
+                entity.UserRoles.Clear();
+                entity.UserRoles.AddRange(RoleIds.Distinct().Select(e => new UserRoleEntity { RoleId = e }).ToList());
+            }
 
             return entity;
         }

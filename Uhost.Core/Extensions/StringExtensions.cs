@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 
@@ -130,19 +131,12 @@ namespace Uhost.Core.Extensions
         /// <summary>
         /// Парсинд ИД из запроса
         /// </summary>
-        /// <param name="idStr">Строка с ИД</param>
-        /// <param name="idVerified">Целочисленный ИД</param>
+        /// <param name="input">Строка с ИД</param>
+        /// <param name="parsed">Целочисленный ИД</param>
         /// <returns></returns>
-        public static bool TryParsePositiveInt(this string idStr, out int idVerified)
+        public static bool TryParsePositiveInt(this string input, out int parsed)
         {
-            bool result = int.TryParse(idStr, out idVerified);
-
-            if (idVerified <= 0)
-            {
-                result = false;
-            }
-
-            return result;
+            return int.TryParse(input, out parsed) && parsed > 0;
         }
 
         /// <summary>
@@ -222,5 +216,35 @@ namespace Uhost.Core.Extensions
 
         public static string Concat<T>(this IEnumerable<T> values) =>
             string.Concat(values);
+
+        public static bool TryParseEndPoint(this string input, out EndPoint endPoint)
+        {
+            var split = input.Split(':');
+
+            if (split.Length != 2)
+            {
+                endPoint = default;
+
+                return false;
+            }
+
+            if (!split[1].TryParsePositiveInt(out var port))
+            {
+                endPoint = default;
+
+                return false;
+            }
+
+            if (IPAddress.TryParse(split[0], out var ip))
+            {
+                endPoint = new IPEndPoint(ip, port);
+            }
+            else
+            {
+                endPoint = new DnsEndPoint(split[0], port);
+            }
+
+            return true;
+        }
     }
 }

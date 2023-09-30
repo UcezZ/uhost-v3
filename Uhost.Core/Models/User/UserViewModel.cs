@@ -10,7 +10,7 @@ namespace Uhost.Core.Models.User
 
         public int PlaylistCount { get; set; }
 
-        public IEnumerable<RoleViewModel> Roles { get; set; }
+        public IEnumerable<RoleShortViewModel> Roles { get; set; }
 
         public override void LoadFromEntity(Entity entity)
         {

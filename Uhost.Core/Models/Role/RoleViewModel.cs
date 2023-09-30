@@ -9,20 +9,16 @@ using RightEntity = Uhost.Core.Data.Entities.Right;
 
 namespace Uhost.Core.Models.Role
 {
-    public class RoleViewModel : BaseModel<Entity>
+    public class RoleViewModel : RoleShortViewModel
     {
-        public int Id { get; set; }
-
-        public string Name { get; set; }
-
         public IEnumerable<RightViewModel> Rights { get; set; }
 
         internal IEnumerable<Rights> RightsCasted => Rights?.Select(e => e.RightCasted);
 
         public override void LoadFromEntity(Entity entity)
         {
-            Id = entity.Id;
-            Name = entity.Name;
+            base.LoadFromEntity(entity);
+
             Rights = entity.Rights?.ToModelCollection<RightEntity, RightViewModel>() ?? Array.Empty<RightViewModel>();
         }
     }

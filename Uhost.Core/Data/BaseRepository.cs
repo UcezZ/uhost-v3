@@ -17,6 +17,8 @@ namespace Uhost.Core.Common
         private DbSet<TEntity> _objectSet;
         protected readonly DbContext _dbContext;
 
+        protected virtual Func<IQueryable<TEntity>, IQueryable<TEntity>> DbSetUpdateTransformations => e => e;
+
         protected DbSet<TEntity> DbSet => _objectSet ??= _dbContext.Set<TEntity>();
 
         public BaseRepository(DbContext dbContext)
@@ -264,7 +266,9 @@ namespace Uhost.Core.Common
         /// <param name="setTimeField">Установка UpdatedAt</param>
         public void Update<TModel>(int id, TModel model, bool save = true, bool setTimeField = true) where TModel : BaseModel<TEntity>, new()
         {
-            if (!FindEntity(id, out TEntity entity))
+            var entity = DbSetUpdateTransformations.Invoke(DbSet).FirstOrDefault(e => e.Id == id);
+
+            if (entity == null)
             {
                 return;
             }
@@ -302,10 +306,10 @@ namespace Uhost.Core.Common
         /// </summary>
         public int AddAll<TModel>(IEnumerable<TModel> models, out IEnumerable<int> idsAffected) where TModel : BaseModel<TEntity>, new()
         {
-            idsAffected = Array.Empty<int>();
-
             if (models == null || !models.Any())
             {
+                idsAffected = Array.Empty<int>();
+
                 return 0;
             }
 

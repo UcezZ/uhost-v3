@@ -13,11 +13,15 @@ namespace Uhost.Core.Repositories
 {
     public class RoleRepository : BaseRepository<Entity>
     {
+        protected override Func<IQueryable<Entity>, IQueryable<Entity>> DbSetUpdateTransformations => dbSet => dbSet
+            .Include(e => e.RoleRights);
+
         public RoleRepository(PostgreSqlDbContext dbContext) : base(dbContext) { }
 
         public IQueryable<Entity> PrepareQuery(QueryModel query)
         {
             IQueryable<Entity> q = DbSet
+                .Include(e => e.RoleRights)
                 .Include(e => e.Rights);
 
             if (query.Id > 0)

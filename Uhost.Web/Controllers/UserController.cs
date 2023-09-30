@@ -112,7 +112,7 @@ namespace Uhost.Web.Controllers
             }
             if (!_service.CheckRoleIds(model.RoleIds, out var invalid))
             {
-                ModelState.AddModelError(nameof(model.RoleIds), ApiStrings.Right_Error_NotFoundByIdFmt.Format(invalid));
+                ModelState.AddModelError(nameof(model.RoleIds), ApiStrings.Role_Error_NotFoundByIdFmt.Format(invalid));
             }
             if (!ModelState.IsValid)
             {
