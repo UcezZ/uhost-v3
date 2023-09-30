@@ -1,0 +1,11 @@
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
+
+ENV ASPNETCORE_URLS=http://*:5000
+
+RUN apt-get update
+RUN apt-get install -y libgif-dev autoconf libtool automake build-essential gettext libglib2.0-dev libcairo2-dev libtiff-dev libexif-dev libgdiplus curl dpkg ca-certificates cabextract debconf wget xfonts-utils fonts-liberation
+RUN ln -s /usr/lib/libgdiplus.so /usr/lib/gdiplus.dll
+COPY ttf-mscorefonts-installer_3.8_all.deb /var/cache/apt/archives/ttf-mscorefonts-installer_3.8_all.deb
+RUN dpkg -i /var/cache/apt/archives/ttf-mscorefonts-installer_3.8_all.deb
+
+ENV PATH="$PATH:/root/.dotnet/tools"
