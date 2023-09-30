@@ -77,6 +77,7 @@ namespace Uhost.Web
             // Redis
             ConnectionMultiplexer.SetFeatureFlag("preventthreadtheft", true);
             services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(CoreSettings.RedisConfig));
+            services.AddScoped<IDatabase>(e => e.GetRequiredService<IConnectionMultiplexer>().GetDatabase(CoreSettings.RedisConfig.DefaultDatabase));
 
             if (LocalEnvironment.IsDev)
             {

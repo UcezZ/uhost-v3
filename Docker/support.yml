@@ -94,10 +94,11 @@ services:
   elasticsearch:
     container_name: "${APP_NAME}-elasticsearch"
     image: elasticsearch:5.6.3
+    # command: elasticsearch -Des.cluster.name='graylog'
     environment:
-      - http.host=0.0.0.0
-      - transport.host=localhost
-      - network.host=0.0.0.0
+      # - http.host=0.0.0.0
+      # - transport.host=localhost
+      # - network.host=0.0.0.0
       # Disable X-Pack security: https://www.elastic.co/guide/en/elasticsearch/reference/5.6/security-settings.html#general-security-settings
       - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
@@ -127,15 +128,13 @@ services:
     ports:
       # Graylog web interface and REST API
       - "${FORWARD_HOST}:${FORWARD_GRAYLOG_PORT}:9000"
-      - "5044:5044/tcp" # Beats
-      - "5140:5140/udp" # Syslog
-      - "5140:5140/tcp" # Syslog
-      - "5555:5555/tcp" # RAW TCP
-      - "5555:5555/udp" # RAW TCP
-      - "12201:12201/tcp" # GELF TCP
-      - "12201:12201/udp" # GELF UDP
-      - "13301:13301/tcp" # Forwarder data
-      - "13302:13302/tcp" # Forwarder config
+      - "53:53"
+      - "5044:5044" # Beats
+      - "5140:5140" # Syslog
+      - "5555:5555" # RAW
+      - "12201:12201" # GELF TCP
+      - "13301:13301" # Forwarder data
+      - "13302:13302" # Forwarder config
     volumes:
       - "graylog_volume:/usr/share/graylog/data"
 

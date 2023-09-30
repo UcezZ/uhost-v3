@@ -81,12 +81,23 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      graylog:
+        condition: service_started
     command: >
       bash -c "
       rm -rf /app/*;
       dotnet ef database update --project Uhost.Core --context PostgreSqlDbContext;
       dotnet publish -r linux-x64 -p:PublishSingleFile=true --self-contained true -p:UseAppHost=true -c Release -o /app;
       /app/Uhost.Console loaddefaultdata --file /app/default-data.json"
+    # logging:
+    #   driver: gelf
+    #   options:
+    #     gelf-address: udp://graylog:12201
+    # driver: "syslog"
+    # options:
+    #   syslog-address: "udp://graylog:5140"
+    #   syslog-format: "rfc5424"
+    #   tag: "builder"
 
   # app runner
   app:
@@ -105,9 +116,20 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      graylog:
+        condition: service_started
       builder:
         condition: service_completed_successfully
     entrypoint: ./Uhost.Web
+    # logging:
+    #   driver: gelf
+    #   options:
+    #     gelf-address: udp://graylog:12201
+    # driver: "syslog"
+    # options:
+    #   syslog-address: "udp://graylog:5140"
+    #   syslog-format: "rfc5424"
+    #   tag: "api"
 
 volumes:
   app_volume:
