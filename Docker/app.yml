@@ -95,12 +95,12 @@ services:
       rm -rf /app/src;
       /app/Uhost.Console loaddefaultdata --file /app/default-data.json"
     logging:
-      # driver: gelf
-      # options:
-      #   gelf-address: udp://localhost:12201
-      driver: syslog
+      driver: gelf
       options:
-        syslog-address: udp://localhost:1514
+        gelf-address: udp://127.0.0.1:12201
+        # driver: syslog
+        # options:
+        #   syslog-address: udp://127.0.0.1:1514
         tag: builder
 
   # app runner
@@ -127,12 +127,12 @@ services:
         condition: service_completed_successfully
     entrypoint: ./Uhost.Web
     logging:
-      # driver: gelf
-      # options:
-      #   gelf-address: udp://localhost:12201
-      driver: syslog
+      driver: gelf
       options:
-        syslog-address: udp://localhost:1514
+        gelf-address: udp://127.0.0.1:12201
+        # driver: syslog
+        # options:
+        #   syslog-address: udp://127.0.0.1:1514
         tag: api
 
 volumes:
