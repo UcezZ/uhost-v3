@@ -11,8 +11,8 @@
 
 ### Запуск в Visual Studio
 0. _Нужен любой VisualStudio с поддержкой .NET SDK 5.0 и сам .NET SDK 5.0_
-1. Создать /Uhost.Core/appsettings.json по аналогии с /Uhost.Core/appsettings.template.json
-2. Создать /Uhost.Console/default-data.json по аналогии с /Uhost.Console/default-data.template.json
+1. Создать /Uhost.Core/appsettings.json по аналогии с /Uhost.Core/appsettings.template.json с учётом окружения системы
+2. Создать /Uhost.Console/default-data.json по аналогии с /Uhost.Console/default-data.template.json с учётом окружения Docker'а
 3. Создать /Docker/.env по аналогии с /Docker/.env.template
 4. Поднять БД - выполнить в папке проекта `docker-compose -f ./Docker/support.yml up` и дождаться пока всё прогрузится
 5. Выполнить миграции `dotnet ef database update --project Uhost.Core --context PostgreSqlDbContext`
