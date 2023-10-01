@@ -84,14 +84,14 @@ namespace Uhost.Web.Middleware
             }
         }
 
-        public int InvalidateToken(int userId, string jti)
+        public bool InvalidateToken(int userId, string jti)
         {
             var key = RedisKey(userId, jti);
             var result = _connectionMultiplexer
                 .GetDatabase()
-                .StringGetDelete(key);
+                .KeyDelete(key);
 
-            return int.TryParse(result, out int num) ? num : 0;
+            return result;
         }
     }
 }

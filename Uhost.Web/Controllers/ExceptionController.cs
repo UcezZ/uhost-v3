@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Diagnostics;
+﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +12,7 @@ using Uhost.Web.Properties;
 
 namespace Uhost.Web.Controllers
 {
-    [Produces("application/json"), AllowAnonymous]
+    [Produces("application/json")]
     public class ExceptionController : Controller
     {
         private readonly IWebHostEnvironment _env;
@@ -69,11 +68,5 @@ namespace Uhost.Web.Controllers
         [HttpGet("api/v2/exception")]
         public IActionResult Exception(string message) =>
             throw new Exception(message);
-
-        [HttpGet("api/v2/exception/cache")]
-        public IActionResult GetKey(string key)
-        {
-            return ResponseHelper.Success(_redis.StringGet(key));
-        }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 using Uhost.Core.Attributes.Validation;
@@ -16,7 +15,7 @@ namespace Uhost.Web.Controllers
     /// <summary>
     /// Роли пользователей
     /// </summary>
-    [Route("api/v2/roles"), AllowAnonymous]
+    [Route("api/v2/roles")]
     public class RoleController : Controller, IDisposable, IAsyncDisposable
     {
         private readonly IRoleService _service;

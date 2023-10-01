@@ -112,6 +112,7 @@ services:
       - pgsql
       - postgres-exporter
     ports:
+      - 3000:3000
       - "${FORWARD_HOST}:${FORWARD_GRAFANA_PORT}:3000"
 
 volumes:

@@ -7,8 +7,6 @@ scrape_configs:
     static_configs:
       - targets: ["prometheus:9090"]
 
-remote_write:
-  - url: "grafana:3000"
-    basic_auth:
-      username: "admin"
-      password: "admin"
+  - job_name: "postgres-exporter"
+    static_configs:
+      - targets: ["postgres-exporter:9187"]

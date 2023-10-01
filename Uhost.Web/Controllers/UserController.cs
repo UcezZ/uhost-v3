@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Net;
 using System.Threading.Tasks;
@@ -17,7 +16,7 @@ namespace Uhost.Web.Controllers
     /// <summary>
     /// Пользователи
     /// </summary>
-    [Route("api/v2/users"), AllowAnonymous]
+    [Route("api/v2/users")]
     public class UserController : Controller, IDisposable, IAsyncDisposable
     {
         private readonly IUserService _service;

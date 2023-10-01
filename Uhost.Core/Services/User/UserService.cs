@@ -3,6 +3,7 @@ using System.Linq;
 using Uhost.Core.Common;
 using Uhost.Core.Data;
 using Uhost.Core.Extensions;
+using Uhost.Core.Models.Right;
 using Uhost.Core.Models.Role;
 using Uhost.Core.Models.User;
 using Uhost.Core.Repositories;
@@ -15,11 +16,13 @@ namespace Uhost.Core.Services.User
     {
         private readonly RoleRepository _roleRepo;
         private readonly UserRepository _repo;
+        private readonly RightRepository _rightRepo;
 
         public UserService(PostgreSqlDbContext dbContext) : base(dbContext)
         {
             _repo = new UserRepository(_dbContext);
             _roleRepo = new RoleRepository(_dbContext);
+            _rightRepo = new RightRepository(_dbContext);
         }
 
         public UserAccessModel GetAccessData(int id)
@@ -57,6 +60,9 @@ namespace Uhost.Core.Services.User
             {
                 model.Roles = _roleRepo
                     .GetAll<RoleShortViewModel>(new RoleQueryModel { UserId = id })
+                    .ToList();
+                model.Rights = _rightRepo
+                    .GetAll<RightViewModel>(new RightQueryModel { RoleIds = model.Roles.Select(e => e.Id) })
                     .ToList();
             }
 

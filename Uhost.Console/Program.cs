@@ -20,9 +20,8 @@ namespace Uhost.Console
 
             services.AddHangfireServer();
 
-            services
-                .AddEntityFrameworkNpgsql()
-                .AddDbContext<PostgreSqlDbContext>(e => e.UseNpgsql(CoreSettings.SqlConnectionString));
+            services.AddDbContext<PostgreSqlDbContext>(e => e.UseNpgsql(CoreSettings.SqlConnectionString));
+            services.AddDbContext<PostgreSqlLogDbContext>(e => e.UseNpgsql(CoreSettings.SqlLogConnectionString));
 
             var provider = services.BuildServiceProvider();
 

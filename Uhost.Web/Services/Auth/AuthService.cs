@@ -64,7 +64,7 @@ namespace Uhost.Web.Services.Auth
         {
             if (claims.TryGetUserId(out var userId) && claims.TryGetJti(out var jti))
             {
-                return claims != null && _tokenHandler.InvalidateToken(userId, jti) > 0;
+                return claims != null && _tokenHandler.InvalidateToken(userId, jti);
             }
 
             return false;
