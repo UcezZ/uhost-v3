@@ -119,15 +119,6 @@ services:
       # Password: admin
       - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
       - GRAYLOG_WEB_ENDPOINT_URI=http://${FORWARD_HOST}:${FORWARD_GRAYLOG_PORT}/api
-      # - GRAYLOG_TRANSPORT_EMAIL_ENABLED=true
-      # - GRAYLOG_TRANSPORT_EMAIL_HOSTNAME=smtp.gmail.com
-      # - GRAYLOG_TRANSPORT_EMAIL_PORT=587
-      # - GRAYLOG_TRANSPORT_EMAIL_USE_AUTH=true
-      # - GRAYLOG_TRANSPORT_EMAIL_USE_TLS=true
-      # - GRAYLOG_TRANSPORT_EMAIL_AUTH_USERNAME=noreply@example.com
-      # - GRAYLOG_TRANSPORT_EMAIL_AUTH_PASSWORD=password
-      # - GRAYLOG_TRANSPORT_EMAIL_SUBJECT_PREFIX=[graylog]
-      # - GRAYLOG_TRANSPORT_EMAIL_FROM_EMAIL=noreply@example.com
     links:
       - mongodb:mongo
       - elasticsearch

@@ -22,8 +22,10 @@ using Uhost.Core.Common;
 using Uhost.Core.Data;
 using Uhost.Core.Middleware;
 using Uhost.Core.Providers;
+using Uhost.Core.Services.Graylog;
 using Uhost.Core.Services.HangfireScheduler;
 using Uhost.Core.Services.Log;
+using Uhost.Core.Services.RestClient;
 using Uhost.Core.Services.Role;
 using Uhost.Core.Services.User;
 using Uhost.Web.Filters;
@@ -63,6 +65,8 @@ namespace Uhost.Web
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ILogService, LogService>();
+            services.AddScoped<IRestClientService, RestClientService>();
+            services.AddScoped<IGraylogService, GraylogService>();
 
             services.AddSingleton<IHangfireSchedulerService, HangfireSchedulerService>();
 

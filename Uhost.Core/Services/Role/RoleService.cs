@@ -9,7 +9,7 @@ using QueryModel = Uhost.Core.Models.Role.RoleQueryModel;
 
 namespace Uhost.Core.Services.Role
 {
-    public class RoleService : BaseService, IRoleService
+    public sealed class RoleService : BaseService, IRoleService
     {
         private readonly RoleRepository _repo;
         private readonly RightRepository _rightRepo;

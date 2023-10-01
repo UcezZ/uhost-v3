@@ -7,7 +7,7 @@ using Uhost.Core.Services.HangfireExecutor;
 
 namespace Uhost.Core.Services.HangfireScheduler
 {
-    public class HangfireSchedulerService : IHangfireSchedulerService
+    public sealed class HangfireSchedulerService : IHangfireSchedulerService
     {
         private readonly JobStorage _storage;
         private readonly BackgroundJobClient _client;

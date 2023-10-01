@@ -12,7 +12,7 @@ using QueryModel = Uhost.Core.Models.User.UserQueryModel;
 
 namespace Uhost.Core.Services.User
 {
-    public class UserService : BaseService, IUserService
+    public sealed class UserService : BaseService, IUserService
     {
         private readonly RoleRepository _roleRepo;
         private readonly UserRepository _repo;

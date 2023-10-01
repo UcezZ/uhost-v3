@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
@@ -318,6 +319,20 @@ namespace Uhost.Core.Extensions
             }
 
             return $"{sizeStr} {unit}";
+        }
+
+        public static bool TryGetValue<TKey, TValue, TOutValue>(this IDictionary<TKey, TValue> dict, TKey key, out TOutValue value) where TOutValue : TValue
+        {
+            if (dict.TryGetValue(key, out var obj) && obj is TOutValue outValue)
+            {
+                value = outValue;
+                return true;
+            }
+            else
+            {
+                value = default;
+                return false;
+            }
         }
     }
 }

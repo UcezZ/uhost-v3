@@ -24,6 +24,8 @@ namespace Uhost.Core
 
         public static SentryConfigWrapper SentryConfig { get; private set; }
 
+        public static GraylogApiIntegration GraylogApi { get; private set; }
+
         static CoreSettings() => Load(typeof(CoreSettings));
 
         public static void Load(Type type)

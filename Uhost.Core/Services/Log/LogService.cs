@@ -10,9 +10,8 @@ using Entity = Uhost.Core.Data.Entities.Log;
 
 namespace Uhost.Core.Services.Log
 {
-    public class LogService : BaseService, ILogService
+    public sealed class LogService : BaseService, ILogService
     {
-        private readonly PostgreSqlLogDbContext _logContext;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly LogRepository _repo;
 
