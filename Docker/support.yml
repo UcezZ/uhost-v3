@@ -146,7 +146,7 @@ services:
       # GELF UDP
       - 12201:12201/udp
     volumes:
-      - "gaylog_volume:/usr/share/graylog/data"
+      - "graylog_volume:/usr/share/graylog/data"
 
   memcached:
     container_name: "${APP_NAME}-memcached"
@@ -279,7 +279,7 @@ services:
 
 volumes:
   postgres_volume:
-  gaylog_volume:
+  graylog_volume:
   mongo_db_volume:
   mongo_cfg_volume:
   redis_volume:

@@ -138,7 +138,7 @@ services:
 volumes:
   app_volume:
   postgres_volume:
-  gaylog_volume:
+  graylog_volume:
   mongo_db_volume:
   mongo_cfg_volume:
   redis_volume:
