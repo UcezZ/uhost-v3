@@ -37,7 +37,7 @@ namespace Uhost.Web.Controllers
         [HttpGet("check"), Authorize]
         public IActionResult OnlyAuthUsers()
         {
-            return Content("Only auth users");
+            return StatusCode(200);
         }
 
         /// <summary>
