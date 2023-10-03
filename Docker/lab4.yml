@@ -93,6 +93,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./prometheus-config.yml:/etc/prometheus/prometheus.yml
+      - prometheus_volume:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
@@ -112,7 +113,6 @@ services:
       - pgsql
       - postgres-exporter
     ports:
-      - 3000:3000
       - "${FORWARD_HOST}:${FORWARD_GRAFANA_PORT}:3000"
 
 volumes:
@@ -124,3 +124,4 @@ volumes:
   redis_volume:
   elasticsearch_volume:
   sentry_volume:
+  prometheus_volume:
