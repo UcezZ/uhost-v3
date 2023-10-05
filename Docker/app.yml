@@ -137,6 +137,8 @@ services:
     volumes:
       - ../Frontend:/src:ro
       - "app_volume:/app"
+    environment:
+      PUBLIC_URL: "${REACT_PUBLIC_URL}"
     command: >
       bash -c "
       rm -rf /app/front;
