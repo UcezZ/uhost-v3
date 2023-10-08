@@ -73,7 +73,8 @@ services:
     volumes:
       - ../:/src:ro
       - ../storage:/storage
-      - app_volume:/app
+      - deploy_volume:/deploy
+      - build_volume:/build
     depends_on:
       pgsql:
         condition: service_healthy
@@ -83,18 +84,18 @@ services:
         condition: service_started
     command: >
       bash -c "
-      rm -rf /app/back;
-      mkdir -p /app/back/src;
-      rsync -vhra /src/ /app/back/src/ --include='**.gitignore' --exclude='/.git' --exclude='/Frontend' --exclude='/Docker' --exclude='/.vscode' --exclude='*.template' --filter=':- .gitignore' --delete-after;
-      cp -pf /src/Uhost.Core/appsettings.docker.json /app/back/src/Uhost.Core/appsettings.json || exit 1;
-      cp -pf /src/Uhost.Console/default-data.json /app/back/src/Uhost.Console/default-data.json || exit 1;
-      cd /app/back/src;
+      rm -rf /build/back;
+      mkdir -p /build/back;
+      rsync -vhra /src/ /build/back/ --include='**.gitignore' --exclude='/.git' --exclude='/Frontend' --exclude='/Docker' --exclude='/.vscode' --exclude='*.template' --filter=':- .gitignore' --delete-after;
+      cp -pf /src/Uhost.Core/appsettings.docker.json /build/back/Uhost.Core/appsettings.json || exit 1;
+      cp -pf /src/Uhost.Console/default-data.json /build/back/Uhost.Console/default-data.json || exit 1;
+      cd /build/back;
       dotnet ef database update --project Uhost.Core --context PostgreSqlDbContext;
       dotnet ef database update --project Uhost.Core --context PostgreSqlLogDbContext;
-      dotnet publish -r linux-x64 -p:PublishSingleFile=true --self-contained true -p:UseAppHost=true -c Release -o /app/back;
-      rm -rf /app/back/src;
-      /app/back/Uhost.Console loaddefaultdata --file /app/back/default-data.json;
-      /app/back/Uhost.Console dbvacuum;"
+      dotnet publish -r linux-x64 -p:PublishSingleFile=true --self-contained true -p:UseAppHost=true -c Release -o /deploy/back;
+
+      /deploy/back/Uhost.Console loaddefaultdata --file /deploy/back/default-data.json;
+      /deploy/back/Uhost.Console dbvacuum;"
     logging:
       driver: gelf
       options:
@@ -111,8 +112,8 @@ services:
       - "${FORWARD_HOST}:${FORWARD_HTTP_PORT}:5000"
     volumes:
       - "../storage:/storage"
-      - app_volume:/app
-    working_dir: /app/back
+      - deploy_volume:/deploy
+    working_dir: /deploy/back
     restart: unless-stopped
     depends_on:
       pgsql:
@@ -136,23 +137,33 @@ services:
     container_name: "${APP_NAME}-node"
     volumes:
       - ../Frontend:/src:ro
-      - app_volume:/app
+      - build_volume:/build
+      - deploy_volume:/deploy
     environment:
       PUBLIC_URL: "${REACT_PUBLIC_URL}"
     command: >
       bash -c "
-      rm -rf /app/front;
-      mkdir -p /app/front/src;
-      rsync -vhra /src/ /app/front/src/ --exclude='node_modules' --exclude='build' --exclude='*.template';
+      mkdir -p /build/tmp;
+      mkdir -p /build/front;
+      if [ -d /build/front/node_modules ]; then
+        mv -f /build/front/node_modules /build/tmp/node_modules;
+      fi;
+      rm -rf /build/front/*;
+      if [ -d /build/tmp/node_modules ]; then
+        mv -f /build/tmp/node_modules /build/front/node_modules;
+      fi;
 
-      cd /app/front/src;
+      rsync -vhra /src/ /build/front/ --exclude='node_modules' --exclude='build' --exclude='*.template' --delete;
+
+      cd /build/front;
 
       npm i;
       npm run build;
 
-      rsync -vhrat /app/front/src/build/ /app/front/;
-      rm -rf /app/front/src;
-      ls -lag /app/front;"
+      rm -rf /deploy/front;
+      mkdir -p /deploy/front;
+      rsync -vhrat /build/front/build/ /deploy/front/;
+      ls -lag /deploy/front;"
     depends_on:
       - graylog
     logging:
@@ -167,8 +178,8 @@ services:
     container_name: "${APP_NAME}-nginx"
     restart: unless-stopped
     volumes:
-      - "app_volume:/app"
-      - "./nginx.conf:/etc/nginx/conf.d/default.conf"
+      - deploy_volume:/deploy
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       node:
         condition: service_completed_successfully
@@ -181,7 +192,8 @@ services:
         tag: nginx
 
 volumes:
-  app_volume:
+  build_volume:
+  deploy_volume:
   postgres_volume:
   graylog_volume:
   mongo_db_volume:
