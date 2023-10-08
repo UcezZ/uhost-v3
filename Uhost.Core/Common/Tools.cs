@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -23,7 +24,8 @@ namespace Uhost.Core.Common
             MaxDepth = 512,
             CheckAdditionalContent = true,
             TypeNameHandling = TypeNameHandling.None,
-            DateFormatString = DateTimeExtensions.DateTimeApiFmt
+            DateFormatString = DateTimeExtensions.DateTimeApiFmt,
+            ContractResolver = new CamelCasePropertyNamesContractResolver()
         };
 
         /// <summary>

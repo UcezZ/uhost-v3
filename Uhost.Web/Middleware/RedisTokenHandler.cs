@@ -1,14 +1,12 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Xml;
 using Uhost.Core.Extensions;
 
 namespace Uhost.Web.Middleware
 {
-    public class RedisTokenHandler : SecurityTokenHandler
+    public class RedisTokenHandler : ISecurityTokenValidator
     {
         private const string _keyPrefix = "authtoken";
         private static readonly ClaimsPrincipal _emptyClaims = new ClaimsPrincipal();
@@ -17,13 +15,15 @@ namespace Uhost.Web.Middleware
             $"{_keyPrefix}_{id}_{jti}";
 
         #region Wrap override
-        public override bool CanValidateToken => _tokenValidator.CanValidateToken;
-        public override Type TokenType => _tokenValidator.TokenType;
-        public override SecurityToken ReadToken(XmlReader reader, TokenValidationParameters validationParameters) => _tokenValidator.ReadToken(reader, validationParameters);
-        public override SecurityToken CreateToken(SecurityTokenDescriptor tokenDescriptor) => _tokenValidator.CreateToken(tokenDescriptor);
-        public override void WriteToken(XmlWriter writer, SecurityToken token) => _tokenValidator.WriteToken(writer, token);
-        public override SecurityToken ReadToken(string tokenString) => _tokenValidator.ReadToken(tokenString);
-        public override bool CanReadToken(string tokenString) => _tokenValidator.CanReadToken(tokenString);
+        public bool CanValidateToken => _tokenValidator.CanValidateToken;
+
+        public int MaximumTokenSizeInBytes
+        {
+            get => _tokenValidator.MaximumTokenSizeInBytes;
+            set => _tokenValidator.MaximumTokenSizeInBytes = value;
+        }
+
+        public bool CanReadToken(string securityToken) => _tokenValidator.CanReadToken(securityToken);
         #endregion
 
         private readonly JwtSecurityTokenHandler _tokenValidator;
@@ -35,7 +35,7 @@ namespace Uhost.Web.Middleware
             _connectionMultiplexer = connectionMultiplexer;
         }
 
-        public override ClaimsPrincipal ValidateToken(string securityToken, TokenValidationParameters validationParameters, out SecurityToken validatedToken)
+        public ClaimsPrincipal ValidateToken(string securityToken, TokenValidationParameters validationParameters, out SecurityToken validatedToken)
         {
             try
             {
@@ -63,7 +63,9 @@ namespace Uhost.Web.Middleware
             }
         }
 
-        public override string WriteToken(SecurityToken token)
+        internal SecurityToken CreateToken(SecurityTokenDescriptor tokenDescriptor) => _tokenValidator.CreateToken(tokenDescriptor);
+
+        public string WriteToken(SecurityToken token)
         {
             var stringToken = _tokenValidator.WriteToken(token);
             if (token is JwtSecurityToken jwtToken &&

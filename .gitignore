@@ -1,3 +1,4 @@
+# back
 */bin
 */obj
 /.vs
@@ -8,21 +9,8 @@ default-data.json
 .env
 Uhost.Web.xml
 
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
+# front
 /Frontend/node_modules
-/Frontend/.pnp
-.pnp.js
-
-# testing
-/Frontend/coverage
-
-# production
 /Frontend/build
-
-# misc
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-package-lock.json
+/Frontend/package-lock.json
+Frontend/src/config.json

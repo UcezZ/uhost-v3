@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
-using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -16,15 +16,13 @@ namespace Uhost.Web.Controllers
     public class ExceptionController : Controller
     {
         private readonly IWebHostEnvironment _env;
-        private readonly IDatabase _redis;
 
-        public ExceptionController(IWebHostEnvironment env, IConnectionMultiplexer redis)
+        public ExceptionController(IWebHostEnvironment env)
         {
             _env = env;
-            _redis = redis.GetDatabase();
         }
 
-        [Route("error"), ApiExplorerSettings(IgnoreApi = true)]
+        [Route("error"), ApiExplorerSettings(IgnoreApi = true), AllowAnonymous]
         public IActionResult Error()
         {
             var ctx = HttpContext.Features.Get<IExceptionHandlerFeature>();

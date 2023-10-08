@@ -158,15 +158,17 @@ namespace Uhost.Web
         /// </summary>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseExceptionHandler("/error");
-            app.UseFileServer();
-            app.UseRouting();
-
-            app.UseMiddleware<ThrottleMiddleware>();
-            app.UseMiddleware<SentryLegacyMiddleware>();
 
             if (env.IsDevelopment())
             {
+                app.UseCors(options =>
+                {
+                    options.AllowAnyHeader();
+                    options.AllowAnyMethod();
+                    options.AllowCredentials();
+                    options.SetIsOriginAllowed(e => true);
+                });
+
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
@@ -174,6 +176,13 @@ namespace Uhost.Web
                     options.RoutePrefix = "swagger";
                 });
             }
+
+            app.UseExceptionHandler("/error");
+            app.UseFileServer();
+            app.UseRouting();
+
+            app.UseMiddleware<ThrottleMiddleware>();
+            app.UseMiddleware<SentryLegacyMiddleware>();
 
             app.UseHangfireDashboard("/hangfire", WebSettings.HangfireDashboardOptions);
             app.UseAuthentication();
@@ -185,8 +194,6 @@ namespace Uhost.Web
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
-
-            //app.UseMvc();
 
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }

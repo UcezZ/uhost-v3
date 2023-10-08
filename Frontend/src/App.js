@@ -1,10 +1,28 @@
-import React from "react";
-import Button from "@mui/material/Button";
+import React, { useState } from "react";
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import AuthPage from "./components/pages/AuthPage";
+import StateContext from './context/StateContext';
+import ErrorDialog from './components/ErrorDialog';
+import Header from "./components/Header";
 
-function App() {
+export default function App() {
+  const [theme, setTheme] = useState('dark');
+  const [locale, setLocale] = useState('');
+  const [error, setError] = useState();
+
   return (
-    <Button>Sample</Button>
+    <StateContext.Provider value={{
+      theme: theme, setTheme: setTheme,
+      error: error, setError: setError
+    }}>
+      <Header />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<div />} />
+          <Route path="/login" element={<AuthPage />} />
+        </Routes>
+      </BrowserRouter>
+      <ErrorDialog />
+    </StateContext.Provider>
   );
 }
-
-export default App;
