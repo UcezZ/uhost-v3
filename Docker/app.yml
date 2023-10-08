@@ -85,7 +85,7 @@ services:
       bash -c "
       rm -rf /app/back;
       mkdir -p /app/back/src;
-      rsync -vhra /src/ /app/back/src/ --include='**.gitignore' --exclude='/.git' --exclude='/Frontend' --exclude='/Docker' --exclude='/.vscode' --filter=':- .gitignore' --delete-after;
+      rsync -vhra /src/ /app/back/src/ --include='**.gitignore' --exclude='/.git' --exclude='/Frontend' --exclude='/Docker' --exclude='/.vscode' --exclude='*.template' --filter=':- .gitignore' --delete-after;
       cp -pf /src/Uhost.Core/appsettings.docker.json /app/back/src/Uhost.Core/appsettings.json || exit 1;
       cp -pf /src/Uhost.Console/default-data.json /app/back/src/Uhost.Console/default-data.json || exit 1;
       cd /app/back/src;
@@ -136,14 +136,14 @@ services:
     container_name: "${APP_NAME}-node"
     volumes:
       - ../Frontend:/src:ro
-      - "app_volume:/app"
+      - app_volume:/app
     environment:
       PUBLIC_URL: "${REACT_PUBLIC_URL}"
     command: >
       bash -c "
       rm -rf /app/front;
       mkdir -p /app/front/src;
-      rsync -vhra /src/ /app/front/src/ --exclude='node_modules' --exclude='build';
+      rsync -vhra /src/ /app/front/src/ --exclude='node_modules' --exclude='build' --exclude='*.template';
 
       cd /app/front/src;
 
