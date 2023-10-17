@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -498,5 +500,17 @@ WHERE ""Id"" <> {id} AND ({uniquePropNames.Select(e => $"\"{e}\" = @{e}").Join("
 
             return rowsAffected + Save();
         }
+
+        /// <inheritdoc cref="IDbConnection.CreateCommand()"/>
+        public IDbCommand CreateCommand() =>
+            _dbContext.Database.GetDbConnection().CreateCommand();
+
+        /// <inheritdoc cref="DatabaseFacade.BeginTransaction()"/>
+        public IDbContextTransaction BeginTransaction() =>
+            _dbContext.Database.BeginTransaction();
+
+        /// <inheritdoc cref="RelationalDatabaseFacadeExtensions.ExecuteSqlRaw(DatabaseFacade, string, object[])"/>
+        public int ExecuteSqlRaw(string sql) =>
+            _dbContext.Database.ExecuteSqlRaw(sql);
     }
 }

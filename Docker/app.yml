@@ -73,6 +73,7 @@ services:
     volumes:
       - ../:/src:ro
       - ../storage:/storage
+      - ../out/win:/deploy/win
       - deploy_volume:/deploy
       - build_volume:/build
     depends_on:
@@ -90,11 +91,15 @@ services:
       cp -pf /src/Uhost.Core/appsettings.docker.json /build/back/Uhost.Core/appsettings.json || exit 1;
       cp -pf /src/Uhost.Console/default-data.json /build/back/Uhost.Console/default-data.json || exit 1;
       cd /build/back;
-      dotnet ef database update --project Uhost.Core --context PostgreSqlDbContext;
-      dotnet ef database update --project Uhost.Core --context PostgreSqlLogDbContext;
-      dotnet publish -r linux-x64 -p:PublishSingleFile=true --self-contained true -p:UseAppHost=true -c Release -o /deploy/back;
+      dotnet ef database update --project Uhost.Core --context PostgreSqlDbContext || exit 1;
+      dotnet ef database update --project Uhost.Core --context PostgreSqlLogDbContext || exit 1;
+      rm -rf /deploy/back;
+      dotnet publish -r linux-x64 --self-contained true -c Release -o /deploy/back;
+      rm -rf /deploy/win;
+      dotnet publish -r win-x64 -p:PublishSingleFile=true --self-contained true -c Release -o /deploy/win Uhost.Convert;
 
       /deploy/back/Uhost.Console loaddefaultdata --file /deploy/back/default-data.json;
+      /deploy/back/Uhost.Console updateseq;
       /deploy/back/Uhost.Console dbvacuum;"
     logging:
       driver: gelf

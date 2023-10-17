@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Uhost.Core;
-using Uhost.Core.Common;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models;
 using Entity = Uhost.Core.Data.Entities.User;
@@ -38,7 +37,7 @@ namespace Uhost.Console.Models
             }
             if (!string.IsNullOrEmpty(Password))
             {
-                entity.Password = Hasher.ComputeHash(Password + CoreSettings.PasswordSalt, Hasher.EncryptionMethod.SHA256);
+                entity.Password = (Password + CoreSettings.PasswordSalt).ComputeHash(HasherExtensions.EncryptionMethod.SHA256);
             }
             if (RoleIds != null)
             {

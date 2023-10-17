@@ -120,6 +120,9 @@
   <data name="Common_Error_Common" xml:space="preserve">
     <value>Неизвестная ошибка</value>
   </data>
+  <data name="Common_Error_EntityNotFound" xml:space="preserve">
+    <value>Сущность с таким именем не найдена</value>
+  </data>
   <data name="Common_Error_Invalid" xml:space="preserve">
     <value>Некорректное значение</value>
   </data>

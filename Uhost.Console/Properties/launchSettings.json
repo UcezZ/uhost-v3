@@ -2,7 +2,7 @@
   "profiles": {
     "Uhost.Console": {
       "commandName": "Project",
-      "commandLineArgs": "dbvacuum"
+      "commandLineArgs": "updateseq"
     }
   }
 }

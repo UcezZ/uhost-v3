@@ -1,14 +1,12 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Uhost.Core.Extensions;
 
-namespace Uhost.Core.Common
+namespace Uhost.Core.Extensions
 {
-
-    public class Hasher
+    public static class HasherExtensions
     {
         /// <summary>
         /// Предоставляет выбор алгоритма хэширования
@@ -30,7 +28,7 @@ namespace Uhost.Core.Common
         /// <param name="input">Буфер</param>
         /// <param name="method">Алгоритм хэширования</param>
         /// <returns></returns>
-        public static byte[] ComputeHash(byte[] input, EncryptionMethod method)
+        public static byte[] ComputeHash(this byte[] input, EncryptionMethod method)
         {
             switch (method)
             {
@@ -56,7 +54,7 @@ namespace Uhost.Core.Common
         /// <param name="method">Алгоритм хэширования</param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static byte[] ComputeHash(Stream input, EncryptionMethod method)
+        public static byte[] ComputeHash(this Stream input, EncryptionMethod method)
         {
             switch (method)
             {
@@ -82,22 +80,12 @@ namespace Uhost.Core.Common
         /// <param name="method">Алгоритм хэширования</param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static string ComputeHash(string input, EncryptionMethod method)
+        public static string ComputeHash(this string input, EncryptionMethod method)
         {
-            byte[] buffer = _encoding.GetBytes(input);
-            byte[] result = ComputeHash(buffer, method);
+            var buffer = _encoding.GetBytes(input);
+            var result = ComputeHash(buffer, method);
 
-            return ByteHashToString(result);
-        }
-
-        /// <summary>
-        /// Преобразует хэш в строку
-        /// </summary>
-        /// <param name="value">Хэш</param>
-        /// <returns></returns>
-        public static string ByteHashToString(byte[] value)
-        {
-            return value.Select(b => b.ToString("x2")).Concat();
+            return result.ToHexString();
         }
     }
 }

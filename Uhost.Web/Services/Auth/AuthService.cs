@@ -1,25 +1,24 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using StackExchange.Redis;
+using StackExchange.Redis.Extensions.Core.Abstractions;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Uhost.Core.Data;
+using System.Threading.Tasks;
 using Uhost.Core.Extensions;
-using Uhost.Core.Services;
 using Uhost.Web.Middleware;
 using UserEntity = Uhost.Core.Data.Entities.User;
 
 namespace Uhost.Web.Services.Auth
 {
-    public class AuthService : BaseService, IAuthService
+    public class AuthService : IAuthService
     {
-        private readonly IConnectionMultiplexer _connectionMultiplexer;
-        private readonly RedisTokenHandler _tokenHandler;
+        private readonly IRedisDatabase _redis;
+        private readonly DummyTokenHandler _tokenHandler;
 
-        public AuthService(PostgreSqlDbContext context, IConnectionMultiplexer connectionMultiplexer) : base(context)
+        public AuthService(IRedisDatabase redis)
         {
-            _connectionMultiplexer = connectionMultiplexer;
-            _tokenHandler = new RedisTokenHandler(_connectionMultiplexer);
+            _redis = redis;
+            _tokenHandler = new DummyTokenHandler();
         }
 
         /// <summary>
@@ -49,22 +48,35 @@ namespace Uhost.Web.Services.Auth
         /// Генерация токена пользователя
         /// </summary>
         /// <param name="userId"></param>
-        /// <param name="expiresAt"></param>
-        /// <param name="stringToken"></param>
         /// <returns></returns>
-        public void GenToken(int userId, out DateTime? expiresAt, out string stringToken)
+        public async Task<(DateTime Expires, string Token)> GenToken(int userId)
         {
             var tokenDescriptor = GenTokenDescriptor(userId);
+            var secToken = _tokenHandler.CreateToken(tokenDescriptor);
+            if (secToken is JwtSecurityToken jwtToken &&
+                jwtToken.Claims.TryGetUserId(out var id) &&
+                jwtToken.Claims.TryGetJti(out var jti))
+            {
+                var key = RedisTokenHandlerMiddleware.RedisKey(id, jti);
+                await _redis.Database.StringSetAsync(key, string.Empty, secToken.ValidTo - secToken.ValidFrom);
 
-            stringToken = _tokenHandler.WriteToken(_tokenHandler.CreateToken(tokenDescriptor));
-            expiresAt = tokenDescriptor.Expires;
+                return (tokenDescriptor.Expires ?? default, _tokenHandler.WriteToken(secToken));
+            }
+
+            return default;
         }
 
-        public bool Logout(ClaimsPrincipal claims)
+        /// <summary>
+        /// Инвалидация токена
+        /// </summary>
+        /// <param name="claims"></param>
+        /// <returns></returns>
+        public async Task<bool> Logout(ClaimsPrincipal claims)
         {
-            if (claims.TryGetUserId(out var userId) && claims.TryGetJti(out var jti))
+            if (claims != null && claims.TryGetUserId(out var userId) && claims.TryGetJti(out var jti))
             {
-                return claims != null && _tokenHandler.InvalidateToken(userId, jti);
+                var key = RedisTokenHandlerMiddleware.RedisKey(userId, jti);
+                return await _redis.Database.KeyDeleteAsync(key);
             }
 
             return false;

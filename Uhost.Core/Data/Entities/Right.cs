@@ -9,7 +9,10 @@ namespace Uhost.Core.Data.Entities
     {
         public enum Rights
         {
-            VideoCreateUpdate = 1
+            VideoCreateUpdate = 0x01,
+            FileGet = 0x11,
+            FileCreateUpdate = 0x12,
+            FileDelete = 0x13
         }
 
         [Required, Column(TypeName = "text")]

@@ -9,7 +9,7 @@ using Uhost.Core.Services.User;
 using Uhost.Web.Common;
 using Uhost.Web.Extensions;
 using Uhost.Web.Properties;
-using Entity = Uhost.Core.Data.Entities.Role;
+using Entity = Uhost.Core.Data.Entities.User;
 
 namespace Uhost.Web.Controllers
 {
@@ -43,7 +43,7 @@ namespace Uhost.Web.Controllers
         /// <summary>
         /// Получить пользователя по ИД
         /// </summary>
-        /// <param name="id">ИД роли</param>
+        /// <param name="id">ИД пользователя</param>
         /// <returns></returns>
         [HttpGet("{id}")]
         public IActionResult GetOne(
@@ -101,7 +101,7 @@ namespace Uhost.Web.Controllers
         /// <param name="model">Модель данных</param>
         [HttpPut("{id}")]
         public IActionResult Update(
-            [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Id), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Role_Error_NotFoundById))]
+            [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Id), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.User_Error_NotFoundById))]
             string id,
            [FromForm] UserCreateModel model)
         {

@@ -8,6 +8,7 @@ appsettings.docker.json
 default-data.json
 .env
 Uhost.Web.xml
+/out
 
 # front
 /Frontend/node_modules

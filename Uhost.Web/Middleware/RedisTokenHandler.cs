@@ -1,5 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using StackExchange.Redis;
+using StackExchange.Redis.Extensions.Core.Abstractions;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Uhost.Core.Extensions;
@@ -27,12 +27,12 @@ namespace Uhost.Web.Middleware
         #endregion
 
         private readonly JwtSecurityTokenHandler _tokenValidator;
-        private readonly IConnectionMultiplexer _connectionMultiplexer;
+        private readonly IRedisDatabase _redis;
 
-        public RedisTokenHandler(IConnectionMultiplexer connectionMultiplexer)
+        public RedisTokenHandler(IRedisClientFactory factory)
         {
             _tokenValidator = new JwtSecurityTokenHandler();
-            _connectionMultiplexer = connectionMultiplexer;
+            _redis = factory.GetDefaultRedisDatabase();
         }
 
         public ClaimsPrincipal ValidateToken(string securityToken, TokenValidationParameters validationParameters, out SecurityToken validatedToken)
@@ -47,9 +47,10 @@ namespace Uhost.Web.Middleware
                 }
 
                 var key = RedisKey(userId, jti);
-                var exists = _connectionMultiplexer.GetDatabase().KeyExists(key);
+                var exists = _redis.ExistsAsync(key);
+                exists.Wait();
 
-                if (!exists)
+                if (!exists.Result)
                 {
                     return _emptyClaims;
                 }
@@ -74,8 +75,8 @@ namespace Uhost.Web.Middleware
             {
                 var key = RedisKey(id, jti);
 
-                _connectionMultiplexer
-                    .GetDatabase()
+                _redis
+                    .Database
                     .StringSet(key, string.Empty, token.ValidTo - token.ValidFrom);
 
                 return stringToken;
@@ -89,8 +90,8 @@ namespace Uhost.Web.Middleware
         public bool InvalidateToken(int userId, string jti)
         {
             var key = RedisKey(userId, jti);
-            var result = _connectionMultiplexer
-                .GetDatabase()
+            var result = _redis
+                .Database
                 .KeyDelete(key);
 
             return result;

@@ -21,7 +21,7 @@ namespace Uhost.Core.Repositories
             }
             if (query.UserId > 0)
             {
-                q = q.Where(e => e.InvokerId == query.UserId);
+                q = q.Where(e => e.UserId == query.UserId);
             }
 
             return q.OrderBy(query);

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Uhost.Core.Properties;
 using static System.Console;
@@ -333,6 +334,23 @@ namespace Uhost.Core.Extensions
                 value = default;
                 return false;
             }
+        }
+
+        public static object ToDetailedDataObject(this Exception exception)
+        {
+            return new
+            {
+                exception.Message,
+                exception.StackTrace,
+                exception.Source,
+                exception.Data,
+                Inner = exception.InnerException?.ToDetailedDataObject()
+            };
+        }
+
+        public static string ToHexString(this byte[] buffer)
+        {
+            return buffer.Select(b => b.ToString("x2")).Concat();
         }
     }
 }

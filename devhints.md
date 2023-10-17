@@ -2,9 +2,6 @@ Installing EF tools
 ```
 dotnet tool install --global dotnet-ef --version 5.0.10
 ```
-```
-dotnet tool install --global dotnet-ef --version 6.0.22
-```
 
 Add migration
 ```
@@ -14,6 +11,7 @@ dotnet ef migrations add <name> --project Uhost.Core --context PostgreSqlDbConte
 Apply migrations
 ```
 dotnet ef database update --project Uhost.Core --context PostgreSqlDbContext
+dotnet ef database update --project Uhost.Core --context PostgreSqlLogDbContext
 ```
 
 Building dockerfile

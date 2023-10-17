@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.User;
 using Uhost.Core.Services.Log;
@@ -59,10 +60,11 @@ namespace Uhost.Web.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("logout"), Authorize]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
-            if (_authService.Logout(User))
+            if (await _authService.Logout(User))
             {
+                _logService.Add(Events.UserLogOut);
             }
 
             return ResponseHelper.Success("OK");
@@ -72,7 +74,7 @@ namespace Uhost.Web.Controllers
         /// Вход пользователя
         /// </summary>
         [HttpPost("login"), AllowAnonymous, Throttle(Count = 5, SpanSeconds = 10)]
-        public IActionResult Login([FromForm] UserLoginQueryModel query)
+        public async Task<IActionResult> Login([FromForm] UserLoginQueryModel query)
         {
             if (!ModelState.IsValid)
             {
@@ -83,7 +85,7 @@ namespace Uhost.Web.Controllers
 
             if (user == null)
             {
-                _logService.Log(
+                _logService.Add(
                      Events.UserAuthFail,
                      new
                      {
@@ -101,7 +103,7 @@ namespace Uhost.Web.Controllers
                     user.BlockedByUser?.Login,
                     user.BlockReason);
 
-                _logService.Log(
+                _logService.Add(
                      Events.UserAuthFail,
                      new
                      {
@@ -113,15 +115,15 @@ namespace Uhost.Web.Controllers
                 return ResponseHelper.ErrorMessage("login", comment);
             }
 
-            _authService.GenToken(user.Id, out var expiresAt, out var token);
+            (var expiresAt, var token) = await _authService.GenToken(user.Id);
             var model = _userService.GetOne(user.Id);
             _userService.UpdateLastVisitAt(user.Id);
-            _logService.Log(Events.UserAuth, user?.ToModel<UserEntity, UserShortViewModel>());
+            _logService.Add(Events.UserAuth, user?.ToModel<UserEntity, UserShortViewModel>());
 
             return ResponseHelper.Success(new
             {
                 Token = token,
-                ValidTo = expiresAt?.ToApiFmt(),
+                ValidTo = expiresAt.ToApiFmt(),
                 User = model,
             });
         }

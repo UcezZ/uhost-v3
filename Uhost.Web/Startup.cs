@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
+using StackExchange.Redis.Extensions.Newtonsoft;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,6 +23,7 @@ using Uhost.Core.Common;
 using Uhost.Core.Data;
 using Uhost.Core.Middleware;
 using Uhost.Core.Providers;
+using Uhost.Core.Services.FileService;
 using Uhost.Core.Services.Graylog;
 using Uhost.Core.Services.HangfireScheduler;
 using Uhost.Core.Services.Log;
@@ -65,6 +67,7 @@ namespace Uhost.Web
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ILogService, LogService>();
+            services.AddScoped<IFileService, FileService>();
             services.AddScoped<IRestClientService, RestClientService>();
             services.AddScoped<IGraylogService, GraylogService>();
 
@@ -84,6 +87,7 @@ namespace Uhost.Web
             // Redis
             ConnectionMultiplexer.SetFeatureFlag("preventthreadtheft", true);
             services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(CoreSettings.RedisConfig));
+            services.AddStackExchangeRedisExtensions<NewtonsoftSerializer>(CoreSettings.RedisConfig);
 
             if (LocalEnvironment.IsDev)
             {
@@ -139,7 +143,7 @@ namespace Uhost.Web
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
                 options.SecurityTokenValidators.Clear();
-                options.SecurityTokenValidators.Add(new RedisTokenHandler(ConnectionMultiplexer.Connect(CoreSettings.RedisConfig)));
+                options.SecurityTokenValidators.Add(new DummyTokenHandler());
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -158,7 +162,6 @@ namespace Uhost.Web
         /// </summary>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-
             if (env.IsDevelopment())
             {
                 app.UseCors(options =>

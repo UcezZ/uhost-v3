@@ -16,12 +16,14 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.10" />
     <PackageReference Include="Sentry.AspNetCore" Version="2.1.8" />
     <PackageReference Include="StackExchange.Redis" Version="2.5.61" />
+    <PackageReference Include="StackExchange.Redis.Extensions.AspNetCore" Version="8.0.5" />
+    <PackageReference Include="StackExchange.Redis.Extensions.Newtonsoft" Version="8.0.5" />
   </ItemGroup>
 
   <ItemGroup>

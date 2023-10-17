@@ -20,6 +20,12 @@ namespace Uhost.Core
 
         public static string PasswordSalt { get; private set; }
 
+        public static string FileStoragePath { get; private set; }
+
+        public static string PublicUrl { get; private set; }
+
+        public static string UploadsUrl { get; set; }
+
         public static RedisConfigWrapper RedisConfig { get; private set; }
 
         public static SentryConfigWrapper SentryConfig { get; private set; }

@@ -5,6 +5,7 @@ using System.Net;
 
 namespace Uhost.Core.Data.Entities
 {
+    [Table("Logs")]
     public class Log : BaseEntity
     {
         public enum Events : int
@@ -46,7 +47,7 @@ namespace Uhost.Core.Data.Entities
 
         public int EventId { get; set; }
 
-        public int? InvokerId { get; set; }
+        public int? UserId { get; set; }
 
         [Required, Column(TypeName = "jsonb")]
         public string Data { get; set; }

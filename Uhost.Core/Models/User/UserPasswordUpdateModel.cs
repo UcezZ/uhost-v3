@@ -1,5 +1,5 @@
 ﻿using Uhost.Core.Attributes.Validation;
-using Uhost.Core.Common;
+using Uhost.Core.Extensions;
 using Entity = Uhost.Core.Data.Entities.User;
 
 namespace Uhost.Core.Models.User
@@ -16,7 +16,7 @@ namespace Uhost.Core.Models.User
         {
             base.FillEntity(entity);
 
-            entity.Password = Hasher.ComputeHash(Password + CoreSettings.PasswordSalt, Hasher.EncryptionMethod.SHA256);
+            entity.Password = (Password + CoreSettings.PasswordSalt).ComputeHash(HasherExtensions.EncryptionMethod.SHA256);
 
             return entity;
         }

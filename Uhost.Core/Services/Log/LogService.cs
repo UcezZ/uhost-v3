@@ -30,14 +30,14 @@ namespace Uhost.Core.Services.Log
             _contextAccessor = provider.GetService<IHttpContextAccessor>();
         }
 
-        public void Log(Events ev, object data)
+        public void Add(Events ev, object data = null)
         {
             var entity = new Entity
             {
-                InvokerId = _contextAccessor?.HttpContext?.User != null && _contextAccessor.HttpContext.User.TryGetUserId(out var userId) ? userId : null,
+                UserId = _contextAccessor?.HttpContext?.User != null && _contextAccessor.HttpContext.User.TryGetUserId(out var userId) ? userId : null,
                 EventId = (int)ev,
                 IPAddress = _contextAccessor?.HttpContext?.Connection?.RemoteIpAddress,
-                Data = data?.ToJson()
+                Data = (data ?? new { }).ToJson()
             };
 
             _repo.Add(entity);

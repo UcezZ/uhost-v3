@@ -17,13 +17,17 @@ namespace Uhost.Core.Extensions
         }
 
         // Добавляем в строку ключевое слово направление сортировки
-        private static string SetDirection(string direct, string query = null)
+        public static string SetDirection(string direct, string query = null)
         {
             if (!string.IsNullOrEmpty(query))
             {
-                return query + " " + (IsAsc(direct) ? "ASC" : "DESC");
+                return query
+                    .Split(',')
+                    .Select(e => $"{e.Trim()} {(IsAsc(direct) ? "ASC" : "DESC")}")
+                    .Join(", ");
             }
-            return "";
+
+            return string.Empty;
         }
 
         public static IQueryable<TEntity> OrderBy<TEntity>(this IQueryable<TEntity> source, BaseQueryModel query) where TEntity : BaseEntity =>

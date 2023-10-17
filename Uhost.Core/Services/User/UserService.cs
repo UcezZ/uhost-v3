@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Uhost.Core.Common;
 using Uhost.Core.Data;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.Right;
@@ -121,7 +120,7 @@ namespace Uhost.Core.Services.User
                 .PrepareQuery(new QueryModel { LoginOrEmail = query.Login })
                 .ToList();
 
-            var password = Hasher.ComputeHash(query.Password + CoreSettings.PasswordSalt, Hasher.EncryptionMethod.SHA256);
+            var password = (query.Password + CoreSettings.PasswordSalt).ComputeHash(HasherExtensions.EncryptionMethod.SHA256);
 
             return entities.FirstOrDefault(e => e.Password == password);
         }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Reflection;
+using Uhost.Core.Common;
 using Uhost.Core.Data.Entities;
 
 namespace Uhost.Core.Data
@@ -23,7 +24,11 @@ namespace Uhost.Core.Data
             optionsBuilder.UseNpgsql(CoreSettings.SqlLogConnectionString, e => e
                 .MigrationsAssembly(assembly.FullName)
                 .CommandTimeout(CoreSettings.SqlCommandTimeoutSeconds));
-            optionsBuilder.EnableSensitiveDataLogging();
+
+            if (LocalEnvironment.IsDev)
+            {
+                optionsBuilder.EnableSensitiveDataLogging();
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder builder)

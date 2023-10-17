@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.Collections.Generic;
 using System.Net;
+using Uhost.Core.Extensions;
 using Uhost.Web.Common;
 using Uhost.Web.Properties;
 
@@ -30,29 +30,7 @@ namespace Uhost.Web.Controllers
 
             if (_env.IsDevelopment() && exception != null)
             {
-                var errorObj = new Dictionary<string, string>();
-                var code = HttpStatusCode.InternalServerError;
-
-                // TODO: дополнительная информация в зависимости от типа исключения (InnerException и т.д.)
-
-                errorObj["error"] = exception.Message;
-                errorObj["stackTrace"] = exception.StackTrace;
-                errorObj["source"] = exception.Source;
-
-                if (exception.InnerException != null)
-                {
-                    var e = exception.InnerException;
-
-                    while (e.InnerException != null)
-                    {
-                        e = e.InnerException;
-                    }
-
-                    errorObj["innerMessage"] = e.Message;
-                    errorObj["innerStackTrace"] = e.StackTrace;
-                }
-
-                return ResponseHelper.Error(errorObj, code);
+                return ResponseHelper.Error(exception.ToDetailedDataObject(), HttpStatusCode.InternalServerError);
             }
 
             return ResponseHelper.ErrorMessage("error", ApiStrings.Common_Error_Common, HttpStatusCode.InternalServerError);

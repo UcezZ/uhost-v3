@@ -6,8 +6,18 @@ namespace Uhost.Core.Data.Entities
     [Table("Files")]
     public class File : BaseDateTimedEntity
     {
+        public enum SortBy
+        {
+            Id,
+            CreatedAt,
+            Size,
+            Type,
+            UserId
+        }
+
         public enum Types
         {
+            Other,
             UserAvatar,
             VideoThumbnail,
             VideoRaw,
@@ -17,7 +27,7 @@ namespace Uhost.Core.Data.Entities
             Video720p
         }
 
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
 
         [Required, Column(TypeName = "text")]
         public string Name { get; set; }

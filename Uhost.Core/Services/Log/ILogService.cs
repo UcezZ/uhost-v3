@@ -5,6 +5,6 @@ namespace Uhost.Core.Services.Log
 {
     public interface ILogService : IDisposable, IAsyncDisposable
     {
-        void Log(Events ev, object data);
+        void Add(Events ev, object data = null);
     }
 }

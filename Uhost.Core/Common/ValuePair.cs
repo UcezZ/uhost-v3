@@ -16,5 +16,11 @@
         /// Value 2
         /// </summary>
         public T2 Value2 { get; set; }
+
+        public ValuePair(T1 value1, T2 value2)
+        {
+            Value1 = value1;
+            Value2 = value2;
+        }
     }
 }

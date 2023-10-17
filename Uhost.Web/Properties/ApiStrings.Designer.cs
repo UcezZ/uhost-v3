@@ -124,6 +124,15 @@ namespace Uhost.Web.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Файл с таким ид. не найден.
+        /// </summary>
+        internal static string File_Error_NotFoundById {
+            get {
+                return ResourceManager.GetString("File_Error_NotFoundById", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на &lt;head&gt;&lt;meta charset=&quot;UTF-8&quot;&gt;&lt;style&gt;*{font-family:-apple-system,BlinkMacSystemFont,&apos;Segoe UI&apos;,Roboto,Oxygen,Ubuntu,Cantarell,&apos;Open Sans&apos;,&apos;Helvetica Neue&apos;,sans-serif;color:#173647;}div.button-wrapper{display:flex;justify-content:center;}a.swagger-link{font-size:48px;line-height:48px;font-weight:900;width:96px;height:96px;border-radius:96px;background-color:#85ea2d;padding:16px;position:relative;overflow:hidden;transition:all 0.3s ease-out;user-select:none;box-shadow:2px 2px 8px 2px #17364788;cursor:pointer;}a [остаток строки не уместился]&quot;;.
         /// </summary>
         internal static string Home_Index {

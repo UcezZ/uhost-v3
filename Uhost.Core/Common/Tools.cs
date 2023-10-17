@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.StaticFiles;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace Uhost.Core.Common
     public static class Tools
     {
         private const string _randomChars = "1234567890-qwertyuiopasdfghjklzxcvbnm.QWERTYUIOPASDFGHJKLZXCVBNM_";
+        private static readonly FileExtensionContentTypeProvider _mimeProvider = new FileExtensionContentTypeProvider();
 
         internal static JsonSerializerSettings SerializerSettings => new JsonSerializerSettings
         {
@@ -121,22 +123,13 @@ namespace Uhost.Core.Common
         }
 
         /// <summary>
-        /// Получает имя ятаблицы сущности по типу сущности
+        /// Получает имя таблицы по типу сущности
         /// </summary>
-        /// <param name="entityType"></param>
+        /// <param name="entityType">Тип сущности</param>
         /// <returns></returns>
-        public static string GetEntityTableNameByEntityType(Type entityType) => GetEntityTableNameByEntityName(entityType?.Name);
-
-        /// <summary>
-        /// Получает имя таблицы по имени сущности
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public static string GetEntityTableNameByEntityName(string name)
+        public static string GetEntityTableNameByEntityType(Type entityType)
         {
-            var entities = EnumerateEntities();
-            var target = entities.FirstOrDefault(e => e.Name == name);
-            var value = target?
+            var value = entityType?
                 .CustomAttributes?
                 .FirstOrDefault(e => e.AttributeType == typeof(TableAttribute))?
                 .ConstructorArguments?
@@ -173,11 +166,7 @@ namespace Uhost.Core.Common
         {
             for (var i = 0; i < values1.Count && i < values2.Count; i++)
             {
-                yield return new ValuePair<T1, T2>
-                {
-                    Value1 = values1[i],
-                    Value2 = values2[i]
-                };
+                yield return new ValuePair<T1, T2>(values1[i], values2[i]);
             }
         }
 
@@ -185,12 +174,15 @@ namespace Uhost.Core.Common
         {
             for (var i = 0; i < values1.Length && i < values2.Length; i++)
             {
-                yield return new ValuePair<T1, T2>
-                {
-                    Value1 = values1[i],
-                    Value2 = values2[i]
-                };
+                yield return new ValuePair<T1, T2>(values1[i], values2[i]);
             }
+        }
+
+        public static string GetMimeFromName(string name)
+        {
+            return _mimeProvider.TryGetContentType(name, out var mime)
+                ? mime :
+                "application/octet-stream";
         }
     }
 }
