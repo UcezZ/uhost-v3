@@ -66,6 +66,11 @@ services:
       file: support.yml
       service: sentry-web
 
+  rabbitmq:
+    extends:
+      file: support.yml
+      service: rabbitmq
+
   # app builder
   builder:
     image: ucezz/dotnet-sdk-gdi:5.0
@@ -93,10 +98,13 @@ services:
       cd /build/back;
       dotnet ef database update --project Uhost.Core --context PostgreSqlDbContext || exit 1;
       dotnet ef database update --project Uhost.Core --context PostgreSqlLogDbContext || exit 1;
+
       rm -rf /deploy/back;
       dotnet publish -r linux-x64 --self-contained true -c Release -o /deploy/back;
+
       rm -rf /deploy/win/*;
       dotnet publish -r win-x64 -p:PublishSingleFile=true --self-contained true -c Release -o /deploy/win Uhost.Convert;
+      cp -pf /src/Uhost.Core/appsettings.json /deploy/win/appsettings.json || exit 1;
 
       /deploy/back/Uhost.Console loaddefaultdata --file /deploy/back/default-data.json;
       /deploy/back/Uhost.Console updateseq;
@@ -125,6 +133,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      rabbitmq:
+        condition: service_started
       graylog:
         condition: service_started
       builder:
@@ -208,3 +218,4 @@ volumes:
   redis_volume:
   elasticsearch_volume:
   sentry_volume:
+  rabbitmq_volume:
