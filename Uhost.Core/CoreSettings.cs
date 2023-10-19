@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using RabbitMQ.Client.Core.DependencyInjection.Configuration;
 using System;
 using System.ComponentModel;
 using System.Linq;
@@ -31,6 +32,8 @@ namespace Uhost.Core
         public static SentryConfigWrapper SentryConfig { get; private set; }
 
         public static GraylogApiIntegration GraylogApi { get; private set; }
+
+        public static RabbitMqClientOptions RabbitMqClientOptions { get; private set; }
 
         static CoreSettings() => Load(typeof(CoreSettings));
 

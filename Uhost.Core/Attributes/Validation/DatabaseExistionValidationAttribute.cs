@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using System;
 using System.ComponentModel;
@@ -6,7 +7,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Data;
 using Uhost.Core.Common;
 using Uhost.Core.Data;
-using Uhost.Core.Extensions;
 using Uhost.Core.Properties;
 
 namespace Uhost.Core.Attributes.Validation

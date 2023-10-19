@@ -8,7 +8,7 @@ using Uhost.Core.Models.File;
 using Entity = Uhost.Core.Data.Entities.File;
 using QueryModel = Uhost.Core.Models.File.FileQueryModel;
 
-namespace Uhost.Core.Services.FileService
+namespace Uhost.Core.Services.File
 {
     public interface IFileService : IDisposable, IAsyncDisposable
     {

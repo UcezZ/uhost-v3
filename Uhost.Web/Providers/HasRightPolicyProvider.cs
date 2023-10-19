@@ -11,7 +11,7 @@ using static System.Console;
 using static Uhost.Core.Data.Entities.Right;
 using static Uhost.Web.Common.RightRequirement;
 
-namespace Uhost.Core.Providers
+namespace Uhost.Web.Providers
 {
     public class HasRightPolicyProvider : IAuthorizationPolicyProvider
     {

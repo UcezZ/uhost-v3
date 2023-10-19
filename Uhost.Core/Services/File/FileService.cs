@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Sentry;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ using static Uhost.Core.Data.Entities.Log;
 using Entity = Uhost.Core.Data.Entities.File;
 using QueryModel = Uhost.Core.Models.File.FileQueryModel;
 
-namespace Uhost.Core.Services.FileService
+namespace Uhost.Core.Services.File
 {
     public class FileService : BaseService, IFileService
     {
@@ -171,7 +172,7 @@ namespace Uhost.Core.Services.FileService
 
                 try
                 {
-                    File.Delete(name);
+                    System.IO.File.Delete(name);
                 }
                 catch (Exception e)
                 {

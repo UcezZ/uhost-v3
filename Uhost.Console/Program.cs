@@ -1,5 +1,4 @@
 ﻿using CommandLine;
-using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
@@ -17,8 +16,6 @@ namespace Uhost.Console
         static void Main(string[] args)
         {
             var services = new ServiceCollection();
-
-            services.AddHangfireServer();
 
             services.AddDbContext<PostgreSqlDbContext>(e => e.UseNpgsql(CoreSettings.SqlConnectionString));
             services.AddDbContext<PostgreSqlLogDbContext>(e => e.UseNpgsql(CoreSettings.SqlLogConnectionString));

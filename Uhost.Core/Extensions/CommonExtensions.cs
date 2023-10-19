@@ -352,5 +352,31 @@ namespace Uhost.Core.Extensions
         {
             return buffer.Select(b => b.ToString("x2")).Concat();
         }
+
+        /// <summary>
+        /// Заполняет свойства объекта типа <typeparamref name="T"/> из объекта <paramref name="source"/>
+        /// </summary>
+        /// <typeparam name="T">Целевой тип объекта</typeparam>
+        /// <param name="obj">Объект назначения</param>
+        /// <param name="source">Объект-источник</param>
+        public static void LoadFrom<T>(this T obj, T source)
+        {
+            var props = typeof(T)
+                .GetProperties()
+                .Where(e => e.CanWrite && e.CanRead)
+                .ToList();
+
+            foreach (var prop in props)
+            {
+                var value = prop.GetValue(source);
+
+                if (value != null || value != default)
+                {
+                    prop.SetValue(obj, value);
+                }
+            }
+
+            props.Clear();
+        }
     }
 }

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Uhost.Core.Attributes.Validation;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.File;
-using Uhost.Core.Services.FileService;
+using Uhost.Core.Services.File;
 using Uhost.Web.Attributes.Authorize;
 using Uhost.Web.Common;
 using Uhost.Web.Extensions;

@@ -1,6 +1,4 @@
-﻿using Hangfire;
-using Hangfire.PostgreSql;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -8,9 +6,11 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using RabbitMQ.Client.Core.DependencyInjection;
 using StackExchange.Redis;
 using StackExchange.Redis.Extensions.Newtonsoft;
 using System;
@@ -21,17 +21,17 @@ using System.Text;
 using Uhost.Core;
 using Uhost.Core.Common;
 using Uhost.Core.Data;
-using Uhost.Core.Middleware;
-using Uhost.Core.Providers;
-using Uhost.Core.Services.FileService;
+using Uhost.Core.Extensions;
+using Uhost.Core.Services.File;
 using Uhost.Core.Services.Graylog;
-using Uhost.Core.Services.HangfireScheduler;
 using Uhost.Core.Services.Log;
 using Uhost.Core.Services.RestClient;
 using Uhost.Core.Services.Role;
+using Uhost.Core.Services.Scheduler;
 using Uhost.Core.Services.User;
 using Uhost.Web.Filters;
 using Uhost.Web.Middleware;
+using Uhost.Web.Providers;
 using Uhost.Web.Services.Auth;
 
 namespace Uhost.Web
@@ -55,10 +55,7 @@ namespace Uhost.Web
         /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddMvc(options => options.EnableEndpointRouting = false);
-            services.AddControllers();// options => options.EnableEndpointRouting = false);
-
-            services.AddHangfire(e => e.UsePostgreSqlStorage(CoreSettings.SqlConnectionString));
+            services.AddControllers();
 
             services.AddDbContext<PostgreSqlDbContext>(e => e.UseNpgsql(CoreSettings.SqlConnectionString));
             services.AddDbContext<PostgreSqlLogDbContext>(e => e.UseNpgsql(CoreSettings.SqlLogConnectionString));
@@ -71,9 +68,8 @@ namespace Uhost.Web
             services.AddScoped<IRestClientService, RestClientService>();
             services.AddScoped<IGraylogService, GraylogService>();
 
-            services.AddSingleton<IHangfireSchedulerService, HangfireSchedulerService>();
+            services.AddSingleton<ISchedulerService, SchedulerService>();
 
-            // for NLog
             services.AddHttpContextAccessor();
 
             // Кодировка
@@ -89,6 +85,10 @@ namespace Uhost.Web
             services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(CoreSettings.RedisConfig));
             services.AddStackExchangeRedisExtensions<NewtonsoftSerializer>(CoreSettings.RedisConfig);
 
+            // RMQ
+            services.AddRabbitMqClient(CoreSettings.RabbitMqClientOptions);
+            services.AddDefaultExchange();
+
             if (LocalEnvironment.IsDev)
             {
                 // Swagger
@@ -101,7 +101,6 @@ namespace Uhost.Web
                         Title = "uHost v3 API",
                         Description = "uHost v3 API"
                     });
-
                     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                     {
                         Name = "Authorization",
@@ -111,7 +110,6 @@ namespace Uhost.Web
                         In = ParameterLocation.Header,
                         Description = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                     });
-
                     options.AddSecurityRequirement(
                         new OpenApiSecurityRequirement
                         {
@@ -160,7 +158,7 @@ namespace Uhost.Web
         /// <summary>
         /// App configuration
         /// </summary>
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider provider)
         {
             if (env.IsDevelopment())
             {
@@ -177,17 +175,32 @@ namespace Uhost.Web
                 {
                     options.SwaggerEndpoint("/swagger/v2/swagger.json", "Uhost v3");
                     options.RoutePrefix = "swagger";
+                    options.InjectStylesheet("style.css");
                 });
             }
 
             app.UseExceptionHandler("/error");
+
             app.UseFileServer();
             app.UseRouting();
+
+            var storage = Path.GetFullPath(CoreSettings.FileStoragePath);
+
+            if (!Directory.Exists(storage))
+            {
+                Directory.CreateDirectory(storage);
+            }
+
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                FileProvider = new PhysicalFileProvider(storage),
+                RequestPath = Tools.UrlCombine(string.Empty, CoreSettings.UploadsUrl),
+                DefaultContentType = "application/octet-stream"
+            });
 
             app.UseMiddleware<ThrottleMiddleware>();
             app.UseMiddleware<SentryLegacyMiddleware>();
 
-            app.UseHangfireDashboard("/hangfire", WebSettings.HangfireDashboardOptions);
             app.UseAuthentication();
             app.UseAuthorization();
 

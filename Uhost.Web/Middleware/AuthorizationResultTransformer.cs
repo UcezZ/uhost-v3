@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Uhost.Core.Extensions;
 using Uhost.Web.Common;
 
-namespace Uhost.Core.Middleware
+namespace Uhost.Web.Middleware
 {
     public class AuthorizationResultTransformer : IAuthorizationMiddlewareResultHandler
     {

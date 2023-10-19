@@ -1,5 +1,5 @@
-﻿using System;
-using Uhost.Core.Extensions;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace Uhost.Console.Commands
 {
