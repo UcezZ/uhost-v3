@@ -78,7 +78,7 @@ services:
   mailhog:
     image: mailhog/mailhog:latest
     container_name: "${APP_NAME}-mailhog"
-    restart: always
+    restart: unless-stopped
     ports:
       - "${FORWARD_HOST}:${FORWARD_MAILHOG_PORT}:1025"
       - "${FORWARD_HOST}:${FORWARD_MAILHOG_DASHBOARD_PORT}:8025"
@@ -87,6 +87,7 @@ services:
   mongodb:
     container_name: "${APP_NAME}-mongo"
     image: mongo:3
+    restart: unless-stopped
     volumes:
       - mongo_db_volume:/data/db
       - mongo_cfg_volume:/data/configdb
@@ -94,7 +95,7 @@ services:
   elasticsearch:
     container_name: "${APP_NAME}-elasticsearch"
     image: elasticsearch:5.6.3
-    restart: always
+    restart: unless-stopped
     environment:
       - http.host=0.0.0.0
       - transport.host=localhost
@@ -112,7 +113,7 @@ services:
   graylog:
     container_name: "${APP_NAME}-graylog"
     image: graylog/graylog:2.4.0-1
-    restart: always
+    restart: unless-stopped
     environment:
       # CHANGE ME!
       - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
@@ -142,6 +143,7 @@ services:
   memcached:
     container_name: "${APP_NAME}-memcached"
     image: memcached:1.6.21-alpine
+    restart: unless-stopped
 
   sentry-migrations:
     container_name: "${APP_NAME}-sentry-migrations"
@@ -175,6 +177,7 @@ services:
   sentry-cron:
     container_name: "${APP_NAME}-sentry-cron"
     image: sentry:latest
+    restart: unless-stopped
     depends_on:
       pgsql:
         condition: service_healthy
@@ -205,6 +208,7 @@ services:
   sentry-worker:
     container_name: "${APP_NAME}-sentry-worker"
     image: sentry:latest
+    restart: unless-stopped
     depends_on:
       pgsql:
         condition: service_healthy
@@ -236,6 +240,7 @@ services:
   sentry-web:
     container_name: "${APP_NAME}-sentry-web"
     image: sentry:latest
+    restart: unless-stopped
     depends_on:
       pgsql:
         condition: service_healthy
@@ -268,6 +273,19 @@ services:
       SENTRY_REDIS_PORT: 6379
       SENTRY_REDIS_DB: 0
 
+  rabbitmq:
+    container_name: "${APP_NAME}-rabbitmq"
+    image: rabbitmq:3.12.7-management-alpine
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RMQ_PASSWORD}
+    ports:
+      - "${FORWARD_HOST}:${FORWARD_RABBITMQ_PORT}:15672"
+      - "${FORWARD_HOST}:${FORWARD_RABBITMQ_AMQP_PORT}:5672"
+    volumes:
+      - rabbitmq_volume:/var/lib/rabbitmq
+
 volumes:
   postgres_volume:
   graylog_volume:
@@ -276,3 +294,4 @@ volumes:
   redis_volume:
   elasticsearch_volume:
   sentry_volume:
+  rabbitmq_volume:
