@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +13,13 @@ namespace Uhost.Core.Common
     /// </summary>
     public sealed class SerializableTask
     {
+        [JsonProperty]
         public string ServiceType { get; private set; }
+        [JsonProperty]
         public string MethodName { get; private set; }
+        [JsonProperty]
         public IEnumerable<string> ArgumentTypes { get; private set; }
+        [JsonProperty]
         public IEnumerable<object> ArgumentValues { get; private set; }
 
         private SerializableTask() { }
@@ -60,6 +65,17 @@ namespace Uhost.Core.Common
         }
 
         /// <summary>
+        /// Создаёт сериализованную задачу из JSON.
+        /// </summary>
+        /// <param name="json">JSON</param>
+        /// <param name="task">Задача</param>
+        /// <returns></returns>
+        public static bool TryParseJson(string json, out SerializableTask task)
+        {
+            return json.TryCastTo(out task);
+        }
+
+        /// <summary>
         /// Вызывает метод, используя внедрение зависимостей.
         /// </summary>
         /// <param name="provider">Провайдер сервисов.</param>
@@ -79,6 +95,11 @@ namespace Uhost.Core.Common
             var service = provider.GetRequiredService(targetType);
 
             targetMethod.Invoke(service, values);
+        }
+
+        public override string ToString()
+        {
+            return $"{ServiceType}.{MethodName}({ArgumentValues.Join(", ")})";
         }
     }
 }

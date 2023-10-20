@@ -428,6 +428,16 @@ namespace Uhost.Core.Extensions
             };
         }
 
+        public static Exception GetMostInnerException(this Exception exception)
+        {
+            while (exception?.InnerException != null)
+            {
+                exception = exception.InnerException;
+            }
+
+            return exception;
+        }
+
         public static string ToHexString(this byte[] buffer)
         {
             return buffer.Select(b => b.ToString("x2")).Concat();

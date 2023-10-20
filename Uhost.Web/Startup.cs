@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -20,15 +19,7 @@ using System.Linq;
 using System.Text;
 using Uhost.Core;
 using Uhost.Core.Common;
-using Uhost.Core.Data;
 using Uhost.Core.Extensions;
-using Uhost.Core.Services.File;
-using Uhost.Core.Services.Graylog;
-using Uhost.Core.Services.Log;
-using Uhost.Core.Services.RestClient;
-using Uhost.Core.Services.Role;
-using Uhost.Core.Services.Scheduler;
-using Uhost.Core.Services.User;
 using Uhost.Web.Filters;
 using Uhost.Web.Middleware;
 using Uhost.Web.Providers;
@@ -57,18 +48,9 @@ namespace Uhost.Web
         {
             services.AddControllers();
 
-            services.AddDbContext<PostgreSqlDbContext>(e => e.UseNpgsql(CoreSettings.SqlConnectionString));
-            services.AddDbContext<PostgreSqlLogDbContext>(e => e.UseNpgsql(CoreSettings.SqlLogConnectionString));
+            services.AddUhostCoreServices();
 
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IAuthService, AuthService>();
-            services.AddScoped<ILogService, LogService>();
-            services.AddScoped<IFileService, FileService>();
-            services.AddScoped<IRestClientService, RestClientService>();
-            services.AddScoped<IGraylogService, GraylogService>();
-
-            services.AddSingleton<ISchedulerService, SchedulerService>();
 
             services.AddHttpContextAccessor();
 

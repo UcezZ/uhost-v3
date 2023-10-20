@@ -26,6 +26,8 @@ namespace Uhost.Core.Models.File
 
         public string Token { get; set; }
 
+        public bool IncludeDeleted { get; set; }
+
         [EnumValidation(typeof(Entity.SortBy), nameof(Entity.SortBy.Id), ErrorMessageResourceType = typeof(CoreStrings), ErrorMessageResourceName = nameof(CoreStrings.Common_Error_SortBy))]
         public override string SortBy { get; set; }
     }

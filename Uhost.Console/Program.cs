@@ -1,12 +1,10 @@
 ﻿using CommandLine;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Uhost.Console.Commands;
-using Uhost.Core;
-using Uhost.Core.Data;
+using Uhost.Core.Extensions;
 using static System.Console;
 
 namespace Uhost.Console
@@ -16,10 +14,7 @@ namespace Uhost.Console
         static void Main(string[] args)
         {
             var services = new ServiceCollection();
-
-            services.AddDbContext<PostgreSqlDbContext>(e => e.UseNpgsql(CoreSettings.SqlConnectionString));
-            services.AddDbContext<PostgreSqlLogDbContext>(e => e.UseNpgsql(CoreSettings.SqlLogConnectionString));
-
+            services.AddUhostCoreServices();
             var provider = services.BuildServiceProvider();
 
             WriteLine();

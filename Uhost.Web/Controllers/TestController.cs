@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Uhost.Core.Services.Scheduler;
+using Uhost.Core.Services.Task.Scheduler;
 
 namespace Uhost.Web.Controllers
 {

@@ -1,4 +1,4 @@
-﻿namespace Uhost.Core.Services.Scheduler
+﻿namespace Uhost.Core.Services.Task.Scheduler
 {
     public interface ISchedulerService
     {

@@ -2,69 +2,46 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Core.DependencyInjection.Services;
 using RabbitMQ.Client.Events;
+using Sentry;
 using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Uhost.Core.Common;
 using Uhost.Core.Extensions;
+using static System.Console;
 
 namespace Uhost.Convert.Extensions
 {
     static class ApplicationExtensions
     {
         private static bool _cancel;
+        private static IServiceProvider _provider;
 
         public static void RunConversionApplication(this IServiceProvider provider)
         {
-            /*var factory = new ConnectionFactory
-            {
-                HostName = CoreSettings.RabbitMqClientOptions.HostName,
-                Port = CoreSettings.RabbitMqClientOptions.Port,
-                UserName = CoreSettings.RabbitMqClientOptions.UserName,
-                Password = CoreSettings.RabbitMqClientOptions.Password
-            };
-            using var connection = factory.CreateConnection();
-            using var channel = connection.CreateModel();
-
-            channel.QueueDeclare(queue: TaskQueues.Conversion,
-                                 durable: false,
-                                 exclusive: false,
-                                 autoDelete: false,
-                                 arguments: null);
-
-            Console.WriteLine(" [*] Waiting for messages.");
-
-            var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += (model, ea) =>
-            {
-                var body = ea.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
-                Console.WriteLine($" [x] Received {message}");
-            };
-            channel.BasicConsume(queue: TaskQueues.Conversion,
-                                 autoAck: true,
-                                 consumer: consumer);
-
-            Console.WriteLine(" Press [enter] to exit.");
-            Console.ReadLine();*/
+            _provider ??= provider;
 
             var queueService = provider.GetRequiredService<IQueueService>();
 
             var q = queueService.RegisterQueue(TaskQueues.Conversion);
 
-            Console.WriteLine(" [*] Waiting for messages.");
+            WriteLine("[Uhost.Convert]");
+            WriteLine($"Work threads: {ConvertSettings.ConverterWorkThreads}");
 
-            var consumer = new AsyncEventingBasicConsumer(queueService.Channel);
+            CancelKeyPress += OnCancelKeyPress;
 
-            consumer.Received += OnReceivedAsync;
+            for (var i = 0; i < ConvertSettings.ConverterWorkThreads; i++)
+            {
+                var consumer = new AsyncEventingBasicConsumer(queueService.Channel);
 
-            queueService.Channel.BasicConsume(
-                queue: q.QueueName,
-                autoAck: true,
-                consumer: consumer);
+                consumer.Received += OnReceivedAsync;
 
-            Console.CancelKeyPress += OnCancelKeyPress;
+                queueService.Channel.BasicConsume(
+                    queue: q.QueueName,
+                    autoAck: true,
+                    consumer: consumer);
+            }
 
             while (!_cancel)
             {
@@ -80,10 +57,24 @@ namespace Uhost.Convert.Extensions
 
         private static async Task OnReceivedAsync(object model, BasicDeliverEventArgs e)
         {
-            var body = e.Body.ToArray();
-            var message = Encoding.UTF8.GetString(body);
-            await Console.Out.WriteLineAsync($" [x] Received {message}");
-            Thread.Sleep(10000);
+            var message = Encoding.UTF8.GetString(e.Body.Span);
+            await Out.WriteLineAsync($" [x] Received {message}");
+
+            if (SerializableTask.TryParseJson(message, out var task))
+            {
+                try
+                {
+                    task.Invoke(_provider);
+                }
+                catch (Exception exception)
+                {
+                    SentrySdk.CaptureException(exception);
+
+                    var inner = exception.GetMostInnerException();
+
+                    await Error.WriteLineAsync($"{inner?.Message}\r\n{inner?.StackTrace}");
+                }
+            }
         }
     }
 }

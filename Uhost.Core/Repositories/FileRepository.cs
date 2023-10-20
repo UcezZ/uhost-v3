@@ -48,6 +48,10 @@ namespace Uhost.Core.Repositories
             {
                 q = q.Where(e => e.Token == query.Token);
             }
+            if (!query.IncludeDeleted)
+            {
+                q = q.Where(e => e.DeletedAt == null);
+            }
 
             return q.OrderBy(query);
         }
