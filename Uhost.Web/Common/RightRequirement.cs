@@ -30,8 +30,8 @@ namespace Uhost.Web.Common
         public CombinationRule Rule { get; }
         public string Message => Rule switch
         {
-            CombinationRule.And => ApiStrings.Right_Error_ShouldHaveAll.Format(Rights.Select(e => e.TranslateEnum())),
-            CombinationRule.Or => ApiStrings.Right_Error_ShouldHaveAny.Format(Rights.Select(e => e.TranslateEnum())),
+            CombinationRule.And => ApiStrings.Right_Error_ShouldHaveAll.Format(Rights.Select(e => e.TranslateEnumValue()).Join("; ")),
+            CombinationRule.Or => ApiStrings.Right_Error_ShouldHaveAny.Format(Rights.Select(e => e.TranslateEnumValue()).Join("; ")),
             _ => throw new InvalidOperationException()
         };
 

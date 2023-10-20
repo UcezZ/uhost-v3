@@ -162,11 +162,14 @@ namespace Uhost.Core.Common
             return new string(Enumerable.Range(0, length).Select(e => _randomChars[r.Next(_randomChars.Length)]).ToArray());
         }
 
-        public static IEnumerable<ValuePair<T1, T2>> ParallelSelect<T1, T2>(List<T1> values1, List<T2> values2)
+        public static IEnumerable<ValuePair<T1, T2>> ParallelSelect<T1, T2>(IEnumerable<T1> values1, IEnumerable<T2> values2)
         {
-            for (var i = 0; i < values1.Count && i < values2.Count; i++)
+            var enumerator1 = values1.GetEnumerator();
+            var enumerator2 = values2.GetEnumerator();
+
+            while (enumerator1.MoveNext() && enumerator2.MoveNext())
             {
-                yield return new ValuePair<T1, T2>(values1[i], values2[i]);
+                yield return new ValuePair<T1, T2>(enumerator1.Current, enumerator2.Current);
             }
         }
 

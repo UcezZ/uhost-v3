@@ -6,6 +6,8 @@ using RabbitMQ.Client.Core.DependencyInjection.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
 using Uhost.Core.Common;
 
 namespace Uhost.Core.Extensions
@@ -47,6 +49,18 @@ namespace Uhost.Core.Extensions
                      exclusive: false,
                      autoDelete: false,
                      arguments: null);
+        }
+
+        public static void Enqueue<T>(this IQueueService service, Expression<Action<T>> expression, string queue)
+        {
+            if (!_queues.Contains(queue))
+            {
+                throw new ArgumentException($"Queue name must be declared in {typeof(TaskQueues).FullName}");
+            }
+
+            var task = SerializableTask.Create(expression);
+
+            service.Channel.BasicPublish(string.Empty, queue, null, Encoding.UTF8.GetBytes(task.ToJson()));
         }
     }
 }

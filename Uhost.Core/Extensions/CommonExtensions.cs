@@ -52,7 +52,6 @@ namespace Uhost.Core.Extensions
                     data,
                     SerializerSettings
                         .Having(e => e.Formatting = formatting)
-                        .Having(e => e.DateFormatString = DateTimeExtensions.DateTimeApiFmt)
                 );
         }
 
@@ -224,11 +223,82 @@ namespace Uhost.Core.Extensions
                 else
                 {
                     var converter = TypeDescriptor.GetConverter(typeof(T));
+
                     if (converter != null)
                     {
                         try
                         {
                             value = (T)converter.ConvertFromString(input.ToString());
+                            exception = null;
+                            return value != null;
+                        }
+                        catch (Exception e)
+                        {
+                            value = default;
+                            exception = e;
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            value = default;
+            exception = null;
+            return false;
+        }
+
+        /// <summary>
+        /// Приведение JToken или объекта к заданному типу
+        /// </summary>
+        /// <param name="input">"сырые" данные</param>
+        /// <param name="type">Целевой тип</param>
+        /// <param name="value">Выходные данные</param>
+        /// <param name="exception">Исключение</param>
+        /// <returns>true если приведение успешно, иначе false</returns>
+        public static bool TryCastTo(this object input, Type type, out object value, out Exception exception)
+        {
+            if (input.GetType() == type || input.GetType().IsAssignableFrom(type))
+            {
+                value = input;
+                exception = null;
+                return true;
+            }
+
+            if (input != null)
+            {
+                if (input is string str && str.TryParseJson(out var jToken1))
+                {
+                    input = jToken1;
+                }
+                else if (input.ToString().TryParseJson(out var jToken2))
+                {
+                    input = jToken2;
+                }
+
+                if (input is JToken jToken)
+                {
+                    try
+                    {
+                        value = jToken.ToObject(type);
+                        exception = null;
+                        return true;
+                    }
+                    catch (Exception e)
+                    {
+                        value = default;
+                        exception = e;
+                        return false;
+                    }
+                }
+                else
+                {
+                    var converter = TypeDescriptor.GetConverter(type);
+
+                    if (converter != null)
+                    {
+                        try
+                        {
+                            value = converter.ConvertFromString(input.ToString());
                             exception = null;
                             return value != null;
                         }
@@ -257,8 +327,18 @@ namespace Uhost.Core.Extensions
         public static bool TryCastTo<T>(this object input, out T value) =>
             input.TryCastTo(out value, out _);
 
+        /// <summary>
+        /// Приведение JToken или объекта к заданному типу
+        /// </summary>
+        /// <param name="input">"сырые" данные</param>
+        /// <param name="type">Целевой тип</param>
+        /// <param name="value">Выходные данные</param>
+        /// <returns>true если приведение успешно, иначе false</returns>
+        public static bool TryCastTo(this object input, Type type, out object value) =>
+            input.TryCastTo(type, out value, out _);
+
         /// <inheritdoc cref="TranslateEnumValue{T}(T?)"/>
-        public static string TranslateEnum<T>(this T value) where T : struct, Enum =>
+        public static string TranslateEnumValue<T>(this T value) where T : struct, Enum =>
             ((T?)value).TranslateEnumValue();
 
         /// <summary>
