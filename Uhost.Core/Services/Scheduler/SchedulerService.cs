@@ -1,9 +1,10 @@
 ﻿using RabbitMQ.Client.Core.DependencyInjection.Services;
 using Uhost.Core.Common;
 using Uhost.Core.Extensions;
-using Uhost.Core.Services.Task.Executor;
+using Uhost.Core.Services.Video;
+using static Uhost.Core.Data.Entities.File;
 
-namespace Uhost.Core.Services.Task.Scheduler
+namespace Uhost.Core.Services.Scheduler
 {
     public sealed class SchedulerService : ISchedulerService
     {
@@ -15,9 +16,10 @@ namespace Uhost.Core.Services.Task.Scheduler
             _queue.RegisterQueue(TaskQueues.Conversion);
         }
 
-        public void ScheduleTest()
+        public void ScheduleVideoConvert(int videoId, Types type)
         {
-            _queue.Enqueue<IExecutorService>(e => e.Test(), TaskQueues.Conversion);
+            var typeId = (int)type;
+            _queue.Enqueue<IVideoService>(e => e.Convert(videoId, typeId), TaskQueues.Conversion);
         }
     }
 }

@@ -92,6 +92,7 @@ namespace Uhost.Core.Extensions
         /// <param name="facade">Фасад БД</param>
         /// <param name="sql">SQL</param>
         /// <param name="value">Полученное значение</param>
+        /// <param name="args">Параметры запроса</param>
         /// <returns>true если удачно</returns>
         public static bool TryExecuteSqlRaw<T>(this DatabaseFacade facade, string sql, out T value, params NpgsqlParameter[] args)
         {

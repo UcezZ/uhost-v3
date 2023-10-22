@@ -9,6 +9,7 @@ default-data.json
 .env
 Uhost.Web.xml
 /out
+tmp
 
 # front
 /Frontend/node_modules

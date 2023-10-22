@@ -25,7 +25,7 @@ namespace Uhost.Core
 
         public static string PublicUrl { get; private set; }
 
-        public static string UploadsUrl { get; set; }
+        public static string UploadsUrl { get; private set; }
 
         public static RedisConfigWrapper RedisConfig { get; private set; }
 

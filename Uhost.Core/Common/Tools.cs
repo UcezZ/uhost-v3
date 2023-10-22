@@ -187,5 +187,15 @@ namespace Uhost.Core.Common
                 ? mime :
                 "application/octet-stream";
         }
+
+        public static void MakePath(string fileName)
+        {
+            var dirName = Path.GetDirectoryName(fileName);
+
+            if (!Directory.Exists(dirName))
+            {
+                Directory.CreateDirectory(dirName);
+            }
+        }
     }
 }

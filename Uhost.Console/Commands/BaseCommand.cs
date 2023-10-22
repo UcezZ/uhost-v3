@@ -4,13 +4,19 @@ using System;
 namespace Uhost.Console.Commands
 {
     /// <summary>
-    /// Интерфейс консольной команды
+    /// Базовый класс консольной команды
     /// </summary>
     public abstract class BaseCommand
     {
         private IServiceProvider _provider;
 
         protected TService GetService<TService>() => _provider.GetService<TService>();
+
+        protected TService GetRequiredService<TService>() => _provider.GetRequiredService<TService>();
+
+        protected object GetService(Type serviceType) => _provider.GetService(serviceType);
+
+        protected object GetRequiredService(Type serviceType) => _provider.GetRequiredService(serviceType);
 
         /// <summary>
         /// Добавляет провайдер сервисов DI
