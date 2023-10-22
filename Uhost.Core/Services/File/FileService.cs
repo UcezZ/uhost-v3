@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Uhost.Core.Common;
 using Uhost.Core.Data;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models;
@@ -34,14 +35,9 @@ namespace Uhost.Core.Services.File
         {
             try
             {
-                var tempDir = Path.GetTempPath();
+                var temp = Path.GetFullPath(Path.Combine(Path.GetTempPath(), $"upload_{Guid.NewGuid()}"));
 
-                if (!Directory.Exists(tempDir))
-                {
-                    Directory.CreateDirectory(tempDir);
-                }
-
-                var temp = Path.GetFullPath(Path.Combine(tempDir, $"upload_{Guid.NewGuid()}"));
+                Tools.MakePath(temp);
 
                 return new FileStream(temp, FileMode.Create, FileAccess.ReadWrite);
             }
@@ -49,14 +45,9 @@ namespace Uhost.Core.Services.File
             {
                 SentrySdk.CaptureException(e);
 
-                var tempDir = Path.GetFullPath("tmp");
+                var temp = Path.GetFullPath(Path.Combine(Path.GetFullPath("tmp"), $"upload_{Guid.NewGuid()}"));
 
-                if (!Directory.Exists(tempDir))
-                {
-                    Directory.CreateDirectory(tempDir);
-                }
-
-                var temp = Path.GetFullPath(Path.Combine(tempDir, $"upload_{Guid.NewGuid()}"));
+                Tools.MakePath(temp);
 
                 return new FileStream(temp, FileMode.Create, FileAccess.ReadWrite);
             }
@@ -64,7 +55,7 @@ namespace Uhost.Core.Services.File
 
         private bool StoreFile(Entity entity, Stream data)
         {
-            var file = new FileInfo(Path.Combine(CoreSettings.FileStoragePath, entity.Token[0..2], entity.Token[2..4], entity.Token[4..], entity.Name));
+            var file = new FileInfo(entity.GetPath());
 
             try
             {
@@ -80,9 +71,13 @@ namespace Uhost.Core.Services.File
                     data.CopyTo(stream);
                 }
 
-                file.CreationTime = entity.CreatedAt;
-                file.LastAccessTime = entity.CreatedAt;
-                file.LastWriteTime = entity.CreatedAt;
+                try
+                {
+                    file.CreationTime = entity.CreatedAt;
+                    file.LastAccessTime = entity.CreatedAt;
+                    file.LastWriteTime = entity.CreatedAt;
+                }
+                catch { }
 
                 return true;
             }
@@ -90,7 +85,13 @@ namespace Uhost.Core.Services.File
             {
                 _log.Add(Events.FileStoreFail, new
                 {
-                    File = file,
+                    File = new
+                    {
+                        file.FullName,
+                        file.Length,
+                        file.CreationTime,
+                        file.Exists
+                    },
                     Exception = e.ToDetailedDataObject()
                 });
 
@@ -117,13 +118,29 @@ namespace Uhost.Core.Services.File
             return GetAll<TModel>(new QueryModel { Id = id }).FirstOrDefault();
         }
 
+        public IQueryable<TFileModel> GetByDynEntity<TFileModel>(int id, Type dynEntity, params Entity.Types[] types) where TFileModel : BaseModel<Entity>, new()
+        {
+            var query = new QueryModel
+            {
+                DynId = id,
+                DynName = dynEntity.Name,
+                Types = types.Any() ? types.Select(e => e.ToString()) : null,
+                SortBy = nameof(Entity.SortBy.CreatedAt),
+                SortDirection = nameof(BaseQueryModel.SortDirections.Desc)
+            };
+
+            return GetAll<TFileModel>(query);
+        }
+
         public IQueryable<TFileModel> GetByDynEntity<TFileModel>(IEnumerable<int> ids, Type dynEntity, params Entity.Types[] types) where TFileModel : BaseModel<Entity>, new()
         {
             var query = new QueryModel
             {
                 DynIds = ids,
                 DynName = dynEntity.Name,
-                Types = types.Any() ? types.Select(e => e.ToString()) : null
+                Types = types.Any() ? types.Select(e => e.ToString()) : null,
+                SortBy = nameof(Entity.SortBy.CreatedAt),
+                SortDirection = nameof(BaseQueryModel.SortDirections.Desc)
             };
 
             return GetAll<TFileModel>(query);
@@ -132,6 +149,11 @@ namespace Uhost.Core.Services.File
         public Entity Add(FileUploadModel model)
         {
             return Add(model.File, model.TypeParsed ?? Entity.Types.Other, model.DynName, model.DynId);
+        }
+
+        public Entity Add(IFormFile file, Entity.Types type = Entity.Types.Other, Type dynType = null, int? dynId = null)
+        {
+            return Add(file, type, dynType?.Name, dynId);
         }
 
         public Entity Add(IFormFile file, Entity.Types type = Entity.Types.Other, string dynName = null, int? dynId = null)
@@ -179,6 +201,11 @@ namespace Uhost.Core.Services.File
                     SentrySdk.CaptureException(e);
                 }
             }
+        }
+
+        public Entity Add(FileInfo file, string mime = null, Entity.Types type = Entity.Types.Other, Type dynType = null, int? dynId = null)
+        {
+            return Add(file, mime, type, dynType?.Name, dynId);
         }
 
         public Entity Add(FileInfo file, string mime = null, Entity.Types type = Entity.Types.Other, string dynName = null, int? dynId = null)
@@ -232,7 +259,7 @@ namespace Uhost.Core.Services.File
             {
                 if (deleteFile)
                 {
-                    var file = new FileInfo(Path.Combine(CoreSettings.FileStoragePath, entity.Token[0..2], entity.Token[2..4], entity.Token[4..], entity.Name));
+                    var file = new FileInfo(entity.GetPath());
 
                     if (file.Exists)
                     {

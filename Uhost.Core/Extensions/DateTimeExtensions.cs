@@ -32,6 +32,24 @@ namespace Uhost.Core.Extensions
 
         public static string ToHumanFmt(this DateTime dt) => dt.ToString(DateTimeHumanFmt);
 
+        public static string ToHumanFmt(this TimeSpan ts)
+        {
+            string str = string.Empty;
+
+            if (ts.TotalDays > 1)
+            {
+                str += $"{(int)ts.TotalDays} ";
+            }
+            if (ts.TotalHours > 1)
+            {
+                str += $"{ts.Hours}:";
+            }
+
+            str += $"{ts.Minutes.ToString().PadLeft(2, '0')}:{ts.Seconds.ToString().PadLeft(2, '0')}";
+
+            return str;
+        }
+
         /// <summary>
         /// Парсим строку с датой и временем
         /// </summary>

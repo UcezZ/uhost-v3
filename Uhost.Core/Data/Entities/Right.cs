@@ -10,6 +10,8 @@ namespace Uhost.Core.Data.Entities
         public enum Rights
         {
             VideoCreateUpdate = 0x01,
+            VideoDelete = 0x02,
+            VideoGetAll = 0x03,
             FileGet = 0x11,
             FileCreateUpdate = 0x12,
             FileDelete = 0x13

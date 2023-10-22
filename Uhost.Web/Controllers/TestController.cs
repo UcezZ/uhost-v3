@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Uhost.Core.Services.Task.Scheduler;
+using Uhost.Core.Services.Scheduler;
 
 namespace Uhost.Web.Controllers
 {
@@ -14,12 +14,6 @@ namespace Uhost.Web.Controllers
             _schedule = schedule;
         }
 
-        [HttpGet]
-        public IActionResult Get()
-        {
-            _schedule.ScheduleTest();
 
-            return Ok();
-        }
     }
 }

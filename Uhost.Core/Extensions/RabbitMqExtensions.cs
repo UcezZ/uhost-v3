@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Core.DependencyInjection;
-using RabbitMQ.Client.Core.DependencyInjection.Configuration;
+﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Core.DependencyInjection.Services;
 using System;
 using System.Collections.Generic;
@@ -28,9 +25,15 @@ namespace Uhost.Core.Extensions
                 .ToArray();
         }
 
-        public static void AddDefaultExchange(this IServiceCollection serviceCollection)
+        private static void ThrowIfWrongQueue(string queue)
         {
-            serviceCollection.AddProductionExchange(DefaultExchange, new RabbitMqExchangeOptions());
+            if (!_queues.Contains(queue))
+            {
+                var exception = new ArgumentException($"Queue \"{queue}\" is not declared in {typeof(TaskQueues).FullName}", nameof(queue));
+                exception.Data["queues"] = _queues;
+
+                throw exception;
+            }
         }
 
         /// <summary>
@@ -40,10 +43,7 @@ namespace Uhost.Core.Extensions
         /// <param name="queue">Queue name declared in <see cref="TaskQueues"/></param>
         public static QueueDeclareOk RegisterQueue(this IQueueService service, string queue)
         {
-            if (!_queues.Contains(queue))
-            {
-                throw new ArgumentException($"Queue name must be declared in {typeof(TaskQueues).FullName}");
-            }
+            ThrowIfWrongQueue(queue);
 
             return service.Channel.QueueDeclare(queue, durable: false,
                      exclusive: false,
@@ -51,14 +51,18 @@ namespace Uhost.Core.Extensions
                      arguments: null);
         }
 
+        /// <summary>
+        /// Enqueues task
+        /// </summary>
+        /// <typeparam name="T">Service type</typeparam>
+        /// <param name="service">Queue service</param>
+        /// <param name="expression">Task expression</param>
+        /// <param name="queue">Queue name declared in <see cref="TaskQueues"/></param>
         public static void Enqueue<T>(this IQueueService service, Expression<Action<T>> expression, string queue)
         {
-            if (!_queues.Contains(queue))
-            {
-                throw new ArgumentException($"Queue name must be declared in {typeof(TaskQueues).FullName}");
-            }
+            ThrowIfWrongQueue(queue);
 
-            var task = SerializableTask.Create(expression);
+            var task = SerializedTask.Create(expression);
 
             service.Channel.BasicPublish(string.Empty, queue, null, Encoding.UTF8.GetBytes(task.ToJson()));
         }

@@ -1,9 +1,11 @@
 ﻿using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
+using RabbitMQ.Client.Core.DependencyInjection;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Uhost.Console.Commands;
+using Uhost.Core;
 using Uhost.Core.Extensions;
 using static System.Console;
 
@@ -15,6 +17,8 @@ namespace Uhost.Console
         {
             var services = new ServiceCollection();
             services.AddUhostCoreServices();
+            services.AddLogWriter();
+            services.AddRabbitMqClient(CoreSettings.RabbitMqClientOptions);
             var provider = services.BuildServiceProvider();
 
             WriteLine();

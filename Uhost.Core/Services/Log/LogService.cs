@@ -37,7 +37,7 @@ namespace Uhost.Core.Services.Log
             {
                 UserId = _contextAccessor?.HttpContext?.User != null && _contextAccessor.HttpContext.User.TryGetUserId(out var userId) ? userId : null,
                 EventId = (int)ev,
-                IPAddress = _contextAccessor?.HttpContext?.Connection?.RemoteIpAddress,
+                IPAddress = _contextAccessor?.HttpContext?.ResolveClientIp(),
                 Data = (data ?? new { }).ToJson()
             };
 

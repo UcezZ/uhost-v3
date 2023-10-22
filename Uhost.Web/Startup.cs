@@ -69,7 +69,6 @@ namespace Uhost.Web
 
             // RMQ
             services.AddRabbitMqClient(CoreSettings.RabbitMqClientOptions);
-            services.AddDefaultExchange();
 
             if (LocalEnvironment.IsDev)
             {
@@ -140,27 +139,8 @@ namespace Uhost.Web
         /// <summary>
         /// App configuration
         /// </summary>
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider provider)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseCors(options =>
-                {
-                    options.AllowAnyHeader();
-                    options.AllowAnyMethod();
-                    options.AllowCredentials();
-                    options.SetIsOriginAllowed(e => true);
-                });
-
-                app.UseSwagger();
-                app.UseSwaggerUI(options =>
-                {
-                    options.SwaggerEndpoint("/swagger/v2/swagger.json", "Uhost v3");
-                    options.RoutePrefix = "swagger";
-                    options.InjectStylesheet("style.css");
-                });
-            }
-
             app.UseExceptionHandler("/error");
 
             app.UseFileServer();
@@ -180,6 +160,30 @@ namespace Uhost.Web
                 DefaultContentType = "application/octet-stream"
             });
 
+            if (env.IsDevelopment())
+            {
+                app.UseCors(options =>
+                {
+                    options.AllowAnyHeader();
+                    options.AllowAnyMethod();
+                    options.AllowCredentials();
+                    options.SetIsOriginAllowed(e => true);
+                });
+
+                app.UseSwagger();
+                app.UseSwaggerUI(options =>
+                {
+                    options.SwaggerEndpoint("/swagger/v2/swagger.json", "Uhost v3");
+                    options.RoutePrefix = "swagger";
+                    options.InjectStylesheet("style.css");
+                });
+            }
+
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+
             app.UseMiddleware<ThrottleMiddleware>();
             app.UseMiddleware<SentryLegacyMiddleware>();
 
@@ -187,12 +191,6 @@ namespace Uhost.Web
             app.UseAuthorization();
 
             app.UseEndpoints(e => e.MapDefaultControllerRoute());
-
-            app.UseForwardedHeaders(new ForwardedHeadersOptions
-            {
-                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-            });
-
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
     }
