@@ -171,7 +171,10 @@ services:
     entrypoint: >
       bash -c "
       sentry upgrade --noinput;
-      sentry createuser --email ${SENTRY_USER_EMAIL} --password ${SENTRY_USER_PASSWORD} --superuser --no-input || echo 'User already exists';
+      if [ ! -f /var/lib/sentry/files/.firstrun ]; then
+        sentry createuser --email ${SENTRY_USER_EMAIL} --password ${SENTRY_USER_PASSWORD} --superuser --no-input || echo 'User already exists';
+        touch /var/lib/sentry/files/.firstrun;
+      fi;
       "
 
   sentry-cron:
