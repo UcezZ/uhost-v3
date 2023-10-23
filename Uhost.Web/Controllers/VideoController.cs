@@ -3,9 +3,9 @@ using System;
 using System.Threading.Tasks;
 using Uhost.Core.Attributes.Validation;
 using Uhost.Core.Extensions;
-using Uhost.Core.Models.File;
 using Uhost.Core.Models.Video;
 using Uhost.Core.Services.Video;
+using Uhost.Web.Attributes;
 using Uhost.Web.Attributes.Authorize;
 using Uhost.Web.Common;
 using Uhost.Web.Extensions;
@@ -48,7 +48,7 @@ namespace Uhost.Web.Controllers
         /// </summary>
         /// <param name="id">ИД файла</param>
         /// <returns></returns>
-        [HttpGet("{id}"), HasRightAuthorize(Rights.FileGet)]
+        [HttpGet("{id}")]
         public IActionResult GetOne(
             [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Id), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.File_Error_NotFoundById))]
             string id)
@@ -66,10 +66,26 @@ namespace Uhost.Web.Controllers
         }
 
         /// <summary>
+        /// Получает прогресс конвертации видео
+        /// </summary>
+        /// <param name="id">ИД загруженного видео</param>
+        /// <returns></returns>
+        [HttpGet("{id}/progress")]
+        public async Task<IActionResult> Progress(string id)
+        {
+            if (!id.TryParsePositiveInt(out var idParsed))
+            {
+                return ResponseHelper.ErrorMessage(nameof(id), ApiStrings.Common_Error_Invalid);
+            }
+
+            return ResponseHelper.Success(await _service.GetConversionProgress(idParsed));
+        }
+
+        /// <summary>
         /// Загрузка файла
         /// </summary>
         /// <param name="model">Модель данных</param>
-        [HttpPost, HasRightAuthorize(Rights.VideoCreateUpdate)]
+        [HttpPost, HasRightAuthorize(Rights.VideoCreateUpdate), BigFileUpload]
         public IActionResult Create([FromForm] VideoCreateModel model)
         {
             if (!ModelState.IsValid)

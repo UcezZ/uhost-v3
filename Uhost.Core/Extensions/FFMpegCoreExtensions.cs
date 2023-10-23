@@ -1,4 +1,5 @@
 ﻿using FFMpegCore;
+using System.Drawing;
 
 namespace Uhost.Core.Extensions
 {
@@ -11,6 +12,14 @@ namespace Uhost.Core.Extensions
         public static FFMpegArgumentOptions WithPreset(this FFMpegArgumentOptions options, string preset)
         {
             return options.WithCustomArgument($"-preset {preset}");
+        }
+        public static FFMpegArgumentOptions WithMaxRate(this FFMpegArgumentOptions options, int rate)
+        {
+            return options.WithCustomArgument($"-maxrate {rate}k");
+        }
+        public static Size GetSize(this VideoStream stream)
+        {
+            return new Size(stream.Width, stream.Height);
         }
     }
 }

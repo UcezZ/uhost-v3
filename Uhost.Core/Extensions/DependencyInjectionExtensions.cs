@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
+using StackExchange.Redis.Extensions.Newtonsoft;
 using Uhost.Core.Data;
 using Uhost.Core.Services;
 using Uhost.Core.Services.File;
@@ -29,6 +31,11 @@ namespace Uhost.Core.Extensions
             services.AddScoped<IVideoService, VideoService>();
 
             services.AddSingleton<ISchedulerService, SchedulerService>();
+
+            // Redis
+            ConnectionMultiplexer.SetFeatureFlag("preventthreadtheft", true);
+            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(CoreSettings.RedisConfig));
+            services.AddStackExchangeRedisExtensions<NewtonsoftSerializer>(CoreSettings.RedisConfig);
 
             return services;
         }

@@ -5,6 +5,7 @@ using Uhost.Core.Attributes.Validation;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.File;
 using Uhost.Core.Services.File;
+using Uhost.Web.Attributes;
 using Uhost.Web.Attributes.Authorize;
 using Uhost.Web.Common;
 using Uhost.Web.Extensions;
@@ -68,7 +69,7 @@ namespace Uhost.Web.Controllers
         /// Загрузка файла
         /// </summary>
         /// <param name="model">Модель данных</param>
-        [HttpPost, HasRightAuthorize(Rights.FileCreateUpdate)]
+        [HttpPost, HasRightAuthorize(Rights.FileCreateUpdate), BigFileUpload]
         public IActionResult Create([FromForm] FileUploadModel model)
         {
             if (!ModelState.IsValid)

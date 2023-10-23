@@ -2,10 +2,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Sentry;
+using StackExchange.Redis;
+using StackExchange.Redis.Extensions.Core.Abstractions;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Uhost.Core.Common;
 using Uhost.Core.Data;
 using Uhost.Core.Extensions;
@@ -27,6 +31,10 @@ namespace Uhost.Core.Services.Video
         private readonly ISchedulerService _scheduler;
         private readonly IFileService _files;
         private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IRedisDatabase _redis;
+        private const string _redisProgressKeyMask = "progress_{0}";
+        private static readonly TimeSpan _redisProgressKeyTtl = TimeSpan.FromMinutes(5);
+
         private static readonly Types[] _videoResolutionTypes = new[]
         {
             Types.Video240p,
@@ -35,12 +43,13 @@ namespace Uhost.Core.Services.Video
             Types.Video720p
         };
 
-        public VideoService(PostgreSqlDbContext context, IServiceProvider provider, ISchedulerService scheduler, IFileService files) : base(context)
+        public VideoService(PostgreSqlDbContext context, IServiceProvider provider, ISchedulerService scheduler, IFileService files, IRedisDatabase redis) : base(context)
         {
             _repo = new VideoRepository(_dbContext);
             _contextAccessor = provider.GetService<IHttpContextAccessor>();
             _scheduler = scheduler;
             _files = files;
+            _redis = redis;
         }
 
         public object GetAllPaged(QueryModel query)
@@ -208,12 +217,12 @@ namespace Uhost.Core.Services.Video
             }
         }
 
-        public void Convert(int id, int typeId)
+        public async Task Convert(int id, int typeId)
         {
             Convert(id, (Types)typeId);
         }
 
-        public void Convert(int id, Types type)
+        public async Task Convert(int id, Types type)
         {
             if (!_videoResolutionTypes.Contains(type))
             {
@@ -229,7 +238,7 @@ namespace Uhost.Core.Services.Video
                 return;
             }
 
-            var tempFile = new FileInfo(Path.GetFullPath(Path.Combine(Path.GetFullPath("tmp"), $"temp_{Guid.NewGuid()}.mp4")));
+            var output = new FileInfo(Path.GetFullPath(Path.Combine(Path.GetFullPath("tmp"), $"temp_{Guid.NewGuid()}.mp4")));
             var mediaInfo = FFProbe.Analyse(file.Path);
             FFMpegArgumentProcessor ffargs = null;
 
@@ -238,28 +247,107 @@ namespace Uhost.Core.Services.Video
                 case Types.Video240p:
                     ffargs = FFMpegArguments
                         .FromFileInput(file.Path)
-                        .OutputToFile(tempFile.FullName, true, e => e
+                        .OutputToFile(output.FullName, true, e => e
                            .WithAudioBitrate(48)
                            .WithAudioCodec("aac")
-                           .WithVideoFilters(vf => vf.Scale(-1, 240))
-                           .WithVideoCodec("h264_nvenc")
+                           .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitTo(height: 240)))
+                           .WithVideoCodec(HardwareConfig.VideoCodec)
                            .WithVideoBitrate(240)
+                           .WithMaxRate(384)
                            .WithPreset("p7")
                            .WithTune("hq")
                            .UsingThreads(Environment.ProcessorCount)
                         );
                     break;
                 case Types.Video360p:
+                    ffargs = FFMpegArguments
+                        .FromFileInput(file.Path)
+                        .OutputToFile(output.FullName, true, e => e
+                           .WithAudioBitrate(64)
+                           .WithAudioCodec("aac")
+                           .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitTo(height: 360)))
+                           .WithVideoCodec(HardwareConfig.VideoCodec)
+                           .WithVideoBitrate(480)
+                           .WithMaxRate(768)
+                           .WithPreset("p7")
+                           .WithTune("hq")
+                           .UsingThreads(Environment.ProcessorCount)
+                        );
                     break;
                 case Types.Video540p:
+                    ffargs = FFMpegArguments
+                        .FromFileInput(file.Path)
+                        .OutputToFile(output.FullName, true, e => e
+                           .WithAudioBitrate(96)
+                           .WithAudioCodec("aac")
+                           .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitTo(height: 540)))
+                           .WithVideoCodec(HardwareConfig.VideoCodec)
+                           .WithVideoBitrate(1024)
+                           .WithMaxRate(1536)
+                           .WithPreset("p7")
+                           .WithTune("hq")
+                           .UsingThreads(Environment.ProcessorCount)
+                        );
                     break;
                 case Types.Video720p:
+                    ffargs = FFMpegArguments
+                        .FromFileInput(file.Path)
+                        .OutputToFile(output.FullName, true, e => e
+                           .WithAudioBitrate(128)
+                           .WithAudioCodec("aac")
+                           .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitTo(height: 720)))
+                           .WithVideoCodec(HardwareConfig.VideoCodec)
+                           .WithVideoBitrate(1536)
+                           .WithMaxRate(2560)
+                           .WithPreset("p7")
+                           .WithTune("hq")
+                           .UsingThreads(Environment.ProcessorCount)
+                        );
                     break;
             }
 
-            Tools.MakePath(tempFile.FullName);
+            Tools.MakePath(output.FullName);
 
-            ffargs?.ProcessSynchronously();
+            var result = await ffargs?
+                .NotifyOnProgress(async e => await OnProgress(e, id, type), mediaInfo.Duration)
+                .ProcessAsynchronously();
+
+            await OnProgress(100, id, type);
+
+            if (result)
+            {
+                _files.Add(output,
+                    type: type,
+                    dynType: typeof(Entity),
+                    dynId: id);
+            }
+
+            try
+            {
+                output.Delete();
+            }
+            catch (Exception e)
+            {
+                SentrySdk.CaptureException(e);
+            }
+        }
+
+        private async Task OnProgress(double progress, int videoId, Types type)
+        {
+            var key = _redisProgressKeyMask.Format(videoId);
+            var value = await _redis.Database.StringGetAsync(key);
+            var dict = !value.IsNullOrEmpty && value.TryCastTo<IDictionary<Types, double>>(out var casted) ? casted : new Dictionary<Types, double>();
+            dict[type] = progress;
+            await _redis.Database.StringSetAsync(key, dict.ToJson(), expiry: _redisProgressKeyTtl, flags: CommandFlags.FireAndForget);
+        }
+
+        public async Task<IDictionary<Types, double>> GetConversionProgress(int videoId)
+        {
+            var key = _redisProgressKeyMask.Format(videoId);
+            var value = await _redis.Database.StringGetAsync(key);
+            var dict = !value.IsNullOrEmpty && value.TryCastTo<IDictionary<Types, double>>(out var casted) ? casted : new Dictionary<Types, double>();
+
+            return dict;
         }
     }
 }

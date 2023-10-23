@@ -8,9 +8,7 @@ namespace Uhost.Core.Extensions
     {
         public static object GetValue(this Expression expression)
         {
-            var memberExpression = expression as MemberExpression;
-
-            if (memberExpression != null)
+            if (expression is MemberExpression memberExpression)
             {
                 var objectMember = Expression.Convert(memberExpression, typeof(object));
                 var getterLambda = Expression.Lambda<Func<object>>(objectMember);

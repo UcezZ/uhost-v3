@@ -21,7 +21,7 @@ namespace Uhost.Web
             _app = builder.Build();
         }
 
-        static void Main(string[] args)
+        static void Main()
         {
             using (SentrySdk.Init(CoreSettings.SentryConfig.Configure))
             {
