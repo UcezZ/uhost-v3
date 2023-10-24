@@ -99,16 +99,16 @@ services:
       dotnet ef database update --project Uhost.Core --context PostgreSqlDbContext || exit 1;
       dotnet ef database update --project Uhost.Core --context PostgreSqlLogDbContext || exit 1;
 
-      rm -rf /deploy/back;
-      dotnet publish -r linux-x64 --self-contained true -c Release -o /deploy/back;
+      rm -rf /deploy/back || exit 1;
+      dotnet publish -r linux-x64 --self-contained true -c Release -o /deploy/back || exit 1;
 
-      rm -rf /deploy/win/*;
-      dotnet publish -r win-x64 -p:PublishSingleFile=true --self-contained true -c Release -o /deploy/win Uhost.Console;
+      rm -rf /deploy/win/* || exit 1;
+      dotnet publish -r win-x64 -p:PublishSingleFile=true --self-contained true -c Release -o /deploy/win Uhost.Console || exit 1;
       cp -pf /src/Uhost.Core/appsettings.json /deploy/win/appsettings.json || exit 1;
 
-      /deploy/back/Uhost.Console loaddefaultdata --file /deploy/back/default-data.json;
-      /deploy/back/Uhost.Console updateseq;
-      /deploy/back/Uhost.Console dbvacuum;"
+      /deploy/back/Uhost.Console loaddefaultdata --file /deploy/back/default-data.json || exit 1;
+      /deploy/back/Uhost.Console updateseq || exit 1;
+      /deploy/back/Uhost.Console dbvacuum || exit 1;"
     logging:
       driver: gelf
       options:
