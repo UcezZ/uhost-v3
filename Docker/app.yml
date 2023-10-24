@@ -73,7 +73,7 @@ services:
 
   # app builder
   builder:
-    image: ucezz/dotnet-sdk-gdi:5.0
+    image: ucezz/dotnet-sdk:5.0-gdi
     container_name: "${APP_NAME}-builder"
     volumes:
       - ../:/src:ro
@@ -117,7 +117,7 @@ services:
 
   # app runner
   app:
-    image: ucezz/dotnet-aspnet-gdi:5.0
+    image: ucezz/dotnet-aspnet:5.0-gdi-ffmpeg
     container_name: "${APP_NAME}-app"
     environment:
       ASPNETCORE_ENVIRONMENT: "${ASPNETCORE_ENVIRONMENT}"
@@ -148,7 +148,7 @@ services:
 
   # frontend builder
   node:
-    image: ucezz/node-rsync:16.17-alpine
+    image: ucezz/node:16.17-rsync-alpine
     container_name: "${APP_NAME}-node"
     volumes:
       - ../Frontend:/src:ro
