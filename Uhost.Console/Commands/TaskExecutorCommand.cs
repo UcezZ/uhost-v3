@@ -26,27 +26,25 @@ namespace Uhost.Console.Commands
 
         public override void Run()
         {
-            var queueService = GetRequiredService<IQueueService>();
-            var q = queueService.RegisterQueue(Queue);
+            var service = GetRequiredService<IQueueService>();
+            var q = service.RegisterQueue(Queue);
+            service.ConsumingChannel.BasicQos(0, ConsoleSettings.TaskExecutorWorkThreads, true);
 
             _logger = GetRequiredService<LogWriter>();
 
             CancelKeyPress += OnCancelKeyPress;
 
-            for (var i = 0; i < ConsoleSettings.TaskExecutorWorkThreads; i++)
-            {
-                var consumer = new AsyncEventingBasicConsumer(queueService.Channel);
+            var consumer = new AsyncEventingBasicConsumer(service.Channel);
 
-                consumer.Received += OnReceivedAsync;
+            consumer.Received += OnReceivedAsync;
 
-                var tk = queueService.Channel.BasicConsume(
-                    queue: q.QueueName,
-                    autoAck: true,
-                    consumerTag: $"worker-{Queue}-{i}",
-                    consumer: consumer);
+            var tk = service.Channel.BasicConsume(
+                queue: q.QueueName,
+                autoAck: true,
+                consumerTag: $"worker-{Queue}",
+                consumer: consumer);
 
-                _logger.WriteLine($"Started consumer with tag \"{tk}\"", Severity.Info);
-            }
+            _logger.WriteLine($"Started consumer with tag \"{tk}\"", Severity.Info);
 
             while (!_cancel)
             {

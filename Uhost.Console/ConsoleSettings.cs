@@ -8,7 +8,7 @@ namespace Uhost.Console
         /// <summary>
         /// Количество потоков выполнения задач
         /// </summary>
-        public static int TaskExecutorWorkThreads { get; private set; } = Environment.ProcessorCount;
+        public static ushort TaskExecutorWorkThreads { get; private set; } = (ushort)Environment.ProcessorCount;
 
         static ConsoleSettings() => CoreSettings.Load(typeof(ConsoleSettings));
     }
