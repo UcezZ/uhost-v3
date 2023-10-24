@@ -30,6 +30,7 @@ namespace Uhost.Core.Services.Video
     public class VideoService : BaseService, IVideoService
     {
         private readonly VideoRepository _repo;
+        private readonly LogWriter _logger;
         private readonly ISchedulerService _scheduler;
         private readonly IFileService _files;
         private readonly IHttpContextAccessor _contextAccessor;
@@ -49,6 +50,7 @@ namespace Uhost.Core.Services.Video
         {
             _repo = new VideoRepository(_dbContext);
             _contextAccessor = provider.GetService<IHttpContextAccessor>();
+            _logger = provider.GetService<LogWriter>();
             _scheduler = scheduler;
             _files = files;
             _redis = redis;
@@ -318,15 +320,20 @@ namespace Uhost.Core.Services.Video
 
             Tools.MakePath(output.FullName);
 
+            await _logger.WriteLineAsync($"Processing video #{id} ({type}) with arguments:\r\n\r\n{ffargs?.Arguments}\r\n", LogWriter.Severity.Info);
+
             var result = await ffargs?
                 .NotifyOnProgress(async e => await OnProgress(e, id, type), mediaInfo.Duration)
                 .ProcessAsynchronously();
 
             await OnProgress(100, id, type);
 
-            if (result == true)
+            await _logger.WriteLineAsync($"Processing video #{id} ({type}) completed", LogWriter.Severity.Info);
+
+            if (result == true && output.Length > 0)
             {
-                _files.Add(output,
+                _files.Add(
+                    output,
                     type: type,
                     dynType: typeof(Entity),
                     dynId: id);

@@ -64,7 +64,7 @@ namespace Uhost.Console.Commands
         {
             var message = Encoding.UTF8.GetString(e.Body.Span);
 
-            await _logger.WriteLineAsync($"[{e.ConsumerTag}] received a message {e.DeliveryTag}", Severity.Info);
+            await _logger.WriteLineAsync($"[{e.ConsumerTag}] received a message #{e.DeliveryTag}", Severity.Info);
 
             if (SerializedTask.TryParseJson(message, out var task))
             {
@@ -78,10 +78,12 @@ namespace Uhost.Console.Commands
                     var inner = exception.GetMostInnerException();
                     await _logger.WriteLineAsync($"Error processing task {e.DeliveryTag}: {inner?.Message}\r\n{inner?.StackTrace}", Severity.Error);
                 }
+
+                await _logger.WriteLineAsync($"[{e.ConsumerTag}] task #{e.DeliveryTag} completed", Severity.Info);
             }
             else
             {
-                await _logger.WriteLineAsync($"[{e.ConsumerTag}] the received message {e.DeliveryTag} is not a task", Severity.Warn);
+                await _logger.WriteLineAsync($"[{e.ConsumerTag}] the received message #{e.DeliveryTag} is not a task", Severity.Warn);
             }
         }
     }

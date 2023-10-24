@@ -22,7 +22,7 @@ BEGIN
     END IF;
     
     SELECT
-        string_agg(SUBSTR(characters, (RANDOM() * LENGTH(characters) + 1)::integer, 1), '') AS random_word
+        string_agg(SUBSTR(characters, (RANDOM() * LENGTH(characters) + 0.5)::integer, 1), '') AS random_word
     FROM(VALUES(chars)) AS symbols(characters)
         JOIN generate_series(1, len) on 1 = 1
     INTO val;
