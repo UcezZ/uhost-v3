@@ -17,6 +17,15 @@ namespace Uhost.Core.Extensions
                 return getter();
             }
 
+            if (expression is UnaryExpression unaryExpression)
+            {
+                var objectMember = Expression.Convert(unaryExpression, typeof(object));
+                var getterLambda = Expression.Lambda<Func<object>>(objectMember);
+                var getter = getterLambda.Compile();
+
+                return getter();
+            }
+
             var innerExpressionProp = expression
                 .GetType()
                 .GetProperties()
@@ -31,7 +40,20 @@ namespace Uhost.Core.Extensions
                 return innerExpression?.GetValue();
             }
 
-            return constExpression.Value;
+            if (constExpression != null)
+            {
+                return constExpression.Value;
+            }
+
+            var exception = new ApplicationException("Failed to gather argument value");
+            var type = expression.GetType();
+
+            exception.Data["Expression"] = expression;
+            exception.Data["ExpressionToString"] = expression.ToString();
+            exception.Data["Type"] = type;
+            exception.Data["TypeFullName"] = type.FullName;
+
+            throw exception;
         }
     }
 }

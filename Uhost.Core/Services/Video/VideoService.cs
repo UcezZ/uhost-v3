@@ -217,11 +217,6 @@ namespace Uhost.Core.Services.Video
             }
         }
 
-        public async Task Convert(int id, int typeId)
-        {
-            Convert(id, (Types)typeId);
-        }
-
         public async Task Convert(int id, Types type)
         {
             if (!_videoResolutionTypes.Contains(type))
@@ -233,7 +228,7 @@ namespace Uhost.Core.Services.Video
                 .GetByDynEntity<FileShortViewModel>(id, typeof(Entity), Types.VideoRaw)
                 .FirstOrDefault();
 
-            if (file == null)
+            if (file == null || !file.Exists)
             {
                 return;
             }

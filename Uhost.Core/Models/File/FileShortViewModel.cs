@@ -23,6 +23,21 @@ namespace Uhost.Core.Models.File
 
         internal string DynName { get; set; }
 
+        internal bool Exists
+        {
+            get
+            {
+                try
+                {
+                    return System.IO.File.Exists(Path);
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
         internal Entity.Types TypeParsed => Type.ParseEnum<Entity.Types>() ?? Entity.Types.Other;
 
         public override void LoadFromEntity(Entity entity)

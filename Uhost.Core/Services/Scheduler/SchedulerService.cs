@@ -18,8 +18,7 @@ namespace Uhost.Core.Services.Scheduler
 
         public void ScheduleVideoConvert(int videoId, Types type)
         {
-            var typeId = (int)type;
-            _queue.Enqueue<IVideoService>(e => e.Convert(videoId, typeId), TaskQueues.Conversion);
+            _queue.Enqueue<IVideoService>(e => e.Convert(videoId, type), TaskQueues.Conversion);
         }
     }
 }
