@@ -37,7 +37,6 @@ namespace Uhost.Web.Middleware
                     return;
                 }
             }
-            // Other transformations here
 
             await _handler.HandleAsync(requestDelegate, httpContext, authorizationPolicy, policyAuthorizationResult);
         }

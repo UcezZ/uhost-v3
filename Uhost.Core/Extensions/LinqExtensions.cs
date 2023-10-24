@@ -79,15 +79,19 @@ namespace Uhost.Core.Extensions
         /// <returns></returns>
         public static bool ContainsAny<T>(this IEnumerable<T> container, IEnumerable<T> containable)
         {
-            foreach (var value in containable)
-            {
-                if (container.Contains(value))
-                {
-                    return true;
-                }
-            }
+            return containable.Any(e => container.Contains(e));
+        }
 
-            return false;
+        /// <summary>
+        /// Хотя бы одно значение из коллекции есть в коллекции
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="container"></param>
+        /// <param name="containable"></param>
+        /// <returns></returns>
+        public static bool ContainsAny<T>(this IEnumerable<T> container, params T[] containable)
+        {
+            return container.ContainsAny(containable.AsEnumerable());
         }
 
         /// <summary>
@@ -99,15 +103,19 @@ namespace Uhost.Core.Extensions
         /// <returns></returns>
         public static bool ContainsAll<T>(this IEnumerable<T> container, IEnumerable<T> containable)
         {
-            foreach (var value in containable)
-            {
-                if (!container.Contains(value))
-                {
-                    return false;
-                }
-            }
+            return containable.All(e => container.Contains(e));
+        }
 
-            return true;
+        /// <summary>
+        /// Все значения коллекции есть в коллекции
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="container"></param>
+        /// <param name="containable"></param>
+        /// <returns></returns>
+        public static bool ContainsAll<T>(this IEnumerable<T> container, params T[] containable)
+        {
+            return container.ContainsAll(containable.AsEnumerable());
         }
 
         /// <summary>

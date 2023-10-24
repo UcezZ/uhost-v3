@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using System;
 using System.Threading.Tasks;
 using Uhost.Core.Extensions;
 using Uhost.Core.Services.User;
@@ -22,9 +21,6 @@ namespace Uhost.Web.Middleware
             if (context.User.TryGetUserId(out var userId))
             {
                 var user = _userService.GetAccessData(userId);
-
-                Console.WriteLine("AUTH HANDLER");
-                Console.WriteLine($"Actions: { user.Rights.Join(", ")}");
 
                 switch (requirement.Rule)
                 {
