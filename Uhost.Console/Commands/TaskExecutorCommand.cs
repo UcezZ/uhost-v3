@@ -70,14 +70,12 @@ namespace Uhost.Console.Commands
             {
                 try
                 {
-                    task.Invoke(GetRequiredService);
+                    await task.InvokeAsync(GetRequiredService);
                 }
                 catch (Exception exception)
                 {
                     SentrySdk.CaptureException(exception);
-
                     var inner = exception.GetMostInnerException();
-
                     await _logger.WriteLineAsync($"Error processing task {e.DeliveryTag}: {inner?.Message}\r\n{inner?.StackTrace}", Severity.Error);
                 }
             }

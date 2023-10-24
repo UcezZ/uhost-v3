@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Uhost.Core.Extensions
 {
@@ -31,6 +32,12 @@ namespace Uhost.Core.Extensions
             var constructor = type.GetConstructor(types);
 
             return constructor.Invoke(args);
+        }
+
+        public static bool IsAsync(this MethodInfo methodInfo)
+        {
+            return typeof(Task).IsAssignableFrom(methodInfo.ReturnType) ||
+                  (methodInfo.ReturnType.IsGenericType && methodInfo.ReturnType.GetGenericTypeDefinition() == typeof(Task<>));
         }
     }
 }

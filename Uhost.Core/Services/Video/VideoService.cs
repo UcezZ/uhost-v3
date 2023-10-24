@@ -1,7 +1,9 @@
 ﻿using FFMpegCore;
+using FFMpegCore.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Sentry;
+using Sentry.Protocol;
 using StackExchange.Redis;
 using StackExchange.Redis.Extensions.Core.Abstractions;
 using System;
@@ -230,6 +232,11 @@ namespace Uhost.Core.Services.Video
 
             if (file == null || !file.Exists)
             {
+                if (!file.Exists)
+                {
+                    SentrySdk.CaptureMessage($"File \"{file.Path}\" not found", SentryLevel.Warning);
+                }
+
                 return;
             }
 
@@ -243,60 +250,68 @@ namespace Uhost.Core.Services.Video
                     ffargs = FFMpegArguments
                         .FromFileInput(file.Path)
                         .OutputToFile(output.FullName, true, e => e
-                           .WithAudioBitrate(48)
-                           .WithAudioCodec("aac")
-                           .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitTo(height: 240)))
-                           .WithVideoCodec(HardwareConfig.VideoCodec)
-                           .WithVideoBitrate(240)
-                           .WithMaxRate(384)
-                           .WithPreset("p7")
-                           .WithTune("hq")
-                           .UsingThreads(Environment.ProcessorCount)
+                            .WithAudioBitrate(48)
+                            .WithAudioCodec("aac")
+                            .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitTo(height: 240)))
+                            .WithVideoCodec(FFConfig.VideoCodec)
+                            .WithVideoBitrate(240)
+                            .WithMaxRate(384)
+                            .WithPreset(FFConfig.VideoPresets[Speed.VerySlow])
+                            .WithTune("hq")
+                            .WithMaxFramerate(18)
+                            .WithVsync(2)
+                            .UsingThreads(Environment.ProcessorCount)
                         );
                     break;
                 case Types.Video360p:
                     ffargs = FFMpegArguments
                         .FromFileInput(file.Path)
                         .OutputToFile(output.FullName, true, e => e
-                           .WithAudioBitrate(64)
-                           .WithAudioCodec("aac")
-                           .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitTo(height: 360)))
-                           .WithVideoCodec(HardwareConfig.VideoCodec)
-                           .WithVideoBitrate(480)
-                           .WithMaxRate(768)
-                           .WithPreset("p7")
-                           .WithTune("hq")
-                           .UsingThreads(Environment.ProcessorCount)
+                            .WithAudioBitrate(64)
+                            .WithAudioCodec("aac")
+                            .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitTo(height: 360)))
+                            .WithVideoCodec(FFConfig.VideoCodec)
+                            .WithVideoBitrate(480)
+                            .WithMaxRate(768)
+                            .WithPreset(FFConfig.VideoPresets[Speed.VerySlow])
+                            .WithTune("hq")
+                            .WithMaxFramerate(24)
+                            .WithVsync(2)
+                            .UsingThreads(Environment.ProcessorCount)
                         );
                     break;
                 case Types.Video540p:
                     ffargs = FFMpegArguments
                         .FromFileInput(file.Path)
                         .OutputToFile(output.FullName, true, e => e
-                           .WithAudioBitrate(96)
-                           .WithAudioCodec("aac")
-                           .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitTo(height: 540)))
-                           .WithVideoCodec(HardwareConfig.VideoCodec)
-                           .WithVideoBitrate(1024)
-                           .WithMaxRate(1536)
-                           .WithPreset("p7")
-                           .WithTune("hq")
-                           .UsingThreads(Environment.ProcessorCount)
+                            .WithAudioBitrate(96)
+                            .WithAudioCodec("aac")
+                            .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitTo(height: 540)))
+                            .WithVideoCodec(FFConfig.VideoCodec)
+                            .WithVideoBitrate(1024)
+                            .WithMaxRate(1536)
+                            .WithPreset(FFConfig.VideoPresets[Speed.VerySlow])
+                            .WithTune("hq")
+                            .WithMaxFramerate(30)
+                            .WithVsync(2)
+                            .UsingThreads(Environment.ProcessorCount)
                         );
                     break;
                 case Types.Video720p:
                     ffargs = FFMpegArguments
                         .FromFileInput(file.Path)
                         .OutputToFile(output.FullName, true, e => e
-                           .WithAudioBitrate(128)
-                           .WithAudioCodec("aac")
-                           .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitTo(height: 720)))
-                           .WithVideoCodec(HardwareConfig.VideoCodec)
-                           .WithVideoBitrate(1536)
-                           .WithMaxRate(2560)
-                           .WithPreset("p7")
-                           .WithTune("hq")
-                           .UsingThreads(Environment.ProcessorCount)
+                            .WithAudioBitrate(128)
+                            .WithAudioCodec("aac")
+                            .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitTo(height: 720)))
+                            .WithVideoCodec(FFConfig.VideoCodec)
+                            .WithVideoBitrate(1536)
+                            .WithMaxRate(2560)
+                            .WithPreset(FFConfig.VideoPresets[Speed.VerySlow])
+                            .WithTune("hq")
+                            .WithMaxFramerate(48)
+                            .WithVsync(2)
+                            .UsingThreads(Environment.ProcessorCount)
                         );
                     break;
             }
@@ -309,12 +324,21 @@ namespace Uhost.Core.Services.Video
 
             await OnProgress(100, id, type);
 
-            if (result)
+            if (result == true)
             {
                 _files.Add(output,
                     type: type,
                     dynType: typeof(Entity),
                     dynId: id);
+            }
+            else
+            {
+                var exception = new Exception("Failed to process video");
+                exception.Data["Id"] = id;
+                exception.Data["Type"] = type;
+                exception.Data["Arguments"] = ffargs?.Arguments;
+
+                SentrySdk.CaptureException(exception);
             }
 
             try

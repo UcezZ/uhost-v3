@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
+using System.Threading.Tasks;
 using Uhost.Core.Extensions;
 
 namespace Uhost.Core.Common
@@ -106,21 +108,9 @@ namespace Uhost.Core.Common
         /// <param name="serviceResolver">Метод получения сервиса.</param>
         public void Invoke(Func<Type, object> serviceResolver = null)
         {
-            var targetType = Type.GetType(ServiceType, true);
-            var types = ArgumentTypes.Select(Type.GetType);
-            var values = Tools.ParallelSelect(types, ArgumentValues)
-               .Select(e => e.Value2.TryCastTo(e.Value1, out var value) ? value : null)
-               .ToArray();
-            var targetMethod = targetType.GetMethods().FirstOrDefault(e => e.Name == MethodName && e.GetParameters().Length == values.Length);
+            Resolve(out var type, out var method, out var args);
 
-            if (targetMethod == null)
-            {
-                var exception = new InvalidOperationException("Bad target method");
-                FillException(exception);
-
-                throw exception;
-            }
-            if (!targetMethod.IsStatic && serviceResolver is null)
+            if (!method.IsStatic && serviceResolver is null)
             {
                 var exception = new InvalidOperationException("Service resolver is required to invoke non-static methods");
                 FillException(exception);
@@ -128,17 +118,81 @@ namespace Uhost.Core.Common
                 throw exception;
             }
 
-            var service = targetMethod.IsStatic ? null : serviceResolver?.Invoke(targetType);
+            var service = method.IsStatic ? null : serviceResolver?.Invoke(type);
 
             try
             {
-                targetMethod.Invoke(service, values);
+                if (method.IsAsync())
+                {
+                    var taskObj = method.Invoke(service, args);
+
+                    if (taskObj is Task task)
+                    {
+                        task.Wait();
+                    }
+                    if (taskObj is Task<object> genericTask)
+                    {
+                        genericTask.Wait();
+                    }
+                }
+                else
+                {
+                    method.Invoke(service, args);
+                }
             }
             catch (Exception e)
             {
                 var exception = new ApplicationException("Failed to invoke method", e);
                 FillException(exception);
-                exception.Data[nameof(targetMethod.IsStatic)] = targetMethod.IsStatic;
+                exception.Data[nameof(method.IsStatic)] = method.IsStatic;
+
+                throw exception;
+            }
+        }
+
+        /// <summary>
+        /// Вызывает метод, используя внедрение зависимостей.
+        /// </summary>
+        /// <param name="serviceResolver">Метод получения сервиса.</param>
+        public async Task InvokeAsync(Func<Type, object> serviceResolver = null)
+        {
+            Resolve(out var type, out var method, out var args);
+
+            if (!method.IsStatic && serviceResolver is null)
+            {
+                var exception = new InvalidOperationException("Service resolver is required to invoke non-static methods");
+                FillException(exception);
+
+                throw exception;
+            }
+
+            var service = method.IsStatic ? null : serviceResolver?.Invoke(type);
+
+            try
+            {
+                if (method.IsAsync())
+                {
+                    var taskObj = method.Invoke(service, args);
+
+                    if (taskObj is Task task)
+                    {
+                        await Task.Run(() => task);
+                    }
+                    if (taskObj is Task<object> genericTask)
+                    {
+                        await Task.Run(() => genericTask);
+                    }
+                }
+                else
+                {
+                    method.Invoke(service, args);
+                }
+            }
+            catch (Exception e)
+            {
+                var exception = new ApplicationException("Failed to invoke method", e);
+                FillException(exception);
+                exception.Data[nameof(method.IsStatic)] = method.IsStatic;
 
                 throw exception;
             }
@@ -155,6 +209,26 @@ namespace Uhost.Core.Common
             exception.Data[nameof(MethodName)] = MethodName;
             exception.Data[nameof(ArgumentTypes)] = ArgumentTypes;
             exception.Data[nameof(ArgumentValues)] = ArgumentValues;
+        }
+
+        private void Resolve(out Type type, out MethodInfo method, out object[] args)
+        {
+            type = Type.GetType(ServiceType, true);
+            var types = ArgumentTypes.Select(Type.GetType);
+            var values = Tools.ParallelSelect(types, ArgumentValues)
+               .Select(e => e.Value2.TryCastTo(e.Value1, out var value) ? value : null)
+               .ToArray();
+
+            method = type.GetMethods().FirstOrDefault(e => e.Name == MethodName && e.GetParameters().Length == values.Length);
+            args = values;
+
+            if (method == null)
+            {
+                var exception = new InvalidOperationException("Bad target method");
+                FillException(exception);
+
+                throw exception;
+            }
         }
     }
 }
