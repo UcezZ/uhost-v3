@@ -49,7 +49,6 @@ namespace Uhost.Core.Common
         /// <summary>
         /// Создаёт сериализованную задачу из выражения.
         /// </summary>
-        /// <typeparam name="T">Тип объекта, содержащеего метод.</typeparam>
         /// <param name="expression">Выражение. Может содержать только один метод.</param>
         /// <returns></returns>
         public static SerializedTask Create(Expression<Action> expression)
