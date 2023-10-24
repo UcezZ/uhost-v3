@@ -8,7 +8,7 @@ namespace Uhost.Core.Data
     /// </summary>
     public abstract class BaseEntity
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), ScaffoldColumn(false)]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
     }
 }
