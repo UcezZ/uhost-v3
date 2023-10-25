@@ -160,6 +160,15 @@ namespace Uhost.Core.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на uHost: Регистрация пользователя {0}.
+        /// </summary>
+        internal static string Template_Registration_Title {
+            get {
+                return ResourceManager.GetString("Template_Registration_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Тема указана неверно, допустимые значения: {0}.
         /// </summary>
         internal static string User_Error_ThemeFail {

@@ -23,8 +23,8 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Trigrams" Version="5.0.10" />
     <PackageReference Include="RabbitMQ.Client" Version="6.0.0" />
     <PackageReference Include="RabbitMQ.Client.Core.DependencyInjection" Version="4.3.0" />
+    <PackageReference Include="RazorLight" Version="2.3.1" />
     <PackageReference Include="Sentry.AspNetCore" Version="2.1.8" />
-    <PackageReference Include="StackExchange.Redis" Version="2.5.61" />
     <PackageReference Include="StackExchange.Redis.Extensions.AspNetCore" Version="8.0.5" />
     <PackageReference Include="StackExchange.Redis.Extensions.Newtonsoft" Version="8.0.5" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.3" />
@@ -33,6 +33,15 @@
   <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Templates\_EmailLayout.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Templates\Registration.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

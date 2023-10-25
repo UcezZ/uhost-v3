@@ -4,9 +4,12 @@ using StackExchange.Redis;
 using StackExchange.Redis.Extensions.Newtonsoft;
 using Uhost.Core.Data;
 using Uhost.Core.Services;
+using Uhost.Core.Services.Email;
 using Uhost.Core.Services.File;
 using Uhost.Core.Services.Graylog;
 using Uhost.Core.Services.Log;
+using Uhost.Core.Services.Razor;
+using Uhost.Core.Services.Register;
 using Uhost.Core.Services.RestClient;
 using Uhost.Core.Services.Role;
 using Uhost.Core.Services.Scheduler;
@@ -29,12 +32,14 @@ namespace Uhost.Core.Extensions
             services.AddScoped<IRestClientService, RestClientService>();
             services.AddScoped<IGraylogService, GraylogService>();
             services.AddScoped<IVideoService, VideoService>();
+            services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IRegisterService, RegisterService>();
 
             services.AddSingleton<ISchedulerService, SchedulerService>();
+            services.AddSingleton<IRazorService, RazorService>();
 
             // Redis
             ConnectionMultiplexer.SetFeatureFlag("preventthreadtheft", true);
-            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(CoreSettings.RedisConfig));
             services.AddStackExchangeRedisExtensions<NewtonsoftSerializer>(CoreSettings.RedisConfig);
 
             return services;

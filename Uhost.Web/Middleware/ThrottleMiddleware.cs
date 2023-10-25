@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using StackExchange.Redis;
+using StackExchange.Redis.Extensions.Core.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,12 +45,12 @@ end";
         }
 
         private readonly RequestDelegate _next;
-        private readonly IDatabase _redis;
+        private readonly IRedisDatabase _redis;
 
-        public ThrottleMiddleware(RequestDelegate next, IConnectionMultiplexer redis)
+        public ThrottleMiddleware(RequestDelegate next, IRedisDatabase redis)
         {
             _next = next;
-            _redis = redis.GetDatabase();
+            _redis = redis;
         }
 
         public async Task Invoke(HttpContext context)
@@ -98,7 +99,7 @@ end";
             var redisKey = $"{_redisKeyPrefix}_{context.Connection.RemoteIpAddress}";
             var prepared = LuaScript.Prepare(_lua);
 
-            var result = await prepared.EvaluateAsync(_redis, new
+            var result = await prepared.EvaluateAsync(_redis.Database, new
             {
                 Key = redisKey,
                 attribute.Count,

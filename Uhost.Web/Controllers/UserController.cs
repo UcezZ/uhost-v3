@@ -73,7 +73,7 @@ namespace Uhost.Web.Controllers
             {
                 return ResponseHelper.Error(ModelState.GetErrors());
             }
-            if (_service.Exists(model.Name))
+            if (_service.Exists(model.Name, model.Login))
             {
                 return ResponseHelper.ErrorMessage(nameof(model.Name), ApiStrings.Role_Error_AlreadyExists);
             }
@@ -117,7 +117,7 @@ namespace Uhost.Web.Controllers
             {
                 return ResponseHelper.Error(ModelState.GetErrors());
             }
-            if (_service.Exists(model.Name, idParsed))
+            if (_service.Exists(model.Name, model.Login, idParsed))
             {
                 return ResponseHelper.ErrorMessage(nameof(model.Name), ApiStrings.User_Error_AlreadyExists);
             }
@@ -192,7 +192,7 @@ namespace Uhost.Web.Controllers
             {
                 return ResponseHelper.Error(ModelState.GetErrors());
             }
-            if (_service.Exists(model.Name, userId))
+            if (_service.Exists(model.Name, model.Login, userId))
             {
                 return ResponseHelper.ErrorMessage(nameof(model.Name), ApiStrings.Role_Error_AlreadyExists);
             }
