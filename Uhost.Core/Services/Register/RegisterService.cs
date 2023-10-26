@@ -63,6 +63,7 @@ namespace Uhost.Core.Services.Register
             var dataModel = new RegistrationRazorDataModel
             {
                 Title = CoreStrings.Template_Registration_Title.Format(model.Login),
+                Code = code,
                 Model = model
             };
             try
