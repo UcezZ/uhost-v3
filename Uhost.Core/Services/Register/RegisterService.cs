@@ -99,7 +99,25 @@ namespace Uhost.Core.Services.Register
 
             var entity = _users.Add(model);
 
-            return _users.GetOne(entity.Id);
+            if (entity != null)
+            {
+                await _redis.Database.KeyDeleteAsync(key);
+
+                return _users.GetOne(entity.Id);
+            }
+
+            return null;
+        }
+
+        public void Dispose()
+        {
+            _users.Dispose();
+            _email.Dispose();
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await _users.DisposeAsync();
         }
     }
 }

@@ -26,9 +26,9 @@ namespace Uhost.Core.Attributes.Validation
             {
                 throw new ArgumentException($"Property named '{_propertyName}' is not defined in model '{validationContext.DisplayName}'");
             }
-            if (value.GetType() != prop.PropertyType)
+            if (value != null && value.GetType() != prop.PropertyType)
             {
-                throw new ArgumentException($"Given property value type ({value.GetType().Name}) doesn't match model's property value type ({prop.PropertyType.Name})");
+                throw new ArgumentException($"Given property value type ({value?.GetType().Name}) doesn't match model's property value type ({prop.PropertyType.Name})");
             }
             if (prop.GetValue(validationContext.ObjectInstance)?.GetHashCode() != value?.GetHashCode() || value == null || value.ToString() == string.Empty)
             {
