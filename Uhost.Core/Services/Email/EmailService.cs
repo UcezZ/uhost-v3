@@ -4,7 +4,7 @@ using System.Net.Mail;
 
 namespace Uhost.Core.Services.Email
 {
-    public class EmailService : IEmailService
+    public sealed class EmailService : IEmailService
     {
         private readonly SmtpClient _client;
 

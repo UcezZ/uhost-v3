@@ -18,7 +18,7 @@ namespace Uhost.Core.Services.Register
     /// <summary>
     /// Регистрация
     /// </summary>
-    public class RegisterService : IRegisterService
+    public sealed class RegisterService : IRegisterService
     {
         private readonly IRedisDatabase _redis;
         private readonly IUserService _users;
@@ -67,8 +67,8 @@ namespace Uhost.Core.Services.Register
             };
             try
             {
-                var html = await _razor.RenderToStringAsync(RazorService.Templates.Registration, model);
-                _email.Send(CoreSettings.SmtpConfig.Credentials?.UserName, model.Email, dataModel.Title, html, true);
+                var html = await _razor.RenderToStringAsync(RazorService.Templates.Registration, dataModel);
+                _email.Send(CoreSettings.SmtpConfig.Sender, model.Email, dataModel.Title, html, true);
                 await _redis.Database.StringSetAsync(key, model.ToJson(), _redisKeyTtl);
 
                 return true;

@@ -2,9 +2,9 @@
 @model Uhost.Core.Models.Razor.RegistrationRazorDataModel;
 
 @{
-Layout = "Templates/_EmailLayout";
+    Layout = System.IO.Path.Combine(System.AppContext.BaseDirectory, "Templates", "_EmailLayout.cshtml");
 }
 
 <h1><b>Жопа</b> текст</h1>
 
-<pre>Model.ToJson()</pre>
+<pre>@Model.ToJson()</pre>

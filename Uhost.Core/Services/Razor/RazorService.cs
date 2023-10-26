@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Uhost.Core.Services.Razor
 {
-    public class RazorService : IRazorService
+    public sealed class RazorService : IRazorService
     {
         public enum Templates
         {
@@ -54,7 +54,7 @@ namespace Uhost.Core.Services.Razor
         /// <returns></returns>
         public string RenderToString<T>(Templates template, T model)
         {
-            return RenderToString(Path.Combine(_templatesBasePath, template.ToString()), model);
+            return RenderToString(Path.Combine(_templatesBasePath, $"{template}.cshtml"), model);
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace Uhost.Core.Services.Razor
         /// <returns></returns>
         public async Task<string> RenderToStringAsync<T>(Templates template, T model)
         {
-            return await RenderToStringAsync(Path.Combine(_templatesBasePath, template.ToString()), model);
+            return await RenderToStringAsync(Path.Combine(_templatesBasePath, $"{template}.cshtml"), model);
         }
     }
 }

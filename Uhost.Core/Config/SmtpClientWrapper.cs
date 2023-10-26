@@ -11,6 +11,11 @@ namespace Uhost.Core.Config
     /// </remarks>
     public class SmtpClientWrapper
     {
+        /// <summary>
+        /// Адрес отправителя сообщения
+        /// </summary>
+        public string Sender { get; set; }
+
         /// <inheritdoc cref="SmtpClient.Host"/>
         public string Host { get; set; }
 
