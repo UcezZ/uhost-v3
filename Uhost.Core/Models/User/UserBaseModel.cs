@@ -6,16 +6,27 @@ namespace Uhost.Core.Models.User
 {
     public class UserBaseModel : BaseModel<Entity>
     {
+        /// <summary>
+        /// Имя пользователя
+        /// </summary>
         [StringLengthValidation(maxLength: 64)]
         public string Name { get; set; }
 
+        /// <summary>
+        /// Описание
+        /// </summary>
         [StringLengthValidation(maxLength: 512)]
         public string Description { get; set; }
 
-        [RegExpValidation("^[a-zA-Z0-9_]*$")]
-        [StringLengthValidation(maxLength: 24)]
+        /// <summary>
+        /// Имя входа
+        /// </summary>
+        [RegExpValidation("^[a-zA-Z0-9_]*$"), StringLengthValidation(maxLength: 24)]
         public string Login { get; set; }
 
+        /// <summary>
+        /// Тема оформления
+        /// </summary>
         [EnumValidation(typeof(Entity.Themes), nameof(Entity.Themes.Dark), ErrorMessageResourceType = typeof(CoreStrings), ErrorMessageResourceName = nameof(CoreStrings.User_Error_ThemeFail))]
         public string Theme { get; set; }
 

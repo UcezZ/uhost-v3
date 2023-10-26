@@ -6,9 +6,21 @@ namespace Uhost.Core.Models.User
 {
     public class UserRegisterModel : UserBaseModel
     {
+        /// <summary>
+        /// Email
+        /// </summary>
+        [EmailValidation]
+        public string Email { get; set; }
+
+        /// <summary>
+        /// Пароль
+        /// </summary>
         [StringLengthValidation(maxLength: 64)]
         public string Password { get; set; }
 
+        /// <summary>
+        /// Повтор пароля
+        /// </summary>
         [StringLengthValidation(maxLength: 64), FieldEqualsValidation(nameof(Password))]
         public string PasswordConfirm { get; set; }
 

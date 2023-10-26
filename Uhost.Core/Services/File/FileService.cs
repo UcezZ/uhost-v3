@@ -18,7 +18,7 @@ using QueryModel = Uhost.Core.Models.File.FileQueryModel;
 
 namespace Uhost.Core.Services.File
 {
-    public class FileService : BaseService, IFileService
+    public sealed class FileService : BaseService, IFileService
     {
         private readonly FileRepository _repo;
         private readonly ILogService _log;

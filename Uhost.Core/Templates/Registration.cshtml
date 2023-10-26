@@ -1,0 +1,10 @@
+﻿@using Uhost.Core.Extensions;
+@model Uhost.Core.Models.Razor.RegistrationRazorDataModel;
+
+@{
+    Layout = System.IO.Path.Combine(System.AppContext.BaseDirectory, "Templates", "_EmailLayout.cshtml");
+}
+
+<h1><b>Жопа</b> текст</h1>
+
+<pre>@Model.ToJson()</pre>

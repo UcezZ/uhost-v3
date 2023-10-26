@@ -12,7 +12,7 @@ namespace Uhost.Core.Services.User
         Entity Auth(UserLoginQueryModel query);
         bool CheckRoleIds(IEnumerable<int> ids, out int invalid);
         void Delete(int id);
-        bool Exists(string login, int excludedId = 0);
+        bool Exists(string login, string email, int excludedId = 0);
         UserAccessModel GetAccessData(int id);
         object GetAllPaged(UserQueryModel query);
         UserViewModel GetOne(int id);

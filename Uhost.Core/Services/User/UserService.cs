@@ -98,15 +98,16 @@ namespace Uhost.Core.Services.User
             _repo.SoftDelete(id);
         }
 
-        public bool Exists(string login, int excludedId = 0)
+        public bool Exists(string login, string email, int excludedId = 0)
         {
             var query = new QueryModel
             {
-                Login = login,
                 ExcludedId = excludedId
             };
 
-            return _repo.PrepareQuery(query).Any();
+            return _repo
+                .PrepareQuery(query)
+                .Any(e => e.Login == login || e.Email == email);
         }
 
         public bool CheckRoleIds(IEnumerable<int> ids, out int invalid)

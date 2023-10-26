@@ -27,7 +27,7 @@ using QueryModel = Uhost.Core.Models.Video.VideoQueryModel;
 
 namespace Uhost.Core.Services.Video
 {
-    public class VideoService : BaseService, IVideoService
+    public sealed class VideoService : BaseService, IVideoService
     {
         private readonly VideoRepository _repo;
         private readonly LogWriter _logger;

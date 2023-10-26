@@ -142,6 +142,33 @@ namespace Uhost.Web.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Письмо с кодом подтверждения успешно отправлено.
+        /// </summary>
+        internal static string Register_EmailSent {
+            get {
+                return ResourceManager.GetString("Register_EmailSent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Недействительный код подтверждения.
+        /// </summary>
+        internal static string Register_Error_ConfirmFail {
+            get {
+                return ResourceManager.GetString("Register_Error_ConfirmFail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Не удалось отправить письмо.
+        /// </summary>
+        internal static string Register_Error_FailedToSend {
+            get {
+                return ResourceManager.GetString("Register_Error_FailedToSend", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Право с ид. {0} не найдено.
         /// </summary>
         internal static string Right_Error_NotFoundByIdFmt {
@@ -196,7 +223,7 @@ namespace Uhost.Web.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Пользователь с таким логином уже существует.
+        ///   Ищет локализованную строку, похожую на Пользователь с таким логином или email уже существует.
         /// </summary>
         internal static string User_Error_AlreadyExists {
             get {

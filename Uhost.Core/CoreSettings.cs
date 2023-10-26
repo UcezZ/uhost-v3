@@ -35,6 +35,8 @@ namespace Uhost.Core
 
         public static RabbitMqClientOptions RabbitMqClientOptions { get; private set; }
 
+        public static SmtpClientWrapper SmtpConfig { get; private set; }
+
         static CoreSettings() => Load(typeof(CoreSettings));
 
         public static void Load(Type type)
