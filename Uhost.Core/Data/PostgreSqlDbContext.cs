@@ -103,14 +103,6 @@ namespace Uhost.Core.Data
                 .HasIndex(e => e.Name)
                 .IsUnique();
 
-            builder.Entity<User>()
-                .HasIndex(e => e.Login)
-                .IsUnique();
-
-            builder.Entity<User>()
-                .HasIndex(e => e.Email)
-                .IsUnique();
-
             builder.Entity<Video>()
                 .HasIndex(e => e.Token)
                 .IsUnique();

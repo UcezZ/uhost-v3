@@ -6,10 +6,10 @@ namespace Uhost.Core.Models.User
 {
     public class UserPasswordUpdateModel : BaseModel<Entity>
     {
-        [StringLengthValidation(maxLength: 64)]
+        [StringLengthValidation(minLength: 6, maxLength: 64, allowEmpty: false, trim: false)]
         public string Password { get; set; }
 
-        [StringLengthValidation(maxLength: 64), FieldEqualsValidation(nameof(Password))]
+        [StringLengthValidation(minLength: 6, maxLength: 64, allowEmpty: false, trim: false), FieldEqualsValidation(nameof(Password))]
         public string PasswordConfirm { get; set; }
 
         public override Entity FillEntity(Entity entity)

@@ -15,13 +15,13 @@ namespace Uhost.Core.Models.User
         /// <summary>
         /// Пароль
         /// </summary>
-        [StringLengthValidation(maxLength: 64)]
+        [StringLengthValidation(minLength: 6, maxLength: 64, allowEmpty: false, trim: false)]
         public string Password { get; set; }
 
         /// <summary>
         /// Повтор пароля
         /// </summary>
-        [StringLengthValidation(maxLength: 64), FieldEqualsValidation(nameof(Password))]
+        [StringLengthValidation(minLength: 6, maxLength: 64, allowEmpty: false, trim: false), FieldEqualsValidation(nameof(Password))]
         public string PasswordConfirm { get; set; }
 
         public override Entity FillEntity(Entity entity)
@@ -29,6 +29,7 @@ namespace Uhost.Core.Models.User
             base.FillEntity(entity);
 
             entity.Password = (Password + CoreSettings.PasswordSalt).ComputeHash(HasherExtensions.EncryptionMethod.SHA256);
+            entity.Email = Email;
 
             return entity;
         }

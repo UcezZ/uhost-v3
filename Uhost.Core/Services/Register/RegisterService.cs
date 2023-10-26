@@ -91,9 +91,9 @@ namespace Uhost.Core.Services.Register
         public async Task<UserViewModel> ConfirmRegistration(string code)
         {
             var key = GetRedisKey(code, _contextAccessor?.HttpContext?.ResolveClientIp());
-            var value = await _redis.GetAsync<string>(key);
+            var value = await _redis.Database.StringGetAsync(key);
 
-            if (value == null || !value.TryCastTo<UserRegisterModel>(out var model))
+            if (value.IsNull || !value.HasValue || !value.TryCastTo<UserRegisterModel>(out var model))
             {
                 return null;
             }

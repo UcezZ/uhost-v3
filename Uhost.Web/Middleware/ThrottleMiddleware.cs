@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Uhost.Core.Common;
+using Uhost.Core.Extensions;
 using Uhost.Web.Attributes;
 using Uhost.Web.Common;
 using Uhost.Web.Properties;
@@ -17,7 +18,7 @@ namespace Uhost.Web.Middleware
     /// </summary>
     public class ThrottleMiddleware
     {
-        private const string _redisKeyPrefix = "throttle-middleware";
+        private const string _redisKeyPrefix = "throttle";
         private const string _lua = @"local key = @Key
 local requests = tonumber(redis.call('GET', key) or '-1')
 local max_requests = tonumber(@Count)
@@ -96,7 +97,7 @@ end";
         /// </summary>
         private async Task<bool> Check(HttpContext context, ThrottleAttribute attribute)
         {
-            var redisKey = $"{_redisKeyPrefix}_{context.Connection.RemoteIpAddress}";
+            var redisKey = $"{_redisKeyPrefix}_{context.ResolveClientIp()}";
             var prepared = LuaScript.Prepare(_lua);
 
             var result = await prepared.EvaluateAsync(_redis.Database, new

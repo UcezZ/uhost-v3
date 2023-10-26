@@ -15,7 +15,7 @@ namespace Uhost.Core.Extensions
         /// </summary>
         public static IPAddress ResolveClientIp(this HttpContext context)
         {
-            IPAddress ip = default;
+            var ip = _localhost;
 
             if (context?.Connection?.RemoteIpAddress != null && !context.Connection.RemoteIpAddress.Equals(_localhost))
             {
