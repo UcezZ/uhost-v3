@@ -44,26 +44,24 @@ namespace Uhost.Core.Attributes.Validation
 
             if (blacklist != null)
             {
-                var strExclude = blacklist.ToList().Select(e => e.ToString());
-                if (strExclude.Any(e => !_values.Contains(e)))
+                if (blacklist.Any(e => !_values.Contains(e)))
                 {
                     throw new ArgumentException($"All items should be inner type of enum '{type.FullName}'", nameof(whitelist));
                 }
                 else
                 {
-                    _values.RemoveAll(e => strExclude.Contains(e));
+                    _values.RemoveAll(e => blacklist.Contains(e));
                 }
             }
 
             if (whitelist != null)
             {
-                var strWhiteList = whitelist.ToList().Select(e => e.ToString());
-                if (strWhiteList.Any(e => !_values.Contains(e)))
+                if (whitelist.Any(e => !_values.Contains(e)))
                 {
                     throw new ArgumentException($"All items should be inner type of enum '{type.FullName}'", nameof(whitelist));
                 }
 
-                _values.RemoveAll(e => !strWhiteList.Contains(e));
+                _values.RemoveAll(e => !whitelist.Contains(e));
             }
         }
 

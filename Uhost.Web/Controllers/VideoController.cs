@@ -2,7 +2,6 @@
 using System;
 using System.Threading.Tasks;
 using Uhost.Core.Attributes.Validation;
-using Uhost.Core.Extensions;
 using Uhost.Core.Models.Video;
 using Uhost.Core.Services.Video;
 using Uhost.Web.Attributes;
@@ -44,41 +43,32 @@ namespace Uhost.Web.Controllers
         }
 
         /// <summary>
-        /// Получить файл по ИД
+        /// Получить видео по токену
         /// </summary>
-        /// <param name="id">ИД файла</param>
+        /// <param name="token">Токен видео</param>
         /// <returns></returns>
-        [HttpGet("{id}")]
+        [HttpGet("{token}")]
         public IActionResult GetOne(
-            [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Id), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.File_Error_NotFoundById))]
-            string id)
+            [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Token), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Video_Error_NotFound))]
+            string token)
         {
-            if (!id.TryParsePositiveInt(out var idParsed))
-            {
-                return ResponseHelper.ErrorMessage(nameof(id), ApiStrings.Common_Error_Invalid);
-            }
             if (!ModelState.IsValid)
             {
                 return ResponseHelper.Error(ModelState.GetErrors());
             }
 
-            return ResponseHelper.Success(_service.GetOne(idParsed));
+            return ResponseHelper.Success(_service.GetOne(token));
         }
 
         /// <summary>
         /// Получает прогресс конвертации видео
         /// </summary>
-        /// <param name="id">ИД загруженного видео</param>
+        /// <param name="token">Токен видео</param>
         /// <returns></returns>
-        [HttpGet("{id}/progress")]
-        public async Task<IActionResult> Progress(string id)
+        [HttpGet("{token}/progress")]
+        public async Task<IActionResult> Progress(string token)
         {
-            if (!id.TryParsePositiveInt(out var idParsed))
-            {
-                return ResponseHelper.ErrorMessage(nameof(id), ApiStrings.Common_Error_Invalid);
-            }
-
-            return ResponseHelper.Success(await _service.GetConversionProgress(idParsed));
+            return ResponseHelper.Success(await _service.GetConversionProgress(token));
         }
 
         /// <summary>
@@ -130,24 +120,42 @@ namespace Uhost.Web.Controllers
         }
 
         /// <summary>
-        /// Удаление файла
+        /// Обновление описания видео
         /// </summary>
-        /// <param name="id">ИД файла</param>
-        [HttpDelete("{id}"), HasRightAuthorize(Rights.VideoDelete)]
-        public IActionResult Delete(
-            [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Id), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.File_Error_NotFoundById))]
-            string id)
+        /// <param name="token">Токен видео</param>
+        /// <param name="model">Можель данных</param>
+        /// <returns></returns>
+        [HttpPut("{token}"), HasRightAuthorize(Rights.VideoCreateUpdate)]
+        public IActionResult Update(
+            [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Token), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Video_Error_NotFound))]
+            string token,
+            [FromForm] VideoUpdateModel model)
         {
-            if (!id.TryParsePositiveInt(out var idParsed))
-            {
-                return ResponseHelper.ErrorMessage(nameof(id), ApiStrings.Common_Error_Invalid);
-            }
             if (!ModelState.IsValid)
             {
                 return ResponseHelper.Error(ModelState.GetErrors());
             }
 
-            _service.Delete(idParsed);
+            _service.Update(token, model);
+
+            return ResponseHelper.Success(_service.GetOne(token));
+        }
+
+        /// <summary>
+        /// Удаление видео
+        /// </summary>
+        /// <param name="token">Токен видео</param>
+        [HttpDelete("{token}"), HasRightAuthorize(Rights.VideoDelete)]
+        public IActionResult Delete(
+            [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Token), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Video_Error_NotFound))]
+            string token)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ResponseHelper.Error(ModelState.GetErrors());
+            }
+
+            _service.Delete(token);
 
             return ResponseHelper.Success();
         }

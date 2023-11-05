@@ -177,4 +177,7 @@
   <data name="User_Error_NotFoundById" xml:space="preserve">
     <value>Пользователь с таким ид. не найден</value>
   </data>
+  <data name="Video_Error_NotFound" xml:space="preserve">
+    <value>Видео не найдено</value>
+  </data>
 </root>

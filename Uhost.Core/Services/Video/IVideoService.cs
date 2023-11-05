@@ -14,8 +14,11 @@ namespace Uhost.Core.Services.Video
         Task Convert(int id, Types type);
         Task ConvertUrl(int id, Types type, string url, TimeSpan maxDuration);
         void Delete(int id);
+        void Delete(string token);
         object GetAllPaged(VideoQueryModel query);
-        Task<IDictionary<Types, double>> GetConversionProgress(int videoId);
+        Task<IDictionary<Types, double>> GetConversionProgress(string token);
         VideoViewModel GetOne(int id);
+        VideoViewModel GetOne(string token);
+        void Update(string token, VideoUpdateModel model);
     }
 }

@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using Uhost.Core.Data;
 using Uhost.Core.Services;
+using Uhost.Core.Services.Comment;
 using Uhost.Core.Services.Email;
 using Uhost.Core.Services.File;
 using Uhost.Core.Services.Graylog;
@@ -41,6 +42,7 @@ namespace Uhost.Core.Extensions
             services.AddScoped<IVideoService, VideoService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IRegisterService, RegisterService>();
+            services.AddScoped<ICommentService, CommentService>();
 
             services.AddSingleton<ISchedulerService, SchedulerService>();
             services.AddSingleton<IRazorService, RazorService>();

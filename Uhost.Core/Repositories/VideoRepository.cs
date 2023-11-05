@@ -22,29 +22,59 @@ namespace Uhost.Core.Repositories
             {
                 q = q.Where(e => e.Id == query.Id);
             }
+            if (!string.IsNullOrEmpty(query.Token))
+            {
+                q = q.Where(e => e.Token == query.Token);
+            }
             if (query.UserId > 0)
             {
                 q = q.Where(e => e.UserId == query.UserId);
             }
             if (!string.IsNullOrEmpty(query.Name))
             {
-                q = q.Where(e => EF.Functions.TrigramsAreWordSimilar(e.Name, query.Name));
+                q = q.Where(e => PostgreSqlFunctions.TrgmAreSimilar(e.Name, query.Name) || EF.Functions.ILike(e.Name, $"%{query.Name.PostgresEscape()}%", "\\"));
             }
             if (!query.IncludeDeleted)
             {
                 q = q.Where(e => e.DeletedAt == null);
             }
 
-            q = q.OrderBy(query);
+            if (!string.IsNullOrEmpty(query.Name))
+            {
+                if (query.SortDirectParsed == BaseQueryModel.SortDirections.Desc)
+                {
+                    q = q.OrderBy(e => PostgreSqlFunctions.TrgmWordSimilarity(e.Name, query.Name))
+                        .ThenByDescending(e => e.Name)
+                        .ThenByDescending(e => e.CreatedAt);
+                }
+                else
+                {
+                    q = q.OrderByDescending(e => PostgreSqlFunctions.TrgmWordSimilarity(e.Name, query.Name))
+                        .ThenBy(e => e.Name)
+                        .ThenBy(e => e.CreatedAt);
+                }
+            }
+            else
+            {
+                q = q.OrderBy(query);
+            }
 
             return q;
         }
 
-        public IQueryable<TModel> GetAll<TModel>(QueryModel query) where TModel : BaseModel<Entity>, new()
+        public IQueryable<TModel> GetAll<TModel>(QueryModel query = null) where TModel : BaseModel<Entity>, new()
         {
             query ??= new QueryModel();
 
             return Get<TModel>(PrepareQuery(query));
+        }
+
+        public string GetToken(int id)
+        {
+            return DbSet
+                .Where(e => e.Id == id && e.DeletedAt == null)
+                .Select(e => e.Token)
+                .FirstOrDefault();
         }
     }
 }

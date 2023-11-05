@@ -203,5 +203,14 @@ namespace Uhost.Core.Properties {
                 return ResourceManager.GetString("User_Error_ThemeFail", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Видео с таким ид. не найдено.
+        /// </summary>
+        internal static string Video_Error_NotFoundById {
+            get {
+                return ResourceManager.GetString("Video_Error_NotFoundById", resourceCulture);
+            }
+        }
     }
 }

@@ -17,6 +17,7 @@ using Uhost.Core.Extensions;
 using Uhost.Core.Models.File;
 using Uhost.Core.Models.Video;
 using Uhost.Core.Repositories;
+using Uhost.Core.Services.Comment;
 using Uhost.Core.Services.File;
 using Uhost.Core.Services.Scheduler;
 using static Uhost.Core.Data.Entities.File;
@@ -31,9 +32,10 @@ namespace Uhost.Core.Services.Video
         private readonly VideoRepository _repo;
         private readonly LogWriter _logger;
         private readonly ISchedulerService _scheduler;
-        private readonly IFileService _files;
+        private readonly IFileService _fileService;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IRedisDatabase _redis;
+        private readonly ICommentService _commentService;
         private const string _redisProgressKeyMask = "progress_{0}";
         private static readonly TimeSpan _redisProgressKeyTtl = TimeSpan.FromMinutes(5);
         private static readonly TimeSpan _maxStreamDuration = TimeSpan.FromHours(5);
@@ -46,16 +48,22 @@ namespace Uhost.Core.Services.Video
             Types.Video1080p
         };
 
-        public VideoService(PostgreSqlDbContext context, IServiceProvider provider, ISchedulerService scheduler, IFileService files, IRedisDatabase redis) : base(context)
+        public VideoService(PostgreSqlDbContext context, IServiceProvider provider, ISchedulerService scheduler, IFileService fileService, ICommentService commentService, IRedisDatabase redis) : base(context)
         {
             _repo = new VideoRepository(_dbContext);
             _contextAccessor = provider.GetService<IHttpContextAccessor>();
             _logger = provider.GetService<LogWriter>();
             _scheduler = scheduler;
-            _files = files;
+            _fileService = fileService;
             _redis = redis;
+            _commentService = commentService;
         }
 
+        /// <summary>
+        /// Получение всех видео по запросу
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
         public object GetAllPaged(QueryModel query)
         {
             var pager = _repo
@@ -64,7 +72,7 @@ namespace Uhost.Core.Services.Video
 
             if (pager.Any())
             {
-                var files = _files
+                var files = _fileService
                     .GetByDynEntity<FileShortViewModel>(pager.Select(e => e.Id), typeof(Entity))
                     .ToList();
 
@@ -82,15 +90,44 @@ namespace Uhost.Core.Services.Video
             return pager.Paginate();
         }
 
+        /// <summary>
+        /// Получение одного видео по ИД
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public VideoViewModel GetOne(int id)
         {
             var model = _repo
                 .GetAll<VideoViewModel>(new QueryModel { Id = id })
                 .FirstOrDefault();
 
+            return FillViewModel(model);
+        }
+
+        /// <summary>
+        /// Получение одного видео по токену
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public VideoViewModel GetOne(string token)
+        {
+            var model = _repo
+                .GetAll<VideoViewModel>(new QueryModel { Token = token })
+                .FirstOrDefault();
+
+            return FillViewModel(model);
+        }
+
+        /// <summary>
+        /// Заполнение модели видео
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        private VideoViewModel FillViewModel(VideoViewModel model)
+        {
             if (model != null)
             {
-                var files = _files
+                var files = _fileService
                     .GetByDynEntity<FileShortViewModel>(model.Id, typeof(Entity))
                     .ToList();
 
@@ -106,6 +143,11 @@ namespace Uhost.Core.Services.Video
             return model;
         }
 
+        /// <summary>
+        /// Загрузка видео из файла
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         public Entity Add(VideoUploadFileModel model)
         {
             if (_contextAccessor?.HttpContext?.User != null && _contextAccessor.HttpContext.User.TryGetUserId(out var userId))
@@ -114,7 +156,7 @@ namespace Uhost.Core.Services.Video
             }
 
             var entity = _repo.Add(model);
-            var file = _files.Add(model.File, Types.VideoRaw, typeof(Entity), entity.Id);
+            var file = _fileService.Add(model.File, Types.VideoRaw, typeof(Entity), entity.Id);
 
             if (file != null && PrepareVideo(entity, file))
             {
@@ -124,13 +166,18 @@ namespace Uhost.Core.Services.Video
             }
             else
             {
-                _files.Delete(file?.Id ?? 0);
+                _fileService.Delete(file?.Id ?? 0);
                 _repo.SoftDelete(entity.Id);
             }
 
             return null;
         }
 
+        /// <summary>
+        /// Загрузка видео из URL
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         public Entity Add(VideoUploadUrlModel model)
         {
             if (_contextAccessor?.HttpContext?.User != null && _contextAccessor.HttpContext.User.TryGetUserId(out var userId))
@@ -154,13 +201,36 @@ namespace Uhost.Core.Services.Video
             return null;
         }
 
+        /// <summary>
+        /// Обновление видео
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="model"></param>
+        public void Update(string token, VideoUpdateModel model)
+        {
+            _repo.Update(e => e.Token == token, model);
+        }
+
+        /// <summary>
+        /// Удаление видео
+        /// </summary>
+        /// <param name="id"></param>
         public void Delete(int id)
         {
             _repo.SoftDelete(id);
         }
 
         /// <summary>
-        /// Подготавливает видео, вычисляет продолжительность и генерирует картинку
+        /// Удаление видео
+        /// </summary>
+        /// <param name="token"></param>
+        public void Delete(string token)
+        {
+            _repo.Perform(e => e.DeletedAt = DateTime.Now, e => e.Token == token && e.DeletedAt == null);
+        }
+
+        /// <summary>
+        /// Подготавливает видео из URL, генерирует картинку, добавляет задачи на конвертацию
         /// </summary>
         /// <param name="entity">Сущность видео</param>
         /// <param name="url"></param>
@@ -196,7 +266,7 @@ namespace Uhost.Core.Services.Video
                         return false;
                     }
 
-                    _files.Add(
+                    _fileService.Add(
                         name: "thumb.jpg",
                         file: thumbFile,
                         type: Types.VideoThumbnail,
@@ -223,12 +293,6 @@ namespace Uhost.Core.Services.Video
 
                 return false;
             }
-            catch (Exception e)
-            {
-                SentrySdk.CaptureException(e);
-
-                throw;
-            }
             finally
             {
                 try
@@ -246,7 +310,7 @@ namespace Uhost.Core.Services.Video
         }
 
         /// <summary>
-        /// Подготавливает видео, вычисляет продолжительность и генерирует картинку
+        /// Подготавливает видео, вычисляет продолжительность и генерирует картинку, добавляет задачи на конвертацию
         /// </summary>
         /// <param name="entity">Сущность видео</param>
         /// <param name="rawVideo">Сущность файла загруженного видео</param>
@@ -284,7 +348,7 @@ namespace Uhost.Core.Services.Video
                         return false;
                     }
 
-                    _files.Add(
+                    _fileService.Add(
                         name: "thumb.jpg",
                         file: thumbFile,
                         type: Types.VideoThumbnail,
@@ -311,12 +375,6 @@ namespace Uhost.Core.Services.Video
 
                 return false;
             }
-            catch (Exception e)
-            {
-                SentrySdk.CaptureException(e);
-
-                throw;
-            }
             finally
             {
                 try
@@ -334,7 +392,7 @@ namespace Uhost.Core.Services.Video
         }
 
         /// <summary>
-        /// Конвертация загруженного файла видео
+        /// Задача конвертации загруженного файла видео
         /// </summary>
         /// <param name="id">ИД сущности видео</param>
         /// <param name="type">Тип видео</param>
@@ -346,7 +404,7 @@ namespace Uhost.Core.Services.Video
                 throw new ArgumentException("Wrong file type specified", nameof(type));
             }
 
-            var file = _files
+            var file = _fileService
                 .GetByDynEntity<FileShortViewModel>(id, typeof(Entity), Types.VideoRaw)
                 .FirstOrDefault();
 
@@ -366,57 +424,11 @@ namespace Uhost.Core.Services.Video
                 .FromFileInput(file.Path)
                 .OutputToFile(output.FullName, true, e => e.ApplyPreset(mediaInfo, type));
 
-            Tools.MakePath(output.FullName);
-
-            await _logger.WriteLineAsync($"Processing video #{id} ({type}) with arguments:\r\n\r\n{ffargs?.Arguments}\r\n", LogWriter.Severity.Info);
-
-            try
-            {
-                var result = await ffargs?
-                    .NotifyOnProgress(async e => await OnProgress(e, id, type), mediaInfo.Duration)
-                    .ProcessAsynchronously();
-
-                if (result == true && output.Length > 0)
-                {
-                    _files.Add(
-                        output,
-                        name: "video.mp4",
-                        type: type,
-                        dynType: typeof(Entity),
-                        dynId: id);
-                }
-                else
-                {
-                    var exception = new Exception("Failed to process video");
-                    exception.Data["Id"] = id;
-                    exception.Data["Type"] = type;
-                    exception.Data["Arguments"] = ffargs?.Arguments;
-
-                    SentrySdk.CaptureException(exception);
-                }
-            }
-            catch (Exception e)
-            {
-                e.Data["args"] = ffargs.Arguments;
-                throw;
-            }
-
-            await OnProgress(100, id, type);
-
-            await _logger.WriteLineAsync($"Processing video #{id} ({type}) completed", LogWriter.Severity.Info);
-
-            try
-            {
-                output.Delete();
-            }
-            catch (Exception e)
-            {
-                SentrySdk.CaptureException(e);
-            }
+            await DoConversion(mediaInfo, ffargs, output, id, type);
         }
 
         /// <summary>
-        /// Конвертация видео из потока
+        /// Задача конвертации видео из потока
         /// </summary>
         /// <param name="id">ИД сущности видео</param>
         /// <param name="type">Тип видео</param>
@@ -436,19 +448,35 @@ namespace Uhost.Core.Services.Video
                 .FromUrlInput(new Uri(url))
                 .OutputToFile(output.FullName, true, e => e.ApplyPreset(mediaInfo, type, maxDuration));
 
-            Tools.MakePath(output.FullName);
+            await DoConversion(mediaInfo, ffargs, output, id, type, maxDuration);
+        }
 
-            await _logger.WriteLineAsync($"Processing video #{id} ({type}) with arguments:\r\n\r\n{ffargs?.Arguments}\r\n", LogWriter.Severity.Info);
+        /// <summary>
+        /// Общий метод конвертации
+        /// </summary>
+        /// <param name="mediaInfo"></param>
+        /// <param name="ffargs"></param>
+        /// <param name="output"></param>
+        /// <param name="id"></param>
+        /// <param name="type"></param>
+        /// <param name="duration"></param>
+        /// <returns></returns>
+        private async Task DoConversion(IMediaAnalysis mediaInfo, FFMpegArgumentProcessor ffargs, FileInfo output, int id, Types type, TimeSpan? duration = null)
+        {
+            Tools.MakePath(output.FullName);
+            var token = _repo.GetToken(id);
+
+            await _logger.WriteLineAsync($"Processing video #{id},{token} ({type}) with arguments:\r\n\r\n{ffargs?.Arguments}\r\n", LogWriter.Severity.Info);
 
             try
             {
                 var result = await ffargs?
-                    .NotifyOnProgress(async e => await OnProgress(e, id, type), mediaInfo.Duration)
+                    .NotifyOnProgress(async e => await OnProgress(e, token, type), duration ?? mediaInfo.Duration)
                     .ProcessAsynchronously();
 
                 if (result == true && output.Length > 0)
                 {
-                    _files.Add(
+                    _fileService.Add(
                         output,
                         name: "video.mp4",
                         type: type,
@@ -471,9 +499,9 @@ namespace Uhost.Core.Services.Video
                 throw;
             }
 
-            await OnProgress(100, id, type);
+            await OnProgress(100, token, type);
 
-            await _logger.WriteLineAsync($"Processing video #{id} ({type}) completed", LogWriter.Severity.Info);
+            await _logger.WriteLineAsync($"Processing video #{id},{token} ({type}) completed", LogWriter.Severity.Info);
 
             try
             {
@@ -485,18 +513,25 @@ namespace Uhost.Core.Services.Video
             }
         }
 
-        private async Task OnProgress(double progress, int videoId, Types type)
+        /// <summary>
+        /// Событие прогресса
+        /// </summary>
+        /// <param name="progress"></param>
+        /// <param name="token"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        private async Task OnProgress(double progress, string token, Types type)
         {
-            var key = _redisProgressKeyMask.Format(videoId);
+            var key = _redisProgressKeyMask.Format(token);
             var value = await _redis.Database.StringGetAsync(key);
             var dict = !value.IsNullOrEmpty && value.TryCastTo<IDictionary<Types, double>>(out var casted) ? casted : new Dictionary<Types, double>();
             dict[type] = progress;
             await _redis.Database.StringSetAsync(key, dict.ToJson(), expiry: _redisProgressKeyTtl, flags: CommandFlags.FireAndForget);
         }
 
-        public async Task<IDictionary<Types, double>> GetConversionProgress(int videoId)
+        public async Task<IDictionary<Types, double>> GetConversionProgress(string token)
         {
-            var key = _redisProgressKeyMask.Format(videoId);
+            var key = _redisProgressKeyMask.Format(token);
             var value = await _redis.Database.StringGetAsync(key);
             var dict = !value.IsNullOrEmpty && value.TryCastTo<IDictionary<Types, double>>(out var casted) ? casted : new Dictionary<Types, double>();
 

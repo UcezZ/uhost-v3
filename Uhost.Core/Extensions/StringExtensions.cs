@@ -15,7 +15,7 @@ namespace Uhost.Core.Extensions
         private const string _qwertyRus = "йцукенгшщзхъфывапролджэячсмитьбю.ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,";
         private const string _similarRus = "АВЕКМНОРСТУХавекмнорстух";
         private const string _similarLat = "ABEKMHOPCTYXabekmhopctyx";
-        private const string _pgEscapeChars = "_%";
+        private const string _pgEscapeChars = "_%()";
         private const char _pgEscapeChar = '\\';
 
         /// <summary>

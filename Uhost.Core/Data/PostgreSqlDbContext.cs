@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Uhost.Core.Common;
 using Uhost.Core.Data.Entities;
+using Uhost.Core.Extensions;
 
 namespace Uhost.Core.Data
 {
@@ -19,7 +20,7 @@ namespace Uhost.Core.Data
         public DbSet<User> Users { get; private set; }
         public DbSet<UserRole> UserRoles { get; private set; }
         public DbSet<Video> Videos { get; private set; }
-        public DbSet<VideoReaction> VideoReactions { get; private set; }
+        public DbSet<VideoReaction> Reactions { get; private set; }
         public DbSet<Comment> Comments { get; private set; }
         public DbSet<Playlist> Playlists { get; private set; }
         public DbSet<PlaylistEntry> PlaylistEntries { get; private set; }
@@ -46,7 +47,9 @@ namespace Uhost.Core.Data
         {
             base.OnModelCreating(builder);
 
-            builder.ApplyConfigurationsFromAssembly(GetType().Assembly);
+            builder
+                .ApplyConfigurationsFromAssembly(GetType().Assembly)
+                .DefineDbFunctions();
 
             // пользователь
             builder.Entity<User>()

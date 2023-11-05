@@ -165,4 +165,7 @@
   <data name="User_Error_ThemeFail" xml:space="preserve">
     <value>Тема указана неверно, допустимые значения: {0}</value>
   </data>
+  <data name="Video_Error_NotFoundById" xml:space="preserve">
+    <value>Видео с таким ид. не найдено</value>
+  </data>
 </root>

@@ -133,7 +133,7 @@ namespace Uhost.Web.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &lt;head&gt;&lt;meta charset=&quot;UTF-8&quot;&gt;&lt;style&gt;*{font-family:-apple-system,BlinkMacSystemFont,&apos;Segoe UI&apos;,Roboto,Oxygen,Ubuntu,Cantarell,&apos;Open Sans&apos;,&apos;Helvetica Neue&apos;,sans-serif;color:#173647}body,html{min-height:100vh;display:flex;justify-content:center;flex-direction:column;margin:0;padding:0}html{background:linear-gradient(15deg,#111 0,#555 100%) no-repeat}body{margin:-15% 15% 0 15%}div.button-wrapper{display:flex;justify-content:center;gap:48px}a{font-size:48px;line-height:48px;font-weight:900;width:128px;height:128p [остаток строки не уместился]&quot;;.
+        ///   Ищет локализованную строку, похожую на &lt;head&gt;&lt;meta charset=&quot;UTF-8&quot;&gt;&lt;style&gt;*{font-family:-apple-system,BlinkMacSystemFont,&apos;Segoe UI&apos;,Roboto,Oxygen,Ubuntu,Cantarell,&apos;Open Sans&apos;,&apos;Helvetica Neue&apos;,sans-serif;color:#173647}body,html{min-height:100vh;display:flex;justify-content:center;flex-direction:column;margin:0;padding:0}html{background:linear-gradient(15deg,#111 0,#555 100%) no-repeat}body{margin:-15% 15% 0 15%}div.button-wrapper{display:flex;justify-content:center;gap:48px}a{width:128px;max-height:128px;border-radius:128px;position:relative;over [остаток строки не уместился]&quot;;.
         /// </summary>
         internal static string Home_Index {
             get {
@@ -237,6 +237,15 @@ namespace Uhost.Web.Properties {
         internal static string User_Error_NotFoundById {
             get {
                 return ResourceManager.GetString("User_Error_NotFoundById", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Видео не найдено.
+        /// </summary>
+        internal static string Video_Error_NotFound {
+            get {
+                return ResourceManager.GetString("Video_Error_NotFound", resourceCulture);
             }
         }
     }

@@ -21,6 +21,9 @@ namespace Uhost.Console.Commands
         [Option("queue", Required = true, HelpText = "Наименование очереди задач")]
         public string Queue { get; set; }
 
+        [Option("threads", Required = false, HelpText = "Количество одновременно выполняемых задач")]
+        public int Threads { get; set; } = ConsoleSettings.TaskExecutorWorkThreads;
+
         private static bool _cancel;
         private LogWriter _logger;
         private readonly SemaphoreSlim _semaphore;
@@ -32,14 +35,22 @@ namespace Uhost.Console.Commands
 
         public override void Run()
         {
+            if (Threads < 1)
+            {
+                Threads = 1;
+            }
+            if (Threads > Environment.ProcessorCount * 2)
+            {
+                Threads = Environment.ProcessorCount * 2;
+            }
             _logger = GetRequiredService<LogWriter>();
             var service = GetRequiredService<IQueueService>();
             var q = service.RegisterQueue(Queue);
-            service.Channel.BasicQos(0, ConsoleSettings.TaskExecutorWorkThreads, false);
+            service.Channel.BasicQos(0, (ushort)Threads, false);
 
             CancelKeyPress += OnCancelKeyPress;
 
-            for (var i = 0; i < ConsoleSettings.TaskExecutorWorkThreads; i++)
+            for (var i = 0; i < Threads; i++)
             {
                 var consumer = new AsyncEventingBasicConsumer(service.Channel);
 
@@ -92,7 +103,8 @@ namespace Uhost.Console.Commands
                 {
                     await _logger.WriteLineAsync($"[{e.ConsumerTag}] the received message #{e.DeliveryTag} is not a task", Severity.Warn);
                 }
-                Thread.Sleep(3000);
+
+                Thread.Sleep(100);
             }
             finally
             {

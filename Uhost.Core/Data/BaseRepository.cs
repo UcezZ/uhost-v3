@@ -206,9 +206,9 @@ namespace Uhost.Core.Common
         /// <param name="save">Сохранить изменения. По умолчанию true, установить в false в составе транзакции</param>
         public virtual void SoftDelete(int id, bool save = true)
         {
-            if (FindEntity(id, out var entity))
+            if (FindEntity(id, out var entity) && entity is BaseDateTimedEntity dtEntity)
             {
-                SetEntityDateTimeField(entity, "DeletedAt", DateTime.Now);
+                dtEntity.DeletedAt = DateTime.Now;
 
                 if (save)
                 {
@@ -268,7 +268,19 @@ namespace Uhost.Core.Common
         /// <param name="setTimeField">Установка UpdatedAt</param>
         public void Update<TModel>(int id, TModel model, bool save = true, bool setTimeField = true) where TModel : BaseModel<TEntity>, new()
         {
-            var entity = DbSetUpdateTransformations.Invoke(DbSet).FirstOrDefault(e => e.Id == id);
+            Update(e => e.Id == id, model, save, setTimeField);
+        }
+
+        /// <summary>
+        /// Обновление <typeparamref name="TEntity"/> данными из <typeparamref name="TModel"/>
+        /// </summary>
+        /// <param name="predicate">Условие выборки</param>
+        /// <param name="model">Модель с данными</param>
+        /// <param name="save">Сохранять изменения. По умолчанию true, установить false в составе транзакции</param>
+        /// <param name="setTimeField">Установка UpdatedAt</param>
+        public void Update<TModel>(Func<TEntity, bool> predicate, TModel model, bool save = true, bool setTimeField = true) where TModel : BaseModel<TEntity>, new()
+        {
+            var entity = DbSetUpdateTransformations.Invoke(DbSet).FirstOrDefault(predicate);
 
             if (entity == null)
             {

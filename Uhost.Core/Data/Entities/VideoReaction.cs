@@ -6,7 +6,14 @@ namespace Uhost.Core.Data.Entities
     [Table("VideoReactions")]
     public class VideoReaction : BaseDateTimedEntity
     {
-        public enum VideoReactions
+        public enum SortBy
+        {
+            Id,
+            VideoId,
+            CreatedAt
+        }
+
+        public enum Reactions
         {
             Like,
             Dislike
