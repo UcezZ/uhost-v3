@@ -9,8 +9,10 @@ namespace Uhost.Core.Services.Video
 {
     public interface IVideoService : IDisposable, IAsyncDisposable
     {
-        Entity Add(VideoCreateModel model);
+        Entity Add(VideoUploadFileModel model);
+        Entity Add(VideoUploadUrlModel model);
         Task Convert(int id, Types type);
+        Task ConvertUrl(int id, Types type, string url, TimeSpan maxDuration);
         void Delete(int id);
         object GetAllPaged(VideoQueryModel query);
         Task<IDictionary<Types, double>> GetConversionProgress(int videoId);

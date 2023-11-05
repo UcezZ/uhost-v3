@@ -11,7 +11,7 @@ using static System.Console;
 namespace Uhost.Console.Commands
 {
     [Verb("updateseq", HelpText = "Обновляет последовательности генерации ИД сущностей во всех контекстах БД")]
-    public class UpdateEntitySeqCommand : BaseCommand
+    public sealed class UpdateEntitySeqCommand : BaseCommand
     {
         private const string _sqlGet = @"SELECT relname 
 FROM pg_class 

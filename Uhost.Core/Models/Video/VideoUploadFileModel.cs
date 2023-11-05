@@ -4,7 +4,7 @@ using Entity = Uhost.Core.Data.Entities.Video;
 
 namespace Uhost.Core.Models.Video
 {
-    public class VideoCreateModel : VideoUpdateModel
+    public class VideoUploadFileModel : VideoUpdateModel
     {
         internal int UserId { get; set; }
 

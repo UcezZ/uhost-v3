@@ -16,7 +16,7 @@ using static Uhost.Core.Data.Entities.Right;
 namespace Uhost.Console.Commands
 {
     [Verb("loaddefaultdata", HelpText = "Загрузка данных по умолчанию")]
-    public class LoadDefaultDataCommand : BaseCommand
+    public sealed class LoadDefaultDataCommand : BaseCommand
     {
         private static readonly DefaultDataModel _defaultObject = new DefaultDataModel
         {

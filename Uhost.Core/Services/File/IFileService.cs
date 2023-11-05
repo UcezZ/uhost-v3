@@ -14,10 +14,10 @@ namespace Uhost.Core.Services.File
     {
         Entity Add(FileUploadModel model);
         Entity Add(IFormFile file, Entity.Types type = Entity.Types.Other, string dynName = null, int? dynId = null);
-        Entity Add(FileInfo file, string mime = null, Entity.Types type = Entity.Types.Other, string dynName = null, int? dynId = null);
+        Entity Add(FileInfo file, string name = null, string mime = null, Entity.Types type = Entity.Types.Other, string dynName = null, int? dynId = null);
         Entity Add(Stream data, string name, string mime = null, Entity.Types type = Entity.Types.Other, string dynName = null, int? dynId = null);
         Entity Add(IFormFile file, Entity.Types type = Entity.Types.Other, Type dynType = null, int? dynId = null);
-        Entity Add(FileInfo file, string mime = null, Entity.Types type = Entity.Types.Other, Type dynType = null, int? dynId = null);
+        Entity Add(FileInfo file, string name = null, string mime = null, Entity.Types type = Entity.Types.Other, Type dynType = null, int? dynId = null);
         void Delete(int id, bool deleteFile = false);
         IQueryable<TModel> GetAll<TModel>(QueryModel query) where TModel : BaseModel<Entity>, new();
         object GetAllPaged<TModel>(QueryModel query) where TModel : BaseModel<Entity>, new();

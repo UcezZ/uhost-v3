@@ -19,6 +19,10 @@ namespace Uhost.Core.Data
         public DbSet<User> Users { get; private set; }
         public DbSet<UserRole> UserRoles { get; private set; }
         public DbSet<Video> Videos { get; private set; }
+        public DbSet<VideoReaction> VideoReactions { get; private set; }
+        public DbSet<Comment> Comments { get; private set; }
+        public DbSet<Playlist> Playlists { get; private set; }
+        public DbSet<PlaylistEntry> PlaylistEntries { get; private set; }
 
         public PostgreSqlDbContext() : base() { }
 
@@ -98,6 +102,52 @@ namespace Uhost.Core.Data
                 .HasForeignKey(e => e.UserId)
                 .HasPrincipalKey(e => e.Id);
 
+            // комментарии
+            builder.Entity<Comment>()
+                .HasOne(e => e.User)
+                .WithMany(e => e.Comments)
+                .HasForeignKey(e => e.UserId)
+                .HasPrincipalKey(e => e.Id);
+
+            builder.Entity<Comment>()
+                .HasOne(e => e.Video)
+                .WithMany(e => e.Comments)
+                .HasForeignKey(e => e.VideoId)
+                .HasPrincipalKey(e => e.Id);
+
+            // реакции
+            builder.Entity<VideoReaction>()
+                .HasOne(e => e.User)
+                .WithMany(e => e.VideoReactions)
+                .HasForeignKey(e => e.UserId)
+                .HasPrincipalKey(e => e.Id);
+
+            builder.Entity<VideoReaction>()
+                .HasOne(e => e.Video)
+                .WithMany(e => e.VideoReactions)
+                .HasForeignKey(e => e.VideoId)
+                .HasPrincipalKey(e => e.Id);
+
+            // плейлисты
+            builder.Entity<Playlist>()
+                .HasOne(e => e.User)
+                .WithMany(e => e.Playlists)
+                .HasForeignKey(e => e.UserId)
+                .HasPrincipalKey(e => e.Id);
+
+            // элементы плейлиста
+            builder.Entity<PlaylistEntry>()
+                .HasOne(e => e.Video)
+                .WithMany(e => e.PlaylistEntries)
+                .HasForeignKey(e => e.VideoId)
+                .HasPrincipalKey(e => e.Id);
+
+            builder.Entity<PlaylistEntry>()
+                .HasOne(e => e.Playlist)
+                .WithMany(e => e.PlaylistEntries)
+                .HasForeignKey(e => e.PlaylistId)
+                .HasPrincipalKey(e => e.Id);
+
             #region AddIsUniqueConstraint
             builder.Entity<Right>()
                 .HasIndex(e => e.Name)
@@ -173,6 +223,14 @@ namespace Uhost.Core.Data
                 .Property(e => e.Token)
                 .HasDefaultValueSql("gen_video_token()");
 
+            builder.Entity<Video>()
+                .Property(e => e.AllowComments)
+                .HasDefaultValue(true);
+
+            builder.Entity<Video>()
+                .Property(e => e.AllowReactions)
+                .HasDefaultValue(true);
+
             // файл
             builder.Entity<File>()
                 .Property(e => e.CreatedAt)
@@ -196,6 +254,29 @@ namespace Uhost.Core.Data
 
             builder.Entity<File>()
                 .Property(e => e.DynName)
+                .HasDefaultValue(string.Empty);
+
+            // комментарии
+            builder.Entity<Comment>()
+                .Property(e => e.CreatedAt)
+                .HasDefaultValueSql(_sqlNow);
+
+            builder.Entity<Comment>()
+                .Property(e => e.Text)
+                .HasDefaultValue(string.Empty);
+
+            // реакции
+            builder.Entity<VideoReaction>()
+                .Property(e => e.CreatedAt)
+                .HasDefaultValueSql(_sqlNow);
+
+            // плейлисты
+            builder.Entity<Playlist>()
+                .Property(e => e.CreatedAt)
+                .HasDefaultValueSql(_sqlNow);
+
+            builder.Entity<Playlist>()
+                .Property(e => e.Name)
                 .HasDefaultValue(string.Empty);
             #endregion
         }

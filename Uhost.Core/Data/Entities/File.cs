@@ -22,9 +22,9 @@ namespace Uhost.Core.Data.Entities
             VideoThumbnail,
             VideoRaw,
             Video240p,
-            Video360p,
-            Video540p,
-            Video720p
+            Video480p,
+            Video720p,
+            Video1080p
         }
 
         public int? UserId { get; set; }

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 using StackExchange.Redis.Extensions.Newtonsoft;
+using System;
 using Uhost.Core.Data;
 using Uhost.Core.Services;
 using Uhost.Core.Services.Email;
@@ -47,7 +48,7 @@ namespace Uhost.Core.Extensions
 
         public static IServiceCollection AddLogWriter(this IServiceCollection services, LogWriter.Severity minSeverity = LogWriter.Severity.Info)
         {
-            services.AddSingleton(new LogWriter(System.Console.Out, minSeverity));
+            services.AddSingleton(new LogWriter(Console.Out, minSeverity));
 
             return services;
         }

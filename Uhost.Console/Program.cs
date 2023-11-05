@@ -24,7 +24,7 @@ namespace Uhost.Console
             WriteLine();
             CancelKeyPress += (s, e) => Process.GetCurrentProcess().Close();
 
-            // определяем команды по релизации ICommand
+            // определяем команды по релизации BaseCommand
             var commands = Assembly
                 .GetAssembly(typeof(BaseCommand))
                 .GetTypes()

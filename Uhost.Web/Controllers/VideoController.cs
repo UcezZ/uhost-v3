@@ -82,11 +82,35 @@ namespace Uhost.Web.Controllers
         }
 
         /// <summary>
-        /// Загрузка файла
+        /// Загрузка файла видео
         /// </summary>
         /// <param name="model">Модель данных</param>
         [HttpPost, HasRightAuthorize(Rights.VideoCreateUpdate), BigFileUpload]
-        public IActionResult Create([FromForm] VideoCreateModel model)
+        public IActionResult UploadFile([FromForm] VideoUploadFileModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ResponseHelper.Error(ModelState.GetErrors());
+            }
+
+            var entity = _service.Add(model);
+
+            if (entity == null)
+            {
+                return ResponseHelper.Error(ApiStrings.Common_Error_Common);
+            }
+            else
+            {
+                return ResponseHelper.Success(_service.GetOne(entity.Id));
+            }
+        }
+
+        /// <summary>
+        /// Загрузка видео из потока или стороннего сервера
+        /// </summary>
+        /// <param name="model">Модель данных</param>
+        [HttpPost("url"), HasRightAuthorize(Rights.VideoCreateUpdate), BigFileUpload]
+        public IActionResult UploadUrl([FromForm] VideoUploadUrlModel model)
         {
             if (!ModelState.IsValid)
             {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -28,6 +29,17 @@ namespace Uhost.Core.Data.Entities
 
         public TimeSpan Duration { get; set; }
 
+        public bool IsPrivate { get; set; }
+
+        public bool IsHidden { get; set; }
+
+        public bool AllowComments { get; set; }
+
+        public bool AllowReactions { get; set; }
+
         public User User { get; set; }
+        public ICollection<Comment> Comments { get; set; }
+        public ICollection<VideoReaction> VideoReactions { get; set; }
+        public ICollection<PlaylistEntry> PlaylistEntries { get; set; }
     }
 }

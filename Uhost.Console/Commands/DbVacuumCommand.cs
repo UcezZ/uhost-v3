@@ -10,7 +10,7 @@ using static System.Console;
 namespace Uhost.Console.Commands
 {
     [Verb("dbvacuum", HelpText = "Выполняет команду VACUUM во всех контекстах БД")]
-    public class DbVacuumCommand : BaseCommand
+    public sealed class DbVacuumCommand : BaseCommand
     {
         public override void Run()
         {

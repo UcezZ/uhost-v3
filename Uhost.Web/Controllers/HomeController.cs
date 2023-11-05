@@ -17,7 +17,7 @@ namespace Uhost.Web.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return Content(ApiStrings.Home_Index, "text/html");
+            return Content(ApiStrings.Home_Index.Replace("%ORIGIN%", $"//{HttpContext.Request.Host.Host}"), "text/html");
         }
     }
 }

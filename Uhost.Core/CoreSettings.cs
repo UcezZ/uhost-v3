@@ -2,6 +2,7 @@
 using RabbitMQ.Client.Core.DependencyInjection.Configuration;
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Uhost.Core.Config;
@@ -12,6 +13,10 @@ namespace Uhost.Core
     public static class CoreSettings
     {
         private const string _jsonName = "appsettings.json";
+
+        public static string JsonName { get; } = Path.Combine(AppContext.BaseDirectory, _jsonName);
+
+        public static IConfiguration Configuration { get; }
 
         public static string SqlConnectionString { get; private set; }
 
@@ -37,15 +42,12 @@ namespace Uhost.Core
 
         public static SmtpClientWrapper SmtpConfig { get; private set; }
 
-        static CoreSettings() => Load(typeof(CoreSettings));
-
-        public static void Load(Type type)
+        static CoreSettings()
         {
-            IConfigurationRoot root;
             try
             {
-                root = new ConfigurationBuilder()
-                    .AddJsonFile(_jsonName)
+                Configuration = new ConfigurationBuilder()
+                    .AddJsonFile(JsonName)
                     .Build();
             }
             catch (Exception ex)
@@ -54,16 +56,21 @@ namespace Uhost.Core
                 throw;
             }
 
+            Load(typeof(CoreSettings));
+        }
+
+        public static void Load(Type type)
+        {
             var simpleProps = type
                 .GetProperties(BindingFlags.Public | BindingFlags.Static)
-                .Where(e => e.PropertyType.IsSerializable);
+                .Where(e => e.PropertyType.IsSerializable && e.CanWrite);
             var complexProps = type
                 .GetProperties(BindingFlags.Public | BindingFlags.Static)
-                .Where(e => !e.PropertyType.IsSerializable);
+                .Where(e => !e.PropertyType.IsSerializable && e.CanWrite);
 
             foreach (var prop in simpleProps)
             {
-                var value = root[prop.Name];
+                var value = Configuration[prop.Name];
 
                 if (value == null)
                 {
@@ -88,7 +95,7 @@ namespace Uhost.Core
 
             foreach (var prop in complexProps)
             {
-                prop.SetValue(null, root.GetSection(prop.Name).Get(prop.PropertyType));
+                prop.SetValue(null, Configuration.GetSection(prop.Name).Get(prop.PropertyType));
 
                 if (prop.GetValue(null) == null)
                 {

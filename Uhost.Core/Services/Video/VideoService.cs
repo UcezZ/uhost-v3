@@ -1,5 +1,4 @@
 ﻿using FFMpegCore;
-using FFMpegCore.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Sentry;
@@ -37,13 +36,14 @@ namespace Uhost.Core.Services.Video
         private readonly IRedisDatabase _redis;
         private const string _redisProgressKeyMask = "progress_{0}";
         private static readonly TimeSpan _redisProgressKeyTtl = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan _maxStreamDuration = TimeSpan.FromHours(5);
 
         private static readonly Types[] _videoResolutionTypes = new[]
         {
             Types.Video240p,
-            Types.Video360p,
-            Types.Video540p,
-            Types.Video720p
+            Types.Video480p,
+            Types.Video720p,
+            Types.Video1080p
         };
 
         public VideoService(PostgreSqlDbContext context, IServiceProvider provider, ISchedulerService scheduler, IFileService files, IRedisDatabase redis) : base(context)
@@ -106,7 +106,7 @@ namespace Uhost.Core.Services.Video
             return model;
         }
 
-        public Entity Add(VideoCreateModel model)
+        public Entity Add(VideoUploadFileModel model)
         {
             if (_contextAccessor?.HttpContext?.User != null && _contextAccessor.HttpContext.User.TryGetUserId(out var userId))
             {
@@ -117,6 +117,30 @@ namespace Uhost.Core.Services.Video
             var file = _files.Add(model.File, Types.VideoRaw, typeof(Entity), entity.Id);
 
             if (file != null && PrepareVideo(entity, file))
+            {
+                _repo.Save();
+
+                return entity;
+            }
+            else
+            {
+                _files.Delete(file?.Id ?? 0);
+                _repo.SoftDelete(entity.Id);
+            }
+
+            return null;
+        }
+
+        public Entity Add(VideoUploadUrlModel model)
+        {
+            if (_contextAccessor?.HttpContext?.User != null && _contextAccessor.HttpContext.User.TryGetUserId(out var userId))
+            {
+                model.UserId = userId;
+            }
+
+            var entity = _repo.Add(model);
+
+            if (PrepareVideo(entity, model.Url, model.MaxDurationParsed))
             {
                 _repo.Save();
 
@@ -139,18 +163,18 @@ namespace Uhost.Core.Services.Video
         /// Подготавливает видео, вычисляет продолжительность и генерирует картинку
         /// </summary>
         /// <param name="entity">Сущность видео</param>
-        /// <param name="rawVideo">Сущность файла загруженного видео</param>
+        /// <param name="url"></param>
+        /// <param name="maxDuration"></param>
         /// <returns></returns>
-        private bool PrepareVideo(Entity entity, FileEntity rawVideo)
+        private bool PrepareVideo(Entity entity, string url, TimeSpan? maxDuration)
         {
             var thumbFile = new FileInfo(Path.GetFullPath(Path.Combine(Path.GetFullPath("tmp"), $"thumb_{Guid.NewGuid()}.jpg")));
 
             try
             {
-                var rawVideoPath = rawVideo.GetPath();
-                if (!string.IsNullOrEmpty(rawVideoPath))
+                if (!string.IsNullOrEmpty(url))
                 {
-                    var mediaInfo = FFProbe.Analyse(rawVideo.GetPath());
+                    var mediaInfo = FFProbe.Analyse(new Uri(url));
 
                     if (mediaInfo.PrimaryVideoStream == null)
                     {
@@ -159,12 +183,11 @@ namespace Uhost.Core.Services.Video
 
                     entity.Duration = mediaInfo.Duration;
 
-                    var capTime = TimeSpan.FromSeconds(mediaInfo.Duration.TotalSeconds * 0.05);
                     var size = new Size(mediaInfo.PrimaryVideoStream.Width, mediaInfo.PrimaryVideoStream.Height).FitTo(320, 320);
 
                     var ffargs = FFMpegArguments
-                        .FromFileInput(rawVideoPath)
-                        .OutputToFile(thumbFile.FullName, true, e => e.WithVideoFilters(vf => vf.Scale(size)).Seek(capTime).WithFrameOutputCount(1));
+                        .FromUrlInput(new Uri(url))
+                        .OutputToFile(thumbFile.FullName, true, e => e.WithVideoFilters(vf => vf.Scale(size)).WithFrameOutputCount(1));
 
                     Tools.MakePath(thumbFile.FullName);
 
@@ -174,24 +197,25 @@ namespace Uhost.Core.Services.Video
                     }
 
                     _files.Add(
+                        name: "thumb.jpg",
                         file: thumbFile,
                         type: Types.VideoThumbnail,
                         dynType: typeof(Entity),
                         dynId: entity.Id);
 
-                    _scheduler.ScheduleVideoConvert(entity.Id, Types.Video240p);
+                    _scheduler.ScheduleVideoStreamConvert(entity.Id, Types.Video240p, url, maxDuration ?? _maxStreamDuration);
 
-                    if (mediaInfo.PrimaryVideoStream.Height >= 360)
+                    if (mediaInfo.PrimaryVideoStream.Height >= 480)
                     {
-                        _scheduler.ScheduleVideoConvert(entity.Id, Types.Video360p);
-                    }
-                    if (mediaInfo.PrimaryVideoStream.Height >= 540)
-                    {
-                        _scheduler.ScheduleVideoConvert(entity.Id, Types.Video540p);
+                        _scheduler.ScheduleVideoStreamConvert(entity.Id, Types.Video480p, url, maxDuration ?? _maxStreamDuration);
                     }
                     if (mediaInfo.PrimaryVideoStream.Height >= 720)
                     {
-                        _scheduler.ScheduleVideoConvert(entity.Id, Types.Video720p);
+                        _scheduler.ScheduleVideoStreamConvert(entity.Id, Types.Video720p, url, maxDuration ?? _maxStreamDuration);
+                    }
+                    if (mediaInfo.PrimaryVideoStream.Height >= 1080)
+                    {
+                        _scheduler.ScheduleVideoStreamConvert(entity.Id, Types.Video1080p, url, maxDuration ?? _maxStreamDuration);
                     }
 
                     return true;
@@ -221,6 +245,100 @@ namespace Uhost.Core.Services.Video
             }
         }
 
+        /// <summary>
+        /// Подготавливает видео, вычисляет продолжительность и генерирует картинку
+        /// </summary>
+        /// <param name="entity">Сущность видео</param>
+        /// <param name="rawVideo">Сущность файла загруженного видео</param>
+        /// <returns></returns>
+        private bool PrepareVideo(Entity entity, FileEntity rawVideo)
+        {
+            var thumbFile = new FileInfo(Path.GetFullPath(Path.Combine(Path.GetFullPath("tmp"), $"thumb_{Guid.NewGuid()}.jpg")));
+
+            try
+            {
+                var rawVideoPath = rawVideo.GetPath();
+
+                if (!string.IsNullOrEmpty(rawVideoPath))
+                {
+                    var mediaInfo = FFProbe.Analyse(rawVideoPath);
+
+                    if (mediaInfo.PrimaryVideoStream == null)
+                    {
+                        return false;
+                    }
+
+                    entity.Duration = mediaInfo.Duration;
+
+                    var capTime = TimeSpan.FromSeconds(mediaInfo.Duration.TotalSeconds * 0.05);
+                    var size = new Size(mediaInfo.PrimaryVideoStream.Width, mediaInfo.PrimaryVideoStream.Height).FitTo(320, 320);
+
+                    var ffargs = FFMpegArguments
+                        .FromFileInput(rawVideoPath)
+                        .OutputToFile(thumbFile.FullName, true, e => e.WithVideoFilters(vf => vf.Scale(size)).Seek(capTime).WithFrameOutputCount(1));
+
+                    Tools.MakePath(thumbFile.FullName);
+
+                    if (!ffargs.ProcessSynchronously())
+                    {
+                        return false;
+                    }
+
+                    _files.Add(
+                        name: "thumb.jpg",
+                        file: thumbFile,
+                        type: Types.VideoThumbnail,
+                        dynType: typeof(Entity),
+                        dynId: entity.Id);
+
+                    _scheduler.ScheduleVideoConvert(entity.Id, Types.Video240p);
+
+                    if (mediaInfo.PrimaryVideoStream.Height >= 480)
+                    {
+                        _scheduler.ScheduleVideoConvert(entity.Id, Types.Video480p);
+                    }
+                    if (mediaInfo.PrimaryVideoStream.Height >= 720)
+                    {
+                        _scheduler.ScheduleVideoConvert(entity.Id, Types.Video720p);
+                    }
+                    if (mediaInfo.PrimaryVideoStream.Height >= 1080)
+                    {
+                        _scheduler.ScheduleVideoConvert(entity.Id, Types.Video1080p);
+                    }
+
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception e)
+            {
+                SentrySdk.CaptureException(e);
+
+                throw;
+            }
+            finally
+            {
+                try
+                {
+                    if (thumbFile.Exists)
+                    {
+                        thumbFile.Delete();
+                    }
+                }
+                catch (Exception e)
+                {
+                    SentrySdk.CaptureException(e);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Конвертация загруженного файла видео
+        /// </summary>
+        /// <param name="id">ИД сущности видео</param>
+        /// <param name="type">Тип видео</param>
+        /// <returns></returns>
         public async Task Convert(int id, Types type)
         {
             if (!_videoResolutionTypes.Contains(type))
@@ -243,110 +361,119 @@ namespace Uhost.Core.Services.Video
             }
 
             var output = new FileInfo(Path.GetFullPath(Path.Combine(Path.GetFullPath("tmp"), $"temp_{Guid.NewGuid()}.mp4")));
-            var mediaInfo = FFProbe.Analyse(file.Path);
-            FFMpegArgumentProcessor ffargs = null;
-
-            switch (type)
-            {
-                case Types.Video240p:
-                    ffargs = FFMpegArguments
-                        .FromFileInput(file.Path)
-                        .OutputToFile(output.FullName, true, e => e
-                            .WithAudioBitrate(48)
-                            .WithAudioCodec("aac")
-                            .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitTo(height: 240)))
-                            .WithVideoCodec(FFConfig.VideoCodec)
-                            .WithVideoBitrate(240)
-                            .WithMaxRate(384)
-                            .WithPreset(FFConfig.VideoPresets[Speed.VerySlow])
-                            .WithTune("hq")
-                            .WithMaxFramerate(18)
-                            .WithVsync(2)
-                            .UsingThreads(Environment.ProcessorCount)
-                        );
-                    break;
-                case Types.Video360p:
-                    ffargs = FFMpegArguments
-                        .FromFileInput(file.Path)
-                        .OutputToFile(output.FullName, true, e => e
-                            .WithAudioBitrate(64)
-                            .WithAudioCodec("aac")
-                            .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitTo(height: 360)))
-                            .WithVideoCodec(FFConfig.VideoCodec)
-                            .WithVideoBitrate(480)
-                            .WithMaxRate(768)
-                            .WithPreset(FFConfig.VideoPresets[Speed.VerySlow])
-                            .WithTune("hq")
-                            .WithMaxFramerate(24)
-                            .WithVsync(2)
-                            .UsingThreads(Environment.ProcessorCount)
-                        );
-                    break;
-                case Types.Video540p:
-                    ffargs = FFMpegArguments
-                        .FromFileInput(file.Path)
-                        .OutputToFile(output.FullName, true, e => e
-                            .WithAudioBitrate(96)
-                            .WithAudioCodec("aac")
-                            .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitTo(height: 540)))
-                            .WithVideoCodec(FFConfig.VideoCodec)
-                            .WithVideoBitrate(1024)
-                            .WithMaxRate(1536)
-                            .WithPreset(FFConfig.VideoPresets[Speed.VerySlow])
-                            .WithTune("hq")
-                            .WithMaxFramerate(30)
-                            .WithVsync(2)
-                            .UsingThreads(Environment.ProcessorCount)
-                        );
-                    break;
-                case Types.Video720p:
-                    ffargs = FFMpegArguments
-                        .FromFileInput(file.Path)
-                        .OutputToFile(output.FullName, true, e => e
-                            .WithAudioBitrate(128)
-                            .WithAudioCodec("aac")
-                            .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitTo(height: 720)))
-                            .WithVideoCodec(FFConfig.VideoCodec)
-                            .WithVideoBitrate(1536)
-                            .WithMaxRate(2560)
-                            .WithPreset(FFConfig.VideoPresets[Speed.VerySlow])
-                            .WithTune("hq")
-                            .WithMaxFramerate(48)
-                            .WithVsync(2)
-                            .UsingThreads(Environment.ProcessorCount)
-                        );
-                    break;
-            }
+            var mediaInfo = await FFProbe.AnalyseAsync(file.Path);
+            var ffargs = FFMpegArguments
+                .FromFileInput(file.Path)
+                .OutputToFile(output.FullName, true, e => e.ApplyPreset(mediaInfo, type));
 
             Tools.MakePath(output.FullName);
 
             await _logger.WriteLineAsync($"Processing video #{id} ({type}) with arguments:\r\n\r\n{ffargs?.Arguments}\r\n", LogWriter.Severity.Info);
 
-            var result = await ffargs?
-                .NotifyOnProgress(async e => await OnProgress(e, id, type), mediaInfo.Duration)
-                .ProcessAsynchronously();
+            try
+            {
+                var result = await ffargs?
+                    .NotifyOnProgress(async e => await OnProgress(e, id, type), mediaInfo.Duration)
+                    .ProcessAsynchronously();
+
+                if (result == true && output.Length > 0)
+                {
+                    _files.Add(
+                        output,
+                        name: "video.mp4",
+                        type: type,
+                        dynType: typeof(Entity),
+                        dynId: id);
+                }
+                else
+                {
+                    var exception = new Exception("Failed to process video");
+                    exception.Data["Id"] = id;
+                    exception.Data["Type"] = type;
+                    exception.Data["Arguments"] = ffargs?.Arguments;
+
+                    SentrySdk.CaptureException(exception);
+                }
+            }
+            catch (Exception e)
+            {
+                e.Data["args"] = ffargs.Arguments;
+                throw;
+            }
 
             await OnProgress(100, id, type);
 
             await _logger.WriteLineAsync($"Processing video #{id} ({type}) completed", LogWriter.Severity.Info);
 
-            if (result == true && output.Length > 0)
+            try
             {
-                _files.Add(
-                    output,
-                    type: type,
-                    dynType: typeof(Entity),
-                    dynId: id);
+                output.Delete();
             }
-            else
+            catch (Exception e)
             {
-                var exception = new Exception("Failed to process video");
-                exception.Data["Id"] = id;
-                exception.Data["Type"] = type;
-                exception.Data["Arguments"] = ffargs?.Arguments;
+                SentrySdk.CaptureException(e);
+            }
+        }
 
-                SentrySdk.CaptureException(exception);
+        /// <summary>
+        /// Конвертация видео из потока
+        /// </summary>
+        /// <param name="id">ИД сущности видео</param>
+        /// <param name="type">Тип видео</param>
+        /// <param name="url">URL потока</param>
+        /// <param name="maxDuration">Максимальная продолжительность</param>
+        /// <returns></returns>
+        public async Task ConvertUrl(int id, Types type, string url, TimeSpan maxDuration)
+        {
+            if (!_videoResolutionTypes.Contains(type))
+            {
+                throw new ArgumentException("Wrong file type specified", nameof(type));
             }
+
+            var output = new FileInfo(Path.GetFullPath(Path.Combine(Path.GetFullPath("tmp"), $"temp_{Guid.NewGuid()}.mp4")));
+            var mediaInfo = await FFProbe.AnalyseAsync(new Uri(url));
+            var ffargs = FFMpegArguments
+                .FromUrlInput(new Uri(url))
+                .OutputToFile(output.FullName, true, e => e.ApplyPreset(mediaInfo, type, maxDuration));
+
+            Tools.MakePath(output.FullName);
+
+            await _logger.WriteLineAsync($"Processing video #{id} ({type}) with arguments:\r\n\r\n{ffargs?.Arguments}\r\n", LogWriter.Severity.Info);
+
+            try
+            {
+                var result = await ffargs?
+                    .NotifyOnProgress(async e => await OnProgress(e, id, type), mediaInfo.Duration)
+                    .ProcessAsynchronously();
+
+                if (result == true && output.Length > 0)
+                {
+                    _files.Add(
+                        output,
+                        name: "video.mp4",
+                        type: type,
+                        dynType: typeof(Entity),
+                        dynId: id);
+                }
+                else
+                {
+                    var exception = new Exception("Failed to process video");
+                    exception.Data["Id"] = id;
+                    exception.Data["Type"] = type;
+                    exception.Data["Arguments"] = ffargs?.Arguments;
+
+                    SentrySdk.CaptureException(exception);
+                }
+            }
+            catch (Exception e)
+            {
+                e.Data["args"] = ffargs.Arguments;
+                throw;
+            }
+
+            await OnProgress(100, id, type);
+
+            await _logger.WriteLineAsync($"Processing video #{id} ({type}) completed", LogWriter.Severity.Info);
 
             try
             {

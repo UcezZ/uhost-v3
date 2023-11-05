@@ -153,6 +153,13 @@ namespace Uhost.Core.Common
         /// <summary>
         /// Вызывает метод, используя внедрение зависимостей.
         /// </summary>
+        /// <param name="provider">Провайдер сервисов.</param>
+        public async Task InvokeAsync(IServiceProvider provider = null) =>
+           await InvokeAsync(e => provider?.GetRequiredService(e));
+
+        /// <summary>
+        /// Вызывает метод, используя внедрение зависимостей.
+        /// </summary>
         /// <param name="serviceResolver">Метод получения сервиса.</param>
         public async Task InvokeAsync(Func<Type, object> serviceResolver = null)
         {

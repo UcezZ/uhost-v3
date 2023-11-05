@@ -55,5 +55,8 @@ namespace Uhost.Core.Data.Entities
         public ICollection<UserRole> UserRoles { get; set; }
         public ICollection<Video> Videos { get; set; }
         public ICollection<File> Files { get; set; }
+        public ICollection<Comment> Comments { get; set; }
+        public ICollection<VideoReaction> VideoReactions { get; set; }
+        public ICollection<Playlist> Playlists { get; set; }
     }
 }

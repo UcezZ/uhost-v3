@@ -10,13 +10,15 @@ namespace Uhost.Console.Commands
     {
         private IServiceProvider _provider;
 
-        protected TService GetService<TService>() => _provider.GetService<TService>();
+        protected IServiceProvider Provider => _provider.CreateScope().ServiceProvider;
 
-        protected TService GetRequiredService<TService>() => _provider.GetRequiredService<TService>();
+        protected TService GetService<TService>() => Provider.GetService<TService>();
 
-        protected object GetService(Type serviceType) => _provider.GetService(serviceType);
+        protected TService GetRequiredService<TService>() => Provider.GetRequiredService<TService>();
 
-        protected object GetRequiredService(Type serviceType) => _provider.GetRequiredService(serviceType);
+        protected object GetService(Type serviceType) => Provider.GetService(serviceType);
+
+        protected object GetRequiredService(Type serviceType) => Provider.GetRequiredService(serviceType);
 
         /// <summary>
         /// Добавляет провайдер сервисов DI

@@ -93,6 +93,18 @@ namespace Uhost.Core.Extensions
             return codecs.FirstOrDefault(e => e.FormatID == format.Guid);
         }
 
+        public static Size FitToMin(this Size size, int minSide)
+        {
+            if (size.Width > size.Height)
+            {
+                return size.FitTo(height: minSide);
+            }
+            else
+            {
+                return size.FitTo(width: minSide);
+            }
+        }
+
         public static Size FitTo(this Size size, int width = 0, int height = 0)
         {
             if (width > 0 && size.Width > width)

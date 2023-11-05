@@ -16,7 +16,7 @@ using static Uhost.Core.Services.LogWriter;
 namespace Uhost.Console.Commands
 {
     [Verb("taskexecutor", HelpText = "Запуск обработки запланированных задач")]
-    public class TaskExecutorCommand : BaseCommand
+    public sealed class TaskExecutorCommand : BaseCommand
     {
         [Option("queue", Required = true, HelpText = "Наименование очереди задач")]
         public string Queue { get; set; }
@@ -77,7 +77,7 @@ namespace Uhost.Console.Commands
                 {
                     try
                     {
-                        await task.InvokeAsync(GetRequiredService);
+                        await task.InvokeAsync(Provider);
                     }
                     catch (Exception exception)
                     {

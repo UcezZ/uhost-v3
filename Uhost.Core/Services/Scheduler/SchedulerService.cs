@@ -1,4 +1,5 @@
 ﻿using RabbitMQ.Client.Core.DependencyInjection.Services;
+using System;
 using Uhost.Core.Common;
 using Uhost.Core.Extensions;
 using Uhost.Core.Services.Video;
@@ -19,6 +20,11 @@ namespace Uhost.Core.Services.Scheduler
         public void ScheduleVideoConvert(int videoId, Types type)
         {
             _queue.Enqueue<IVideoService>(e => e.Convert(videoId, type), TaskQueues.Conversion);
+        }
+
+        public void ScheduleVideoStreamConvert(int videoId, Types type, string url, TimeSpan maxDuration)
+        {
+            _queue.Enqueue<IVideoService>(e => e.ConvertUrl(videoId, type, url, maxDuration), TaskQueues.Conversion);
         }
     }
 }

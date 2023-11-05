@@ -141,6 +141,15 @@
   <data name="Common_Error_StringTooShortFmt" xml:space="preserve">
     <value>Поле "{0}" должно быть не короче {1} символов</value>
   </data>
+  <data name="Common_Error_TimeSpanInvalidFmt" xml:space="preserve">
+    <value>"{0}" не является допустимым форматом времени</value>
+  </data>
+  <data name="Common_Error_TimeSpanTooLongFmt" xml:space="preserve">
+    <value>Время не должно быть больше {1}</value>
+  </data>
+  <data name="Common_Error_TimeSpanTooShortFmt" xml:space="preserve">
+    <value>Время не должно быть меньше {0}</value>
+  </data>
   <data name="File_Error_InvalidExtension" xml:space="preserve">
     <value>Допустимые расширения: {0}</value>
   </data>

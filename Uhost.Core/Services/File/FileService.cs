@@ -31,6 +31,10 @@ namespace Uhost.Core.Services.File
             _contextAccessor = provider.GetService<IHttpContextAccessor>();
         }
 
+        /// <summary>
+        /// Создаёт временный файл
+        /// </summary>
+        /// <returns></returns>
         private static FileStream CreateTempFile()
         {
             try
@@ -53,6 +57,12 @@ namespace Uhost.Core.Services.File
             }
         }
 
+        /// <summary>
+        /// Размещает файл в ФС
+        /// </summary>
+        /// <param name="entity">Сущность файла</param>
+        /// <param name="data">Поток данных</param>
+        /// <returns></returns>
         private bool StoreFile(Entity entity, Stream data)
         {
             var file = new FileInfo(entity.GetPath());
@@ -203,16 +213,16 @@ namespace Uhost.Core.Services.File
             }
         }
 
-        public Entity Add(FileInfo file, string mime = null, Entity.Types type = Entity.Types.Other, Type dynType = null, int? dynId = null)
+        public Entity Add(FileInfo file, string name = null, string mime = null, Entity.Types type = Entity.Types.Other, Type dynType = null, int? dynId = null)
         {
-            return Add(file, mime, type, dynType?.Name, dynId);
+            return Add(file, name: name, mime: mime, type: type, dynName: dynType?.Name, dynId: dynId);
         }
 
-        public Entity Add(FileInfo file, string mime = null, Entity.Types type = Entity.Types.Other, string dynName = null, int? dynId = null)
+        public Entity Add(FileInfo file, string name = null, string mime = null, Entity.Types type = Entity.Types.Other, string dynName = null, int? dynId = null)
         {
             using (var stream = file.OpenRead())
             {
-                return Add(stream, file.Name, mime, type, dynName, dynId);
+                return Add(stream, name ?? file.Name, mime, type, dynName, dynId);
             }
         }
 

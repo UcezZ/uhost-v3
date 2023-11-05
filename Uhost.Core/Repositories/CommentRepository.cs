@@ -4,14 +4,14 @@ using Uhost.Core.Common;
 using Uhost.Core.Data;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models;
-using Entity = Uhost.Core.Data.Entities.Video;
-using QueryModel = Uhost.Core.Models.Video.VideoQueryModel;
+using Entity = Uhost.Core.Data.Entities.Comment;
+using QueryModel = Uhost.Core.Models.Comment.CommentQueryModel;
 
 namespace Uhost.Core.Repositories
 {
-    public class VideoRepository : BaseRepository<Entity>
+    public class CommentRepository : BaseRepository<Entity>
     {
-        public VideoRepository(PostgreSqlDbContext dbContext) : base(dbContext) { }
+        public CommentRepository(PostgreSqlDbContext dbContext) : base(dbContext) { }
 
         public IQueryable<Entity> PrepareQuery(QueryModel query)
         {
@@ -26,9 +26,9 @@ namespace Uhost.Core.Repositories
             {
                 q = q.Where(e => e.UserId == query.UserId);
             }
-            if (!string.IsNullOrEmpty(query.Name))
+            if (query.VideoId > 0)
             {
-                q = q.Where(e => EF.Functions.TrigramsAreWordSimilar(e.Name, query.Name));
+                q = q.Where(e => e.VideoId == query.VideoId);
             }
             if (!query.IncludeDeleted)
             {

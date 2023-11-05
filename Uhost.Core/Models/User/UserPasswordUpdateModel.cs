@@ -6,9 +6,15 @@ namespace Uhost.Core.Models.User
 {
     public class UserPasswordUpdateModel : BaseModel<Entity>
     {
+        /// <summary>
+        /// Новый пароль
+        /// </summary>
         [StringLengthValidation(minLength: 6, maxLength: 64, allowEmpty: false, trim: false)]
         public string Password { get; set; }
 
+        /// <summary>
+        /// Подтверждение пароля
+        /// </summary>
         [StringLengthValidation(minLength: 6, maxLength: 64, allowEmpty: false, trim: false), FieldEqualsValidation(nameof(Password))]
         public string PasswordConfirm { get; set; }
 

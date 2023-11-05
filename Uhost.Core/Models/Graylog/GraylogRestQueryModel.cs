@@ -16,6 +16,9 @@ namespace Uhost.Core.Models.Graylog
         private const string _fieldsKey = "fields";
         private static readonly string _authHeaderValue = $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{CoreSettings.GraylogApi.Login}:{CoreSettings.GraylogApi.Password}"))}";
 
+        /// <summary>
+        /// Запрос
+        /// </summary>
         [StringLengthValidation(1, 250, allowEmpty: false)]
         public string Query
         {
@@ -23,6 +26,9 @@ namespace Uhost.Core.Models.Graylog
             set => UrlParameters[_queryKey] = value;
         }
 
+        /// <summary>
+        /// Поля CSV
+        /// </summary>
         [Required(ErrorMessageResourceType = typeof(CoreStrings), ErrorMessageResourceName = nameof(CoreStrings.Common_Error_RequiredFmt))]
         public IEnumerable<string> Fields
         {
