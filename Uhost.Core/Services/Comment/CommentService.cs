@@ -26,7 +26,7 @@ namespace Uhost.Core.Services.Comment
         public CommentService(PostgreSqlDbContext dbContext, IServiceProvider provider, IFileService fileService) : base(dbContext)
         {
             _repo = new CommentRepository(_dbContext);
-            _userRepo = new UserRepository(_dbContext)
+            _userRepo = new UserRepository(_dbContext);
             _fileService = fileService;
             _contextAccessor = provider.GetService<IHttpContextAccessor>();
         }
