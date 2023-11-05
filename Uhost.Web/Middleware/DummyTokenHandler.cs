@@ -43,10 +43,10 @@ namespace Uhost.Web.Middleware
             }
         }
 
-        internal string WriteToken(SecurityToken token) =>
+        public string WriteToken(SecurityToken token) =>
             _tokenValidator.WriteToken(token);
 
-        internal SecurityToken CreateToken(SecurityTokenDescriptor tokenDescriptor) =>
+        public SecurityToken CreateToken(SecurityTokenDescriptor tokenDescriptor) =>
             _tokenValidator.CreateToken(tokenDescriptor);
     }
 }

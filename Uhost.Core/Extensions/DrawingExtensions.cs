@@ -60,7 +60,7 @@ namespace Uhost.Core.Extensions
         {
             if (!output.CanSeek || !output.CanWrite)
             {
-                throw new ArgumentException(nameof(output));
+                throw new ArgumentException("Stream is inaccessible", nameof(output));
             }
             if (quality > 100)
             {

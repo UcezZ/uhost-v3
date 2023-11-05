@@ -26,6 +26,7 @@ namespace Uhost.Core.Common
             MaxDepth = 512,
             CheckAdditionalContent = true,
             TypeNameHandling = TypeNameHandling.None,
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
             DateFormatString = DateTimeExtensions.DateTimeApiFmt,
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         };

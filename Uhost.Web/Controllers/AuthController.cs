@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Threading.Tasks;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.User;
@@ -36,7 +37,7 @@ namespace Uhost.Web.Controllers
         /// Проверка авторизации
         /// </summary>
         [HttpGet("check"), Authorize]
-        public IActionResult OnlyAuthUsers()
+        public IActionResult Check()
         {
             return StatusCode(200);
         }
@@ -49,7 +50,7 @@ namespace Uhost.Web.Controllers
         {
             if (!User.TryGetUserId(out var userId))
             {
-                return ResponseHelper.ErrorMessage("id", ApiStrings.Auth_Error_Unauthorized);
+                return ResponseHelper.ErrorMessage("id", ApiStrings.Auth_Error_Unauthorized, HttpStatusCode.Forbidden);
             }
 
             return ResponseHelper.Success(_userService.GetOne(userId));

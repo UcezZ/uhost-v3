@@ -34,6 +34,11 @@ namespace Uhost.Core.Extensions
             return constructor.Invoke(args);
         }
 
+        /// <summary>
+        /// Определяет, является ли метод асинхронным
+        /// </summary>
+        /// <param name="methodInfo">Метод</param>
+        /// <returns></returns>
         public static bool IsAsync(this MethodInfo methodInfo)
         {
             return typeof(Task).IsAssignableFrom(methodInfo.ReturnType) ||

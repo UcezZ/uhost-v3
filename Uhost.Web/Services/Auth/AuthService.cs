@@ -67,6 +67,25 @@ namespace Uhost.Web.Services.Auth
         }
 
         /// <summary>
+        /// Создание <see cref="ClaimsPrincipal"/> для пользователя
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public ClaimsPrincipal CreateClaims(int userId)
+        {
+            var tokenDescriptor = GenTokenDescriptor(userId);
+            var secToken = _tokenHandler.CreateToken(tokenDescriptor);
+            if (secToken is JwtSecurityToken jwtToken &&
+                jwtToken.Claims.TryGetUserId(out _) &&
+                jwtToken.Claims.TryGetJti(out _))
+            {
+                return new ClaimsPrincipal(tokenDescriptor.Subject);
+            }
+
+            return default;
+        }
+
+        /// <summary>
         /// Инвалидация токена
         /// </summary>
         /// <param name="claims"></param>
