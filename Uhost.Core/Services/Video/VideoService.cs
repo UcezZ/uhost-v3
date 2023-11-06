@@ -44,6 +44,7 @@ namespace Uhost.Core.Services.Video
         {
             Types.Video240p,
             Types.Video480p,
+            Types.Video360p,
             Types.Video720p,
             Types.Video1080p
         };
@@ -275,6 +276,10 @@ namespace Uhost.Core.Services.Video
 
                     _scheduler.ScheduleVideoStreamConvert(entity.Id, Types.Video240p, url, maxDuration ?? _maxStreamDuration);
 
+                    if (mediaInfo.PrimaryVideoStream.Height >= 360)
+                    {
+                        _scheduler.ScheduleVideoStreamConvert(entity.Id, Types.Video360p, url, maxDuration ?? _maxStreamDuration);
+                    }
                     if (mediaInfo.PrimaryVideoStream.Height >= 480)
                     {
                         _scheduler.ScheduleVideoStreamConvert(entity.Id, Types.Video480p, url, maxDuration ?? _maxStreamDuration);
@@ -357,6 +362,10 @@ namespace Uhost.Core.Services.Video
 
                     _scheduler.ScheduleVideoConvert(entity.Id, Types.Video240p);
 
+                    if (mediaInfo.PrimaryVideoStream.Height >= 360)
+                    {
+                        _scheduler.ScheduleVideoConvert(entity.Id, Types.Video360p);
+                    }
                     if (mediaInfo.PrimaryVideoStream.Height >= 480)
                     {
                         _scheduler.ScheduleVideoConvert(entity.Id, Types.Video480p);

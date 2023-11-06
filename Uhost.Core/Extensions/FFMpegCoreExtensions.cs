@@ -199,14 +199,23 @@ namespace Uhost.Core.Extensions
                         .WithMaxRate(384)
                         .WithMaxFramerate(18);
                     break;
-                case Types.Video480p:
+                case Types.Video360p:
                     options = options
                         .WithAudioBitrate(64)
                         .WithAudioCodec("aac")
-                        .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitToMin(480)))
-                        .WithVideoBitrate(960)
-                        .WithMaxRate(1536)
+                        .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitToMin(360)))
+                        .WithVideoBitrate(640)
+                        .WithMaxRate(1024)
                         .WithMaxFramerate(24);
+                    break;
+                case Types.Video480p:
+                    options = options
+                        .WithAudioBitrate(96)
+                        .WithAudioCodec("aac")
+                        .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitToMin(480)))
+                        .WithVideoBitrate(1024)
+                        .WithMaxRate(1536)
+                        .WithMaxFramerate(30);
                     break;
                 case Types.Video720p:
                     options = options
@@ -219,11 +228,11 @@ namespace Uhost.Core.Extensions
                     break;
                 case Types.Video1080p:
                     options = options
-                        .WithAudioBitrate(144)
+                        .WithAudioBitrate(160)
                         .WithAudioCodec("aac")
                         .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitToMin(1080)))
-                        .WithVideoBitrate(3072)
-                        .WithMaxRate(4096)
+                        .WithVideoBitrate(3840)
+                        .WithMaxRate(6144)
                         .WithMaxFramerate(60);
                     break;
             }
