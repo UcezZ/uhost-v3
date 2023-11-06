@@ -10,36 +10,60 @@ namespace Uhost.Core.Extensions
     public static class FFMpegCoreExtensions
     {
         /// <summary>
-        /// Задаёт параметр tune
+        /// Режимы частотности кадроы
         /// </summary>
-        /// <param name="options"></param>
-        /// <param name="tune"></param>
-        /// <returns></returns>
-        public static FFMpegArgumentOptions WithTune(this FFMpegArgumentOptions options, string tune)
+        public enum FpsMode
         {
-            return options.WithCustomArgument($"-tune {tune}");
+            /// <summary>
+            /// Постоянная частота кадров
+            /// </summary>
+            Cfr,
+
+            /// <summary>
+            /// Переменная частота кадров
+            /// </summary>
+            Vfr
         }
 
         /// <summary>
-        /// Задаёт параметр preset
+        /// Форматы пикселей
         /// </summary>
-        /// <param name="options"></param>
-        /// <param name="preset"></param>
-        /// <returns></returns>
-        public static FFMpegArgumentOptions WithPreset(this FFMpegArgumentOptions options, string preset)
+        public enum PixelFormat
         {
-            return options.WithCustomArgument($"-preset {preset}");
-        }
+            /// <summary>
+            /// 16 BPP, 8-8-8
+            /// </summary>
+            Yuv440p,
 
-        /// <summary>
-        /// Задаёт зараметр maxrate
-        /// </summary>
-        /// <param name="options"></param>
-        /// <param name="rate"></param>
-        /// <returns></returns>
-        public static FFMpegArgumentOptions WithMaxRate(this FFMpegArgumentOptions options, int rate)
-        {
-            return options.WithCustomArgument($"-maxrate {rate}k");
+            /// <summary>
+            /// 12 BPP, 8-8-8
+            /// </summary>
+            Yuv420p,
+
+            /// <summary>
+            /// 8 BPP, 8
+            /// </summary>
+            Gray,
+
+            /// <summary>
+            /// 8 BPP, 8
+            /// </summary>
+            Pal8,
+
+            /// <summary>
+            /// 12 BPP, 8-8-8
+            /// </summary>
+            Nv12,
+
+            /// <summary>
+            /// 16 BPP, 8-8-8
+            /// </summary>
+            Nv16,
+
+            /// <summary>
+            /// 12 BPP, 8-8-8
+            /// </summary>
+            Nv21
         }
 
         /// <summary>
@@ -53,7 +77,40 @@ namespace Uhost.Core.Extensions
         }
 
         /// <summary>
-        /// Задаёт параметр r
+        /// Задаёт параметр -tune
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="tune"></param>
+        /// <returns></returns>
+        public static FFMpegArgumentOptions WithTune(this FFMpegArgumentOptions options, string tune)
+        {
+            return options.WithCustomArgument($"-tune {tune}");
+        }
+
+        /// <summary>
+        /// Задаёт параметр -preset
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="preset"></param>
+        /// <returns></returns>
+        public static FFMpegArgumentOptions WithPreset(this FFMpegArgumentOptions options, Speed preset)
+        {
+            return options.WithCustomArgument($"-preset {FFConfig.VideoPresets[preset]}");
+        }
+
+        /// <summary>
+        /// Задаёт зараметр -maxrate
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="rate"></param>
+        /// <returns></returns>
+        public static FFMpegArgumentOptions WithMaxRate(this FFMpegArgumentOptions options, int rate)
+        {
+            return options.WithCustomArgument($"-maxrate {rate}k");
+        }
+
+        /// <summary>
+        /// Задаёт параметр -r
         /// </summary>
         /// <param name="options"></param>
         /// <param name="rate"></param>
@@ -64,7 +121,7 @@ namespace Uhost.Core.Extensions
         }
 
         /// <summary>
-        /// Задаёт параметр vsync
+        /// Задаёт параметр -vsync
         /// </summary>
         /// <param name="options"></param>
         /// <param name="vsync"></param>
@@ -80,7 +137,7 @@ namespace Uhost.Core.Extensions
         }
 
         /// <summary>
-        /// Задаёт параметр t
+        /// Задаёт параметр -t
         /// </summary>
         /// <param name="options"></param>
         /// <param name="duration"></param>
@@ -88,6 +145,28 @@ namespace Uhost.Core.Extensions
         public static FFMpegArgumentOptions WithMaxDuration(this FFMpegArgumentOptions options, TimeSpan duration)
         {
             return options.WithCustomArgument($"-t {(int)duration.TotalSeconds}");
+        }
+
+        /// <summary>
+        /// Задаёт параметр -fps_mode
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        public static FFMpegArgumentOptions WithFpsMode(this FFMpegArgumentOptions options, FpsMode mode)
+        {
+            return options.WithCustomArgument($"-fps_mode {mode.ToString().ToLower()}");
+        }
+
+        /// <summary>
+        /// Задаёт параметр -pix_fmt
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        public static FFMpegArgumentOptions WithPixelFormat(this FFMpegArgumentOptions options, PixelFormat format)
+        {
+            return options.WithCustomArgument($"-pix_fmt {format.ToString().ToLower()}");
         }
 
         /// <summary>
@@ -102,10 +181,12 @@ namespace Uhost.Core.Extensions
         {
             options = options
                 .WithVideoCodec(FFConfig.VideoCodec)
-                .WithPreset(FFConfig.VideoPresets[Speed.VerySlow])
+                .WithPreset(Speed.VerySlow)
                 .WithTune("hq")
-                .WithVsync(2)
-                .UsingThreads(Environment.ProcessorCount);
+                .WithFpsMode(FpsMode.Vfr)
+                .WithPixelFormat(PixelFormat.Nv12)
+                .UsingMultithreading(true)
+                .WithoutMetadata();
 
             switch (type)
             {
