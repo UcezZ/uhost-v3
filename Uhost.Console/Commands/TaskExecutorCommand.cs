@@ -26,12 +26,7 @@ namespace Uhost.Console.Commands
 
         private static bool _cancel;
         private LogWriter _logger;
-        private readonly SemaphoreSlim _semaphore;
-
-        public TaskExecutorCommand()
-        {
-            _semaphore = new SemaphoreSlim(ConsoleSettings.TaskExecutorWorkThreads);
-        }
+        private SemaphoreSlim _semaphore;
 
         public override void Run()
         {
@@ -44,6 +39,7 @@ namespace Uhost.Console.Commands
                 Threads = Environment.ProcessorCount * 2;
             }
             _logger = GetRequiredService<LogWriter>();
+            _semaphore = new SemaphoreSlim(Threads);
             var service = GetRequiredService<IQueueService>();
             var q = service.RegisterQueue(Queue);
             service.Channel.BasicQos(0, (ushort)Threads, false);
