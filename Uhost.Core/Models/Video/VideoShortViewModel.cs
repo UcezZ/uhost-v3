@@ -8,7 +8,7 @@ namespace Uhost.Core.Models.Video
 {
     public class VideoShortViewModel : BaseModel<Entity>
     {
-        public int Id { get; set; }
+        public string Token { get; set; }
 
         public string Name { get; set; }
 
@@ -26,7 +26,7 @@ namespace Uhost.Core.Models.Video
 
         public override void LoadFromEntity(Entity entity)
         {
-            Id = entity.Id;
+            Token = entity.Token;
             Name = entity.Name;
             CreatedAt = entity.CreatedAt.ToApiFmt();
             Description = entity.Description.Length > 32 ? entity.Description[..32] : entity.Description;
