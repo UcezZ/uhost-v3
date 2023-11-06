@@ -7,9 +7,6 @@ namespace Uhost.Core.Models.Comment
     {
         internal int UserId { get; set; }
 
-        /// <summary>
-        /// ИД видео
-        /// </summary>
         internal int VideoId { get; set; }
 
         /// <summary>

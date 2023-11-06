@@ -22,6 +22,11 @@ namespace Uhost.Core.Models.Comment
         public int VideoId { get; set; }
 
         /// <summary>
+        /// Токен видео
+        /// </summary>
+        public string VideoToken { get; set; }
+
+        /// <summary>
         /// Включая уддалённые
         /// </summary>
         public bool IncludeDeleted { get; set; }

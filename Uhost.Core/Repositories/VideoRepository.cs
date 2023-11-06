@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using Uhost.Core.Common;
 using Uhost.Core.Data;
@@ -74,6 +75,14 @@ namespace Uhost.Core.Repositories
             return DbSet
                 .Where(e => e.Id == id && e.DeletedAt == null)
                 .Select(e => e.Token)
+                .FirstOrDefault();
+        }
+
+        public TimeSpan GetDuration(int id)
+        {
+            return DbSet
+                .Where(e => e.Id == id && e.DeletedAt == null)
+                .Select(e => e.Duration)
                 .FirstOrDefault();
         }
     }

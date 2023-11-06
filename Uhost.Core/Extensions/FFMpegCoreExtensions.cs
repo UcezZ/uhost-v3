@@ -175,9 +175,9 @@ namespace Uhost.Core.Extensions
         /// <param name="options"></param>
         /// <param name="mediaInfo"></param>
         /// <param name="type"></param>
-        /// <param name="duration"></param>
+        /// <param name="maxDuration"></param>
         /// <returns></returns>
-        public static FFMpegArgumentOptions ApplyPreset(this FFMpegArgumentOptions options, IMediaAnalysis mediaInfo, Types type, TimeSpan? duration = null)
+        public static FFMpegArgumentOptions ApplyPreset(this FFMpegArgumentOptions options, IMediaAnalysis mediaInfo, Types type, TimeSpan? maxDuration = null)
         {
             options = options
                 .WithVideoCodec(FFConfig.VideoCodec)
@@ -237,9 +237,9 @@ namespace Uhost.Core.Extensions
                     break;
             }
 
-            if (duration != null)
+            if (maxDuration != null)
             {
-                options = options.WithMaxDuration((TimeSpan)duration);
+                options = options.WithMaxDuration((TimeSpan)maxDuration);
             }
 
             return options;

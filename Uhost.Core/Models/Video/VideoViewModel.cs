@@ -8,6 +8,8 @@ namespace Uhost.Core.Models.Video
     {
         public IDictionary<Types, string> Urls { get; set; }
 
+        public bool IsInfinite { get; set; }
+
         public override void LoadFromEntity(Entity entity)
         {
             base.LoadFromEntity(entity);

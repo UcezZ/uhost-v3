@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Uhost.Core.Models.Video;
 using static Uhost.Core.Data.Entities.File;
@@ -10,13 +9,13 @@ namespace Uhost.Core.Services.Video
     public interface IVideoService : IDisposable, IAsyncDisposable
     {
         Entity Add(VideoUploadFileModel model);
-        Entity Add(VideoUploadUrlModel model);
+        Entity Add(VideoUploadUrlModel model, out bool infinite);
         Task Convert(int id, Types type);
-        Task ConvertUrl(int id, Types type, string url, TimeSpan maxDuration);
+        Task FetchUrl(int id, string url);
         void Delete(int id);
         void Delete(string token);
         object GetAllPaged(VideoQueryModel query);
-        Task<IDictionary<Types, double>> GetConversionProgress(string token);
+        Task<VideoConversionProgressModel> GetConversionProgressAsync(string token);
         VideoViewModel GetOne(int id);
         VideoViewModel GetOne(string token);
         void Update(string token, VideoUpdateModel model);

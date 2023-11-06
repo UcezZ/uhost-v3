@@ -35,6 +35,12 @@ namespace Uhost.Core.Repositories
                 q = q.Where(e => e.DeletedAt == null);
             }
 
+            // видео
+            if (!string.IsNullOrEmpty(query.VideoToken))
+            {
+                q = q.Where(e => e.Video.Token == query.VideoToken);
+            }
+
             q = q.OrderBy(query);
 
             return q;

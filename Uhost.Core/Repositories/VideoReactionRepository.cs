@@ -3,6 +3,7 @@ using System.Linq;
 using Uhost.Core.Common;
 using Uhost.Core.Data;
 using Uhost.Core.Extensions;
+using Uhost.Core.Models;
 using Entity = Uhost.Core.Data.Entities.VideoReaction;
 using QueryModel = Uhost.Core.Models.VideoReaction.VideoReactionQueryModel;
 
@@ -29,6 +30,10 @@ namespace Uhost.Core.Repositories
             {
                 q = q.Where(e => e.VideoId == query.VideoId);
             }
+            if (query.VideoIds != null)
+            {
+                q = q.Where(e => query.VideoIds.Contains(e.VideoId));
+            }
             if (!query.IncludeDeleted)
             {
                 q = q.Where(e => e.DeletedAt == null);
@@ -37,6 +42,20 @@ namespace Uhost.Core.Repositories
             q = q.OrderBy(query);
 
             return q;
+        }
+
+        public TCollectionModel GetAllGrouped<TCollectionModel>(QueryModel query = null) where TCollectionModel : BaseCollectionModel<Entity>, new()
+        {
+            query ??= new QueryModel();
+
+            return GetCollection<TCollectionModel>(PrepareQuery(query));
+        }
+
+        public IQueryable<TModel> GetAll<TModel>(QueryModel query = null) where TModel : BaseModel<Entity>, new()
+        {
+            query ??= new QueryModel();
+
+            return Get<TModel>(PrepareQuery(query));
         }
     }
 }

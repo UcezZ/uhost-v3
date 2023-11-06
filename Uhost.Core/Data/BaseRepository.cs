@@ -40,6 +40,19 @@ namespace Uhost.Core.Common
         }
 
         /// <summary>
+        /// Получение всех <typeparamref name="TEntity"/>
+        /// Нужно быть внимательным т.к связи не загружаются - использовать EntityFramework, в не System.Data.Entity когда в репо задействуются .Include() и .ThenInclude()
+        /// </summary>
+        public virtual TCollectionModel GetCollection<TCollectionModel>(IQueryable<TEntity> query = null) where TCollectionModel : BaseCollectionModel<TEntity>, new()
+        {
+            query ??= DbSet;
+            var model = new TCollectionModel();
+            model.LoadFromEntityCollection(query);
+
+            return model;
+        }
+
+        /// <summary>
         /// Получает все сущности <typeparamref name="TEntity"/> по SQL запросу
         /// </summary>
         /// <param name="sql">SQL запрос</param>

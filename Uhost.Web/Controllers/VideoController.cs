@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using Uhost.Core.Attributes.Validation;
+using Uhost.Core.Extensions;
 using Uhost.Core.Models.Video;
 using Uhost.Core.Services.Video;
 using Uhost.Web.Attributes;
@@ -68,7 +69,7 @@ namespace Uhost.Web.Controllers
         [HttpGet("{token}/progress")]
         public async Task<IActionResult> Progress(string token)
         {
-            return ResponseHelper.Success(await _service.GetConversionProgress(token));
+            return ResponseHelper.Success(await _service.GetConversionProgressAsync(token));
         }
 
         /// <summary>
@@ -107,7 +108,7 @@ namespace Uhost.Web.Controllers
                 return ResponseHelper.Error(ModelState.GetErrors());
             }
 
-            var entity = _service.Add(model);
+            var entity = _service.Add(model, out var isInfinite);
 
             if (entity == null)
             {
@@ -115,7 +116,7 @@ namespace Uhost.Web.Controllers
             }
             else
             {
-                return ResponseHelper.Success(_service.GetOne(entity.Id));
+                return ResponseHelper.Success(_service.GetOne(entity.Id).Having(e => e.IsInfinite = isInfinite));
             }
         }
 

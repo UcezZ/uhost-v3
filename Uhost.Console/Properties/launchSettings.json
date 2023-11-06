@@ -1,8 +1,8 @@
 {
-    "profiles": {
-        "Uhost.Console": {
-            "commandName": "Project",
-            "commandLineArgs": "taskexecutor --queue ffmpeg"
-        }
+  "profiles": {
+    "Uhost.Console": {
+      "commandName": "Project",
+      "commandLineArgs": "taskexecutor --queue ffmpeg --threads 2"
     }
+  }
 }

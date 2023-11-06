@@ -6,7 +6,6 @@ using Sentry.Protocol;
 using StackExchange.Redis;
 using StackExchange.Redis.Extensions.Core.Abstractions;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -38,7 +37,7 @@ namespace Uhost.Core.Services.Video
         private readonly ICommentService _commentService;
         private const string _redisProgressKeyMask = "progress_{0}";
         private static readonly TimeSpan _redisProgressKeyTtl = TimeSpan.FromMinutes(5);
-        private static readonly TimeSpan _maxStreamDuration = TimeSpan.FromHours(5);
+        private static readonly TimeSpan _maxStreamDuration = TimeSpan.FromHours(4);
 
         private static readonly Types[] _videoResolutionTypes = new[]
         {
@@ -179,7 +178,8 @@ namespace Uhost.Core.Services.Video
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public Entity Add(VideoUploadUrlModel model)
+        /// <param name="isInfinite"></param>
+        public Entity Add(VideoUploadUrlModel model, out bool isInfinite)
         {
             if (_contextAccessor?.HttpContext?.User != null && _contextAccessor.HttpContext.User.TryGetUserId(out var userId))
             {
@@ -188,7 +188,7 @@ namespace Uhost.Core.Services.Video
 
             var entity = _repo.Add(model);
 
-            if (PrepareVideo(entity, model.Url, model.MaxDurationParsed))
+            if (PrepareVideo(entity, model.Url, model.MaxDurationParsed, out isInfinite))
             {
                 _repo.Save();
 
@@ -197,9 +197,9 @@ namespace Uhost.Core.Services.Video
             else
             {
                 _repo.SoftDelete(entity.Id);
-            }
 
-            return null;
+                return null;
+            }
         }
 
         /// <summary>
@@ -236,67 +236,55 @@ namespace Uhost.Core.Services.Video
         /// <param name="entity">Сущность видео</param>
         /// <param name="url"></param>
         /// <param name="maxDuration"></param>
+        /// <param name="isInfinite"></param>
         /// <returns></returns>
-        private bool PrepareVideo(Entity entity, string url, TimeSpan? maxDuration)
+        private bool PrepareVideo(Entity entity, string url, TimeSpan? maxDuration, out bool isInfinite)
         {
             var thumbFile = new FileInfo(Path.GetFullPath(Path.Combine(Path.GetFullPath("tmp"), $"thumb_{Guid.NewGuid()}.jpg")));
 
+            isInfinite = false;
+
             try
             {
-                if (!string.IsNullOrEmpty(url))
+                if (string.IsNullOrEmpty(url))
                 {
-                    var mediaInfo = FFProbe.Analyse(new Uri(url));
-
-                    if (mediaInfo.PrimaryVideoStream == null)
-                    {
-                        return false;
-                    }
-
-                    entity.Duration = mediaInfo.Duration;
-
-                    var size = new Size(mediaInfo.PrimaryVideoStream.Width, mediaInfo.PrimaryVideoStream.Height).FitTo(320, 320);
-
-                    var ffargs = FFMpegArguments
-                        .FromUrlInput(new Uri(url))
-                        .OutputToFile(thumbFile.FullName, true, e => e.WithVideoFilters(vf => vf.Scale(size)).WithFrameOutputCount(1));
-
-                    Tools.MakePath(thumbFile.FullName);
-
-                    if (!ffargs.ProcessSynchronously())
-                    {
-                        return false;
-                    }
-
-                    _fileService.Add(
-                        name: "thumb.jpg",
-                        file: thumbFile,
-                        type: Types.VideoThumbnail,
-                        dynType: typeof(Entity),
-                        dynId: entity.Id);
-
-                    _scheduler.ScheduleVideoStreamConvert(entity.Id, Types.Video240p, url, maxDuration ?? _maxStreamDuration);
-
-                    if (mediaInfo.PrimaryVideoStream.Height >= 360)
-                    {
-                        _scheduler.ScheduleVideoStreamConvert(entity.Id, Types.Video360p, url, maxDuration ?? _maxStreamDuration);
-                    }
-                    if (mediaInfo.PrimaryVideoStream.Height >= 480)
-                    {
-                        _scheduler.ScheduleVideoStreamConvert(entity.Id, Types.Video480p, url, maxDuration ?? _maxStreamDuration);
-                    }
-                    if (mediaInfo.PrimaryVideoStream.Height >= 720)
-                    {
-                        _scheduler.ScheduleVideoStreamConvert(entity.Id, Types.Video720p, url, maxDuration ?? _maxStreamDuration);
-                    }
-                    if (mediaInfo.PrimaryVideoStream.Height >= 1080)
-                    {
-                        _scheduler.ScheduleVideoStreamConvert(entity.Id, Types.Video1080p, url, maxDuration ?? _maxStreamDuration);
-                    }
-
-                    return true;
+                    return false;
                 }
 
-                return false;
+                var mediaInfo = FFProbe.Analyse(new Uri(url));
+
+                if (mediaInfo.PrimaryVideoStream == null)
+                {
+                    return false;
+                }
+
+                isInfinite = mediaInfo.Duration.TotalSeconds < 1;
+
+                entity.Duration = isInfinite ? maxDuration ?? _maxStreamDuration : mediaInfo.Duration;
+
+                var size = new Size(mediaInfo.PrimaryVideoStream.Width, mediaInfo.PrimaryVideoStream.Height).FitTo(320, 320);
+
+                var ffargs = FFMpegArguments
+                    .FromUrlInput(new Uri(url))
+                    .OutputToFile(thumbFile.FullName, true, e => e.WithVideoFilters(vf => vf.Scale(size)).WithFrameOutputCount(1));
+
+                Tools.MakePath(thumbFile.FullName);
+
+                if (!ffargs.ProcessSynchronously())
+                {
+                    return false;
+                }
+
+                _fileService.Add(
+                    name: "thumb.jpg",
+                    file: thumbFile,
+                    type: Types.VideoThumbnail,
+                    dynType: typeof(Entity),
+                    dynId: entity.Id);
+
+                _scheduler.ScheduleVideoStreamConvert(entity.Id, url);
+
+                return true;
             }
             finally
             {
@@ -328,61 +316,61 @@ namespace Uhost.Core.Services.Video
             {
                 var rawVideoPath = rawVideo.GetPath();
 
-                if (!string.IsNullOrEmpty(rawVideoPath))
+                if (string.IsNullOrEmpty(rawVideoPath))
                 {
-                    var mediaInfo = FFProbe.Analyse(rawVideoPath);
-
-                    if (mediaInfo.PrimaryVideoStream == null)
-                    {
-                        return false;
-                    }
-
-                    entity.Duration = mediaInfo.Duration;
-
-                    var capTime = TimeSpan.FromSeconds(mediaInfo.Duration.TotalSeconds * 0.05);
-                    var size = new Size(mediaInfo.PrimaryVideoStream.Width, mediaInfo.PrimaryVideoStream.Height).FitTo(320, 320);
-
-                    var ffargs = FFMpegArguments
-                        .FromFileInput(rawVideoPath)
-                        .OutputToFile(thumbFile.FullName, true, e => e.WithVideoFilters(vf => vf.Scale(size)).Seek(capTime).WithFrameOutputCount(1));
-
-                    Tools.MakePath(thumbFile.FullName);
-
-                    if (!ffargs.ProcessSynchronously())
-                    {
-                        return false;
-                    }
-
-                    _fileService.Add(
-                        name: "thumb.jpg",
-                        file: thumbFile,
-                        type: Types.VideoThumbnail,
-                        dynType: typeof(Entity),
-                        dynId: entity.Id);
-
-                    _scheduler.ScheduleVideoConvert(entity.Id, Types.Video240p);
-
-                    if (mediaInfo.PrimaryVideoStream.Height >= 360)
-                    {
-                        _scheduler.ScheduleVideoConvert(entity.Id, Types.Video360p);
-                    }
-                    if (mediaInfo.PrimaryVideoStream.Height >= 480)
-                    {
-                        _scheduler.ScheduleVideoConvert(entity.Id, Types.Video480p);
-                    }
-                    if (mediaInfo.PrimaryVideoStream.Height >= 720)
-                    {
-                        _scheduler.ScheduleVideoConvert(entity.Id, Types.Video720p);
-                    }
-                    if (mediaInfo.PrimaryVideoStream.Height >= 1080)
-                    {
-                        _scheduler.ScheduleVideoConvert(entity.Id, Types.Video1080p);
-                    }
-
-                    return true;
+                    return false;
                 }
 
-                return false;
+                var mediaInfo = FFProbe.Analyse(rawVideoPath);
+
+                if (mediaInfo.PrimaryVideoStream == null)
+                {
+                    return false;
+                }
+
+                entity.Duration = mediaInfo.Duration;
+
+                var capTime = TimeSpan.FromSeconds(mediaInfo.Duration.TotalSeconds * 0.05);
+                var size = new Size(mediaInfo.PrimaryVideoStream.Width, mediaInfo.PrimaryVideoStream.Height).FitTo(320, 320);
+
+                var ffargs = FFMpegArguments
+                    .FromFileInput(rawVideoPath)
+                    .OutputToFile(thumbFile.FullName, true, e => e.WithVideoFilters(vf => vf.Scale(size)).Seek(capTime).WithFrameOutputCount(1));
+
+                Tools.MakePath(thumbFile.FullName);
+
+                if (!ffargs.ProcessSynchronously())
+                {
+                    return false;
+                }
+
+                _fileService.Add(
+                    name: "thumb.jpg",
+                    file: thumbFile,
+                    type: Types.VideoThumbnail,
+                    dynType: typeof(Entity),
+                    dynId: entity.Id);
+
+                _scheduler.ScheduleVideoConvert(entity.Id, Types.Video240p);
+
+                if (mediaInfo.PrimaryVideoStream.Height >= 360)
+                {
+                    _scheduler.ScheduleVideoConvert(entity.Id, Types.Video360p);
+                }
+                if (mediaInfo.PrimaryVideoStream.Height >= 480)
+                {
+                    _scheduler.ScheduleVideoConvert(entity.Id, Types.Video480p);
+                }
+                if (mediaInfo.PrimaryVideoStream.Height >= 720)
+                {
+                    _scheduler.ScheduleVideoConvert(entity.Id, Types.Video720p);
+                }
+                if (mediaInfo.PrimaryVideoStream.Height >= 1080)
+                {
+                    _scheduler.ScheduleVideoConvert(entity.Id, Types.Video1080p);
+                }
+
+                return true;
             }
             finally
             {
@@ -433,54 +421,115 @@ namespace Uhost.Core.Services.Video
                 .FromFileInput(file.Path)
                 .OutputToFile(output.FullName, true, e => e.ApplyPreset(mediaInfo, type));
 
-            await DoConversion(mediaInfo, ffargs, output, id, type);
+            await DoConversion(ffargs, output, id, type);
         }
 
         /// <summary>
         /// Задача конвертации видео из потока
         /// </summary>
         /// <param name="id">ИД сущности видео</param>
-        /// <param name="type">Тип видео</param>
         /// <param name="url">URL потока</param>
-        /// <param name="maxDuration">Максимальная продолжительность</param>
         /// <returns></returns>
-        public async Task ConvertUrl(int id, Types type, string url, TimeSpan maxDuration)
+        public async Task FetchUrl(int id, string url)
         {
-            if (!_videoResolutionTypes.Contains(type))
-            {
-                throw new ArgumentException("Wrong file type specified", nameof(type));
-            }
-
             var output = new FileInfo(Path.GetFullPath(Path.Combine(Path.GetFullPath("tmp"), $"temp_{Guid.NewGuid()}.mp4")));
-            var mediaInfo = await FFProbe.AnalyseAsync(new Uri(url));
+            Tools.MakePath(output.FullName);
+            var duration = _repo.GetDuration(id);
+            var token = _repo.GetToken(id);
             var ffargs = FFMpegArguments
                 .FromUrlInput(new Uri(url))
-                .OutputToFile(output.FullName, true, e => e.ApplyPreset(mediaInfo, type, maxDuration));
+                .OutputToFile(output.FullName, true, e => e
+                    .WithVideoCodec("copy")
+                    .WithAudioCodec("copy")
+                    .WithMaxDuration(duration));
 
-            await DoConversion(mediaInfo, ffargs, output, id, type, maxDuration);
+            await _logger?.WriteLineAsync($"Fetching video #{id},{token} with arguments:\r\n{ffargs?.Arguments}", LogWriter.Severity.Info);
+
+            try
+            {
+                var result = await ffargs?
+                    .NotifyOnProgress(async e => await OnFetchProgressAsync(e, token), duration)
+                    .ProcessAsynchronously();
+
+                if (result == true && output.Length > 0)
+                {
+                    var file = _fileService.Add(
+                         output,
+                         name: "raw.mp4",
+                         type: Types.VideoRaw,
+                         dynType: typeof(Entity),
+                         dynId: id);
+
+                    var mediaInfo = await FFProbe.AnalyseAsync(file.GetPath());
+
+                    _scheduler.ScheduleVideoConvert(id, Types.Video240p);
+
+                    if (mediaInfo.PrimaryVideoStream.Height >= 360)
+                    {
+                        _scheduler.ScheduleVideoConvert(id, Types.Video360p);
+                    }
+                    if (mediaInfo.PrimaryVideoStream.Height >= 480)
+                    {
+                        _scheduler.ScheduleVideoConvert(id, Types.Video480p);
+                    }
+                    if (mediaInfo.PrimaryVideoStream.Height >= 720)
+                    {
+                        _scheduler.ScheduleVideoConvert(id, Types.Video720p);
+                    }
+                    if (mediaInfo.PrimaryVideoStream.Height >= 1080)
+                    {
+                        _scheduler.ScheduleVideoConvert(id, Types.Video1080p);
+                    }
+                }
+                else
+                {
+                    var exception = new Exception("Failed to fetch video");
+                    exception.Data["Id"] = id;
+                    exception.Data["Arguments"] = ffargs?.Arguments;
+
+                    SentrySdk.CaptureException(exception);
+                }
+            }
+            catch (Exception e)
+            {
+                e.Data["args"] = ffargs.Arguments;
+                throw;
+            }
+
+            await OnFetchProgressAsync(100, token);
+
+            await _logger?.WriteLineAsync($"Fetching video #{id},{token} completed", LogWriter.Severity.Info);
+
+            try
+            {
+                output.Delete();
+            }
+            catch (Exception e)
+            {
+                SentrySdk.CaptureException(e);
+            }
         }
 
         /// <summary>
         /// Общий метод конвертации
         /// </summary>
-        /// <param name="mediaInfo"></param>
         /// <param name="ffargs"></param>
         /// <param name="output"></param>
         /// <param name="id"></param>
         /// <param name="type"></param>
-        /// <param name="duration"></param>
         /// <returns></returns>
-        private async Task DoConversion(IMediaAnalysis mediaInfo, FFMpegArgumentProcessor ffargs, FileInfo output, int id, Types type, TimeSpan? duration = null)
+        private async Task DoConversion(FFMpegArgumentProcessor ffargs, FileInfo output, int id, Types type)
         {
             Tools.MakePath(output.FullName);
             var token = _repo.GetToken(id);
+            var duration = _repo.GetDuration(id);
 
-            await _logger.WriteLineAsync($"Processing video #{id},{token} ({type}) with arguments:\r\n\r\n{ffargs?.Arguments}\r\n", LogWriter.Severity.Info);
+            await _logger?.WriteLineAsync($"Processing video #{id},{token} ({type}) with arguments:\r\n{ffargs?.Arguments}", LogWriter.Severity.Info);
 
             try
             {
                 var result = await ffargs?
-                    .NotifyOnProgress(async e => await OnProgress(e, token, type), duration ?? mediaInfo.Duration)
+                    .NotifyOnProgress(async e => await OnConversionProgressAsync(e, token, type), duration)
                     .ProcessAsynchronously();
 
                 if (result == true && output.Length > 0)
@@ -508,9 +557,9 @@ namespace Uhost.Core.Services.Video
                 throw;
             }
 
-            await OnProgress(100, token, type);
+            await OnConversionProgressAsync(100, token, type);
 
-            await _logger.WriteLineAsync($"Processing video #{id},{token} ({type}) completed", LogWriter.Severity.Info);
+            await _logger?.WriteLineAsync($"Processing video #{id},{token} ({type}) completed", LogWriter.Severity.Info);
 
             try
             {
@@ -523,28 +572,51 @@ namespace Uhost.Core.Services.Video
         }
 
         /// <summary>
-        /// Событие прогресса
+        /// Событие прогресса копирования URL
+        /// </summary>
+        /// <param name="progress"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        private async Task OnFetchProgressAsync(double progress, string token)
+        {
+            try
+            {
+                var key = _redisProgressKeyMask.Format(token);
+                var value = await _redis.Database.StringGetAsync(key);
+                var model = !value.IsNullOrEmpty && value.TryCastTo<VideoConversionProgressModel>(out var casted) ? casted : new VideoConversionProgressModel();
+                model.Fetch = progress;
+                await _redis.Database.StringSetAsync(key, model.ToJson(), expiry: _redisProgressKeyTtl, flags: CommandFlags.FireAndForget);
+            }
+            catch { }
+        }
+
+        /// <summary>
+        /// Событие прогресса конвертации
         /// </summary>
         /// <param name="progress"></param>
         /// <param name="token"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        private async Task OnProgress(double progress, string token, Types type)
+        private async Task OnConversionProgressAsync(double progress, string token, Types type)
         {
-            var key = _redisProgressKeyMask.Format(token);
-            var value = await _redis.Database.StringGetAsync(key);
-            var dict = !value.IsNullOrEmpty && value.TryCastTo<IDictionary<Types, double>>(out var casted) ? casted : new Dictionary<Types, double>();
-            dict[type] = progress;
-            await _redis.Database.StringSetAsync(key, dict.ToJson(), expiry: _redisProgressKeyTtl, flags: CommandFlags.FireAndForget);
+            try
+            {
+                var key = _redisProgressKeyMask.Format(token);
+                var value = await _redis.Database.StringGetAsync(key);
+                var model = !value.IsNullOrEmpty && value.TryCastTo<VideoConversionProgressModel>(out var casted) ? casted : new VideoConversionProgressModel();
+                model.Resolutions[type] = progress;
+                await _redis.Database.StringSetAsync(key, model.ToJson(), expiry: _redisProgressKeyTtl, flags: CommandFlags.FireAndForget);
+            }
+            catch { }
         }
 
-        public async Task<IDictionary<Types, double>> GetConversionProgress(string token)
+        public async Task<VideoConversionProgressModel> GetConversionProgressAsync(string token)
         {
             var key = _redisProgressKeyMask.Format(token);
             var value = await _redis.Database.StringGetAsync(key);
-            var dict = !value.IsNullOrEmpty && value.TryCastTo<IDictionary<Types, double>>(out var casted) ? casted : new Dictionary<Types, double>();
+            var model = !value.IsNullOrEmpty && value.TryCastTo<VideoConversionProgressModel>(out var casted) ? casted : null;
 
-            return dict;
+            return model;
         }
     }
 }
