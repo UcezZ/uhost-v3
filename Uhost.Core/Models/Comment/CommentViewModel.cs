@@ -7,12 +7,16 @@ namespace Uhost.Core.Models.Comment
 {
     public class CommentViewModel : CommentCreateModel
     {
+        public int Id { get; set; }
+        public string CreatedAt { get; set; }
         public UserCommentViewModel User { get; set; }
 
         public override void LoadFromEntity(Entity entity)
         {
             base.LoadFromEntity(entity);
-            
+
+            Id = entity.Id;
+            CreatedAt = entity.CreatedAt.ToApiFmt();
             User = entity.User?.ToModel<UserEntity, UserCommentViewModel>();
         }
     }

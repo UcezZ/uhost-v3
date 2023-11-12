@@ -128,7 +128,7 @@ namespace Uhost.Core.Common
         /// </summary>
         /// <param name="entityType">Тип сущности</param>
         /// <returns></returns>
-        public static string GetEntityTableNameByEntityType(Type entityType)
+        public static string GetEntityTableName(Type entityType)
         {
             var value = entityType?
                 .CustomAttributes?
@@ -137,6 +137,11 @@ namespace Uhost.Core.Common
                 .FirstOrDefault().Value;
 
             return value is string tableName ? tableName : null;
+        }
+
+        public static string GetEntityTableName<TEntity>() where TEntity : class, new()
+        {
+            return GetEntityTableName(typeof(TEntity));
         }
 
         /// <summary>

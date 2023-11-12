@@ -32,7 +32,7 @@ namespace Uhost.Core.Attributes.Validation
         /// <exception cref="ArgumentException"></exception>
         public DatabaseExistionValidationAttribute(Type entityType, string propertyName, bool includeDeleted = false, bool nullable = false)
         {
-            if (string.IsNullOrEmpty(_tableName = Tools.GetEntityTableNameByEntityType(entityType)))
+            if (string.IsNullOrEmpty(_tableName = Tools.GetEntityTableName(entityType)))
             {
                 throw new ArgumentException($"Invalid type specified ${entityType?.Name ?? "null"}", nameof(entityType));
             }

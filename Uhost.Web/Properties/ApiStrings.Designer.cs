@@ -88,6 +88,24 @@ namespace Uhost.Web.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Комментирование этого видео отключено.
+        /// </summary>
+        internal static string Comment_Error_NotAllowed {
+            get {
+                return ResourceManager.GetString("Comment_Error_NotAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Коммментарий не найден.
+        /// </summary>
+        internal static string Comment_Error_NotFound {
+            get {
+                return ResourceManager.GetString("Comment_Error_NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Неопознанная ошибка.
         /// </summary>
         internal static string Common_Error_Common {
@@ -138,6 +156,15 @@ namespace Uhost.Web.Properties {
         internal static string Home_Index {
             get {
                 return ResourceManager.GetString("Home_Index", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Реакции к этому видео отключены.
+        /// </summary>
+        internal static string Reaction_Error_NotAllowed {
+            get {
+                return ResourceManager.GetString("Reaction_Error_NotAllowed", resourceCulture);
             }
         }
         

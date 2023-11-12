@@ -35,6 +35,26 @@ namespace Uhost.Core.Models.Video
         /// </summary>
         public bool IncludeDeleted { get; set; }
 
+        /// <summary>
+        /// Разрешены комментарии
+        /// </summary>
+        public bool? AllowComments { get; set; }
+
+        /// <summary>
+        /// Разрешены реакции
+        /// </summary>
+        public bool? AllowReactions { get; set; }
+
+        /// <summary>
+        /// Показывать скрытые из поиска
+        /// </summary>
+        public bool ShowHidden { get; set; }
+
+        /// <summary>
+        /// Показывать приватные
+        /// </summary>
+        public bool ShowPrivate { get; set; }
+
         [EnumValidation(typeof(Entity.SortBy), nameof(Entity.SortBy.Id), ErrorMessageResourceType = typeof(CoreStrings), ErrorMessageResourceName = nameof(CoreStrings.Common_Error_SortBy))]
         public override string SortBy { get; set; }
     }

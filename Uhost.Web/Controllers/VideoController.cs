@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 using Uhost.Core.Attributes.Validation;
@@ -30,15 +31,17 @@ namespace Uhost.Web.Controllers
         }
 
         /// <summary>
-        /// Получить все файлы по запросу
+        /// Получить все видео по запросу
         /// </summary>
-        [HttpGet, HasRightAuthorize(Rights.FileGet)]
+        [HttpGet, AllowAnonymous]
         public IActionResult GetAll(QueryModel query)
         {
             if (!ModelState.IsValid)
             {
                 return ResponseHelper.Error(ModelState.GetErrors());
             }
+
+            _service.OverrideByUserRestrictions(query);
 
             return ResponseHelper.Success(_service.GetAllPaged(query));
         }

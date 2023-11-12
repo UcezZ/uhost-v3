@@ -39,7 +39,7 @@ ORDER BY relname";
 
             var tables = Tools
                 .EnumerateEntities()
-                .Select(e => Tools.GetEntityTableNameByEntityType(e));
+                .Select(e => Tools.GetEntityTableName(e));
 
             var regex = new Regex($"^({tables.Join("|")})_(\\w*)_seq");
 

@@ -19,7 +19,7 @@ namespace Uhost.Core.Models.Comment
         /// <summary>
         /// ИД видео
         /// </summary>
-        public int VideoId { get; set; }
+        internal int VideoId { get; set; }
 
         /// <summary>
         /// Токен видео
