@@ -51,31 +51,6 @@ services:
       file: app.yml
       service: graylog
 
-  memcached:
-    extends:
-      file: app.yml
-      service: memcached
-
-  sentry-migrations:
-    extends:
-      file: app.yml
-      service: sentry-migrations
-
-  sentry-cron:
-    extends:
-      file: app.yml
-      service: sentry-cron
-
-  sentry-worker:
-    extends:
-      file: app.yml
-      service: sentry-worker
-
-  sentry-web:
-    extends:
-      file: app.yml
-      service: sentry-web
-
   postgres-exporter:
     container_name: "${APP_NAME}-postgres-exporter"
     image: wrouesnel/postgres_exporter:latest
@@ -123,5 +98,4 @@ volumes:
   mongo_cfg_volume:
   redis_volume:
   elasticsearch_volume:
-  sentry_volume:
   prometheus_volume:

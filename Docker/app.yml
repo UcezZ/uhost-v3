@@ -41,31 +41,6 @@ services:
       file: support.yml
       service: graylog
 
-  memcached:
-    extends:
-      file: support.yml
-      service: memcached
-
-  sentry-migrations:
-    extends:
-      file: support.yml
-      service: sentry-migrations
-
-  sentry-cron:
-    extends:
-      file: support.yml
-      service: sentry-cron
-
-  sentry-worker:
-    extends:
-      file: support.yml
-      service: sentry-worker
-
-  sentry-web:
-    extends:
-      file: support.yml
-      service: sentry-web
-
   rabbitmq:
     extends:
       file: support.yml
@@ -217,5 +192,4 @@ volumes:
   mongo_cfg_volume:
   redis_volume:
   elasticsearch_volume:
-  sentry_volume:
   rabbitmq_volume:

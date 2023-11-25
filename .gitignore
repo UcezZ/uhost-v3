@@ -16,3 +16,4 @@ tmp
 /Frontend/build
 /Frontend/package-lock.json
 Frontend/src/config.json
+Docker/sentry/.vscode

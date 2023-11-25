@@ -1,0 +1,207 @@
+version: "3"
+name: sentry
+services:
+  # PostgreSql
+  pgsql:
+    image: postgres:14-alpine
+    container_name: "${APP_NAME}-pgsql"
+    restart: unless-stopped
+    environment:
+      PGPASSWORD: "${PGSQL_PASSWORD}"
+      POSTGRES_DB: "${PGSQL_DATABASE}"
+      POSTGRES_USER: "${PGSQL_USERNAME}"
+      POSTGRES_PASSWORD: "${PGSQL_PASSWORD}"
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-q",
+          "-d",
+          "${PGSQL_DATABASE}",
+          "-U",
+          "${PGSQL_USERNAME}",
+        ]
+      retries: 3
+      timeout: 10s
+
+  # Redis
+  redis:
+    image: redis:6.0-alpine
+    container_name: "${APP_NAME}-redis"
+    restart: unless-stopped
+    volumes:
+      - redis_volume:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      retries: 3
+      timeout: 10s
+
+  # Postgres Web UI
+  adminer:
+    image: adminer
+    container_name: "${APP_NAME}-adminer"
+    restart: always
+    ports:
+      - "${FORWARD_HOST}:${FORWARD_ADMINER_PORT}:8080"
+    depends_on:
+      - pgsql
+    environment:
+      ADMINER_DEFAULT_DB_DRIVER: pgsql
+      ADMINER_DEFAULT_SERVER: pgsql
+      ADMINER_DESIGN: hever
+      ADMINER_DEFAULT_DB_NAME: "${PGSQL_DATABASE}"
+
+  # Redis Web UI
+  redis-commander:
+    container_name: "${APP_NAME}-redis-cmdr"
+    image: rediscommander/redis-commander:latest
+    restart: always
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "${FORWARD_HOST}:${FORWARD_REDIS_CMDR_PORT}:8081"
+
+  memcached:
+    container_name: "${APP_NAME}-memcached"
+    image: memcached:1.6.21-alpine
+    restart: unless-stopped
+
+  sentry-migrations:
+    container_name: "${APP_NAME}-sentry-migrations"
+    image: sentry:latest
+    depends_on:
+      - redis
+      - pgsql
+      - memcached
+    links:
+      - redis
+      - pgsql
+      - memcached
+    volumes:
+      - sentry_volume:/var/lib/sentry/files
+    environment:
+      SENTRY_SECRET_KEY: "${SENTRY_SECRET}"
+      SENTRY_POSTGRES_HOST: "pgsql"
+      SENTRY_POSTGRES_PORT: 5432
+      SENTRY_DB_NAME: "${PGSQL_DATABASE}"
+      SENTRY_DB_USER: "${PGSQL_USERNAME}"
+      SENTRY_DB_PASSWORD: "${PGSQL_PASSWORD}"
+      SENTRY_REDIS_HOST: "redis"
+      SENTRY_REDIS_PORT: 6379
+      SENTRY_REDIS_DB: 0
+    entrypoint: >
+      bash -c "
+      sentry upgrade --noinput;
+      if [ ! -f /var/lib/sentry/files/.firstrun ]; then
+        sentry createuser --email ${SENTRY_USER_EMAIL} --password ${SENTRY_USER_PASSWORD} --superuser --no-input || echo 'User already exists';
+        touch /var/lib/sentry/files/.firstrun;
+      fi;
+      "
+
+  sentry-cron:
+    container_name: "${APP_NAME}-sentry-cron"
+    image: sentry:latest
+    restart: unless-stopped
+    depends_on:
+      pgsql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      memcached:
+        condition: service_started
+      sentry-migrations:
+        condition: service_completed_successfully
+    links:
+      - redis
+      - pgsql
+      - memcached
+    volumes:
+      - sentry_volume:/var/lib/sentry/files
+    environment:
+      SENTRY_SECRET_KEY: "${SENTRY_SECRET}"
+      SENTRY_POSTGRES_HOST: "pgsql"
+      SENTRY_POSTGRES_PORT: 5432
+      SENTRY_DB_NAME: "${PGSQL_DATABASE}"
+      SENTRY_DB_USER: "${PGSQL_USERNAME}"
+      SENTRY_DB_PASSWORD: "${PGSQL_PASSWORD}"
+      SENTRY_REDIS_HOST: "redis"
+      SENTRY_REDIS_PORT: 6379
+      SENTRY_REDIS_DB: 0
+    entrypoint: sentry run cron
+
+  sentry-worker:
+    container_name: "${APP_NAME}-sentry-worker"
+    image: sentry:latest
+    restart: unless-stopped
+    depends_on:
+      pgsql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      memcached:
+        condition: service_started
+      sentry-migrations:
+        condition: service_completed_successfully
+    links:
+      - redis
+      - pgsql
+      - memcached
+    volumes:
+      - sentry_volume:/var/lib/sentry/files
+    environment:
+      C_FORCE_ROOT: TRUE
+      SENTRY_SECRET_KEY: "${SENTRY_SECRET}"
+      SENTRY_POSTGRES_HOST: "pgsql"
+      SENTRY_POSTGRES_PORT: 5432
+      SENTRY_DB_NAME: "${PGSQL_DATABASE}"
+      SENTRY_DB_USER: "${PGSQL_USERNAME}"
+      SENTRY_DB_PASSWORD: "${PGSQL_PASSWORD}"
+      SENTRY_REDIS_HOST: "redis"
+      SENTRY_REDIS_PORT: 6379
+      SENTRY_REDIS_DB: 0
+    entrypoint: sentry run worker
+
+  sentry-web:
+    container_name: "${APP_NAME}-sentry-web"
+    image: sentry:latest
+    restart: unless-stopped
+    depends_on:
+      pgsql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      memcached:
+        condition: service_started
+      sentry-worker:
+        condition: service_started
+      sentry-cron:
+        condition: service_started
+      sentry-migrations:
+        condition: service_completed_successfully
+    links:
+      - redis
+      - pgsql
+      - memcached
+    volumes:
+      - sentry_volume:/var/lib/sentry/files
+    ports:
+      - ${FORWARD_HOST}:${FORWARD_SENTRY_PORT}:9000
+    environment:
+      SENTRY_SECRET_KEY: "${SENTRY_SECRET}"
+      SENTRY_POSTGRES_HOST: "pgsql"
+      SENTRY_POSTGRES_PORT: 5432
+      SENTRY_DB_NAME: "${PGSQL_DATABASE}"
+      SENTRY_DB_USER: "${PGSQL_USERNAME}"
+      SENTRY_DB_PASSWORD: "${PGSQL_PASSWORD}"
+      SENTRY_REDIS_HOST: "redis"
+      SENTRY_REDIS_PORT: 6379
+      SENTRY_REDIS_DB: 0
+volumes:
+  sentry_volume:
+  redis_volume:
+  postgres_volume:
