@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 using Uhost.Core.Attributes.Validation;
@@ -19,7 +20,7 @@ namespace Uhost.Web.Controllers
     /// <summary>
     /// Файлы
     /// </summary>
-    [Route("api/v2/files")]
+    [Route("api/v2/files"), Authorize]
     public class FileController : Controller, IDisposable, IAsyncDisposable
     {
         private readonly IFileService _service;

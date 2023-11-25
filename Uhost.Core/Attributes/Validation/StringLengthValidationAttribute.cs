@@ -10,7 +10,7 @@ namespace Uhost.Core.Attributes.Validation
     /// <br/>
     /// <b>Не использует</b> <see cref="ValidationAttribute.ErrorMessageResourceName"/> и <see cref="ValidationAttribute.ErrorMessageResourceType"/>
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
     public class StringLengthValidationAttribute : ValidationAttribute
     {
         private readonly int _min, _max;

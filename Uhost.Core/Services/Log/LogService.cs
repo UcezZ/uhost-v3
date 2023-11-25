@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Uhost.Core.Data;
@@ -13,7 +11,6 @@ namespace Uhost.Core.Services.Log
 {
     public sealed class LogService : BaseService, ILogService
     {
-        private readonly IHttpContextAccessor _contextAccessor;
         private readonly LogRepository _repo;
 
         public static IEnumerable<object> AllEvents { get; }
@@ -25,19 +22,18 @@ namespace Uhost.Core.Services.Log
                 .Select(e => new { Id = (int)e, Name = e.ToString() });
         }
 
-        public LogService(IServiceProvider provider, PostgreSqlDbContext dbContext, PostgreSqlLogDbContext logContext) : base(dbContext)
+        public LogService(PostgreSqlDbContext dbContext, PostgreSqlLogDbContext logContext, IServiceProvider provider) : base(dbContext, provider)
         {
             _repo = new LogRepository(logContext);
-            _contextAccessor = provider.GetService<IHttpContextAccessor>();
         }
 
         public void Add(Events ev, object data = null)
         {
             var entity = new Entity
             {
-                UserId = _contextAccessor?.HttpContext?.User != null && _contextAccessor.HttpContext.User.TryGetUserId(out var userId) ? userId : null,
+                UserId = TryGetUserId(out var userId) ? userId : null,
                 EventId = (int)ev,
-                IPAddress = _contextAccessor?.HttpContext?.ResolveClientIp(),
+                IPAddress = _httpContextAccessor?.HttpContext?.ResolveClientIp(),
                 Data = (data ?? new { }).ToJson()
             };
 

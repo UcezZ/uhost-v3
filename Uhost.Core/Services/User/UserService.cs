@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Uhost.Core.Data;
 using Uhost.Core.Extensions;
@@ -17,7 +18,7 @@ namespace Uhost.Core.Services.User
         private readonly UserRepository _repo;
         private readonly RightRepository _rightRepo;
 
-        public UserService(PostgreSqlDbContext dbContext) : base(dbContext)
+        public UserService(PostgreSqlDbContext dbContext, IServiceProvider provider) : base(dbContext, provider)
         {
             _repo = new UserRepository(_dbContext);
             _roleRepo = new RoleRepository(_dbContext);

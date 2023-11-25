@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.Graylog;
@@ -11,7 +12,7 @@ namespace Uhost.Web.Controllers
     /// <summary>
     /// Интеграция с Graylog
     /// </summary>
-    [Route("api/v2/graylog")]
+    [Route("api/v2/graylog"), Authorize]
     public class GraylogController : Controller
     {
         private readonly IGraylogService _service;

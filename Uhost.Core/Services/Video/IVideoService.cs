@@ -19,5 +19,6 @@ namespace Uhost.Core.Services.Video
         VideoViewModel GetOne(int id);
         VideoViewModel GetOne(string token);
         void Update(string token, VideoUpdateModel model);
+        void OverrideByUserRestrictions(VideoQueryModel query);
     }
 }

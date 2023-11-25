@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Sentry;
 using System;
 using System.Collections.Generic;
@@ -22,13 +21,11 @@ namespace Uhost.Core.Services.File
     {
         private readonly FileRepository _repo;
         private readonly ILogService _log;
-        private readonly IHttpContextAccessor _contextAccessor;
 
-        public FileService(IServiceProvider provider, PostgreSqlDbContext dbContext, ILogService log) : base(dbContext)
+        public FileService(PostgreSqlDbContext dbContext, IServiceProvider provider, ILogService log) : base(dbContext, provider)
         {
             _repo = new FileRepository(_dbContext);
             _log = log;
-            _contextAccessor = provider.GetService<IHttpContextAccessor>();
         }
 
         /// <summary>
@@ -240,7 +237,7 @@ namespace Uhost.Core.Services.File
                 Mime = mime,
                 Size = (int)data.Length,
                 Type = type,
-                UserId = _contextAccessor?.HttpContext?.User != null && _contextAccessor.HttpContext.User.TryGetUserId(out var userId) ? userId : null,
+                UserId = TryGetUserId(out var userId) ? userId : null,
                 Digest = digest
             };
 

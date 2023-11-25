@@ -39,6 +39,22 @@ namespace Uhost.Core.Repositories
             {
                 q = q.Where(e => e.DeletedAt == null);
             }
+            if (query.AllowComments is bool allowComments)
+            {
+                q = q.Where(e => e.AllowComments == allowComments);
+            }
+            if (query.AllowReactions is bool allowReactions)
+            {
+                q = q.Where(e => e.AllowReactions == allowReactions);
+            }
+            if (!query.ShowHidden)
+            {
+                q = q.Where(e => !e.IsHidden);
+            }
+            if (!query.ShowPrivate)
+            {
+                q = q.Where(e => !e.IsPrivate);
+            }
 
             if (!string.IsNullOrEmpty(query.Name))
             {
@@ -75,6 +91,14 @@ namespace Uhost.Core.Repositories
             return DbSet
                 .Where(e => e.Id == id && e.DeletedAt == null)
                 .Select(e => e.Token)
+                .FirstOrDefault();
+        }
+
+        public int GetId(string token)
+        {
+            return DbSet
+                .Where(e => e.Token == token && e.DeletedAt == null)
+                .Select(e => e.Id)
                 .FirstOrDefault();
         }
 

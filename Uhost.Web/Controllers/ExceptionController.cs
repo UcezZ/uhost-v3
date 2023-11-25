@@ -41,7 +41,7 @@ namespace Uhost.Web.Controllers
         /// </summary>
         /// <param name="message">Текст</param>
         /// <returns></returns>
-        [HttpGet("api/v2/exception")]
+        [HttpGet("api/v2/exception"), Authorize]
         public IActionResult Exception(string message) =>
             throw new Exception(message);
     }

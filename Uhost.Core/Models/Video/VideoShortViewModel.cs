@@ -8,7 +8,7 @@ namespace Uhost.Core.Models.Video
 {
     public class VideoShortViewModel : BaseModel<Entity>
     {
-        internal int Id { get;set; }
+        internal int Id { get; set; }
 
         public string Name { get; set; }
 
@@ -22,7 +22,13 @@ namespace Uhost.Core.Models.Video
 
         public string ThumbnailUrl { get; set; }
 
+        public bool IsHidden { get; set; }
+
+        public bool IsPrivate { get; set; }
+
         public IEnumerable<string> Resolutions { get; set; }
+
+        public int UserId { get; set; }
 
         public UserShortViewModel User { get; set; }
 
@@ -34,6 +40,9 @@ namespace Uhost.Core.Models.Video
             Description = entity.Description.Length > 32 ? entity.Description[..32] : entity.Description;
             Duration = entity.Duration.ToHumanFmt();
             Token = entity.Token;
+            UserId = entity.UserId;
+            IsPrivate = entity.IsPrivate;
+            IsHidden = entity.IsHidden;
             User = entity.User?.ToModel<UserEntity, UserShortViewModel>();
         }
     }

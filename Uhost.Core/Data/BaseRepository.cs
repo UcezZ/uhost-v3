@@ -405,7 +405,7 @@ namespace Uhost.Core.Common
         {
             using (var trx = _dbContext.Database.BeginTransaction())
             {
-                _dbContext.Database.ExecuteSqlRaw($"TRUNCATE \"{Tools.GetEntityTableNameByEntityType(typeof(TEntity))}\"");
+                _dbContext.Database.ExecuteSqlRaw($"TRUNCATE \"{Tools.GetEntityTableName(typeof(TEntity))}\"");
                 DbSet.AddRange(models.Select(i => i.ToEntity()).ToList());
                 Save();
                 trx.Commit();
@@ -483,7 +483,7 @@ namespace Uhost.Core.Common
                     }
                 }
 
-                var sql = $@"UPDATE ""{Tools.GetEntityTableNameByEntityType(typeof(TEntity))}""
+                var sql = $@"UPDATE ""{Tools.GetEntityTableName(typeof(TEntity))}""
 SET {uniquePropNames.Select(e => $"\"{e}\" = gen_random_chars(GREATEST(5, LENGTH(\"{e}\")))").Join(", ")}
 WHERE ""Id"" <> {id} AND ({uniquePropNames.Select(e => $"\"{e}\" = @{e}").Join(" OR ")})";
 
@@ -526,6 +526,33 @@ WHERE ""Id"" <> {id} AND ({uniquePropNames.Select(e => $"\"{e}\" = @{e}").Join("
             return rowsAffected + Save();
         }
 
+        /// <summary>
+        /// Добавляет или обновлят сущность по условию
+        /// </summary>
+        /// <typeparam name="TModel">Тип модели сущности</typeparam>
+        /// <param name="model">Модель</param>
+        /// <param name="selector">Условие выборки</param>
+        /// <param name="save">Сохранить изменения (false в составе транзакции)</param>
+        /// <param name="updateTimeField">Обновить метку времени</param>
+        /// <returns></returns>
+        public TEntity AddOrUpdate<TModel>(TModel model, Func<TEntity, bool> selector, bool save = true, bool updateTimeField = true) where TModel : BaseModel<TEntity>, new()
+        {
+            var entity = DbSet.FirstOrDefault(selector) ?? new TEntity();
+            model.FillEntity(entity);
+
+            if (updateTimeField && entity.Id > 0 && entity is BaseDateTimedEntity dtEntity)
+            {
+                dtEntity.UpdatedAt = DateTime.Now;
+            }
+
+            if (save)
+            {
+                Save();
+            }
+
+            return entity;
+        }
+
         /// <inheritdoc cref="IDbConnection.CreateCommand()"/>
         public IDbCommand CreateCommand() =>
             _dbContext.Database.GetDbConnection().CreateCommand();
@@ -537,5 +564,17 @@ WHERE ""Id"" <> {id} AND ({uniquePropNames.Select(e => $"\"{e}\" = @{e}").Join("
         /// <inheritdoc cref="RelationalDatabaseFacadeExtensions.ExecuteSqlRaw(DatabaseFacade, string, object[])"/>
         public int ExecuteSqlRaw(string sql) =>
             _dbContext.Database.ExecuteSqlRaw(sql);
+
+        /// <inheritdoc cref="DatabaseExtensions.FromSqlRaw{T}(DatabaseFacade, string, NpgsqlParameter[])"/>
+        public IEnumerable<T> FromSqlRaw<T>(string sql, params NpgsqlParameter[] args) =>
+            _dbContext.Database.FromSqlRaw<T>(sql, args);
+
+        /// <inheritdoc cref="DatabaseExtensions.FromSqlRaw{T1, T2}(DatabaseFacade, string, NpgsqlParameter[])"/>
+        public IEnumerable<Tuple<T1, T2>> FromSqlRaw<T1, T2>(string sql, params NpgsqlParameter[] args) =>
+            _dbContext.Database.FromSqlRaw<T1, T2>(sql, args);
+
+        /// <inheritdoc cref="DatabaseExtensions.FromSqlRaw{T1, T2, T3}(DatabaseFacade, string, NpgsqlParameter[])"/>
+        public IEnumerable<Tuple<T1, T2, T3>> FromSqlRaw<T1, T2, T3>(string sql, params NpgsqlParameter[] args) =>
+            _dbContext.Database.FromSqlRaw<T1, T2, T3>(sql, args);
     }
 }

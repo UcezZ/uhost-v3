@@ -15,8 +15,8 @@ namespace Uhost.Core.Data.Entities
 
         public enum Reactions
         {
-            Like,
-            Dislike
+            Like = 0,
+            Dislike = 1
         }
 
         public int UserId { get; set; }

@@ -12,7 +12,7 @@ namespace Uhost.Core.Models.Comment
         /// <summary>
         /// Текст
         /// </summary>
-        [StringLengthValidation(minLength: 5, maxLength: 512, allowEmpty: false)]
+        [StringLengthValidation(minLength: 3, maxLength: 512, allowEmpty: false)]
         public string Text { get; set; }
 
         public override Entity FillEntity(Entity entity)

@@ -1,5 +1,4 @@
 ﻿using FFMpegCore;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Sentry;
 using Sentry.Protocol;
@@ -32,7 +31,6 @@ namespace Uhost.Core.Services.Video
         private readonly LogWriter _logger;
         private readonly ISchedulerService _scheduler;
         private readonly IFileService _fileService;
-        private readonly IHttpContextAccessor _contextAccessor;
         private readonly IRedisDatabase _redis;
         private readonly ICommentService _commentService;
         private const string _redisProgressKeyMask = "progress_{0}";
@@ -48,10 +46,9 @@ namespace Uhost.Core.Services.Video
             Types.Video1080p
         };
 
-        public VideoService(PostgreSqlDbContext context, IServiceProvider provider, ISchedulerService scheduler, IFileService fileService, ICommentService commentService, IRedisDatabase redis) : base(context)
+        public VideoService(PostgreSqlDbContext context, IServiceProvider provider, ISchedulerService scheduler, IFileService fileService, ICommentService commentService, IRedisDatabase redis) : base(context, provider)
         {
             _repo = new VideoRepository(_dbContext);
-            _contextAccessor = provider.GetService<IHttpContextAccessor>();
             _logger = provider.GetService<LogWriter>();
             _scheduler = scheduler;
             _fileService = fileService;
@@ -150,7 +147,7 @@ namespace Uhost.Core.Services.Video
         /// <returns></returns>
         public Entity Add(VideoUploadFileModel model)
         {
-            if (_contextAccessor?.HttpContext?.User != null && _contextAccessor.HttpContext.User.TryGetUserId(out var userId))
+            if (TryGetUserId(out var userId))
             {
                 model.UserId = userId;
             }
@@ -181,7 +178,7 @@ namespace Uhost.Core.Services.Video
         /// <param name="isInfinite"></param>
         public Entity Add(VideoUploadUrlModel model, out bool isInfinite)
         {
-            if (_contextAccessor?.HttpContext?.User != null && _contextAccessor.HttpContext.User.TryGetUserId(out var userId))
+            if (TryGetUserId(out var userId))
             {
                 model.UserId = userId;
             }
@@ -610,6 +607,11 @@ namespace Uhost.Core.Services.Video
             catch { }
         }
 
+        /// <summary>
+        /// Получает прогресс конвертации видео
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public async Task<VideoConversionProgressModel> GetConversionProgressAsync(string token)
         {
             var key = _redisProgressKeyMask.Format(token);
@@ -617,6 +619,14 @@ namespace Uhost.Core.Services.Video
             var model = !value.IsNullOrEmpty && value.TryCastTo<VideoConversionProgressModel>(out var casted) ? casted : null;
 
             return model;
+        }
+
+        public void OverrideByUserRestrictions(QueryModel query)
+        {
+            if (TryGetUserRights(out var rights))
+            {
+
+            }
         }
     }
 }
