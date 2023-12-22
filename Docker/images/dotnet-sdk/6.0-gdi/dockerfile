@@ -15,7 +15,12 @@ RUN dpkg -i /var/cache/apt/archives/ttf-mscorefonts-installer_3.8_all.deb
 RUN dotnet tool install --global dotnet-ef --version 6.0.22
 RUN dotnet dev-certs https
 
+# watch
+RUN dotnet tool install --global watch
+
 # clean
 RUN apt-get clean --dry-run
 
+ENV DOTNET_USE_POLLING_FILE_WATCHER=true
+ENV DOTNET_WATCH_SUPPRESS_MSBUILD_INCREMENTALISM=true
 ENV PATH="$PATH:/root/.dotnet/tools"
