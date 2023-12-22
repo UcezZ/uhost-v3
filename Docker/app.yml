@@ -56,6 +56,7 @@ services:
       - "${EXTERNAL_DIR}/deploy-win:/deploy/win"
       - deploy_volume:/deploy
       - build_volume:/build
+      - build_volume:/root/.nuget
     depends_on:
       pgsql:
         condition: service_healthy
