@@ -1,5 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using Uhost.Core.Extensions;
+using static System.Console;
 
 namespace Uhost.Console.Commands
 {
@@ -8,17 +12,11 @@ namespace Uhost.Console.Commands
     /// </summary>
     public abstract class BaseCommand
     {
+        private readonly ICollection<string> _validationErrors = new List<string>();
+
         private IServiceProvider _provider;
 
         protected IServiceProvider Provider => _provider.CreateScope().ServiceProvider;
-
-        protected TService GetService<TService>() => Provider.GetService<TService>();
-
-        protected TService GetRequiredService<TService>() => Provider.GetRequiredService<TService>();
-
-        protected object GetService(Type serviceType) => Provider.GetService(serviceType);
-
-        protected object GetRequiredService(Type serviceType) => Provider.GetRequiredService(serviceType);
 
         /// <summary>
         /// Добавляет провайдер сервисов DI
@@ -35,6 +33,43 @@ namespace Uhost.Console.Commands
         /// <summary>
         /// Запуск команды
         /// </summary>
-        public abstract void Run();
+        protected abstract void Run();
+
+        /// <summary>
+        /// Валидация полей команды
+        /// </summary>
+        protected virtual bool Validate() => !_validationErrors.Any();
+
+        /// <summary>
+        /// Валидация и запуск команды
+        /// </summary>
+        public void ValidateAndRun()
+        {
+            if (Validate())
+            {
+                Run();
+            }
+            else
+            {
+                PrintValidationErrors();
+            }
+        }
+
+        /// <summary>
+        /// Добавляет ошибку валидации в коллекцию
+        /// </summary>
+        /// <param name="message"></param>
+        protected void AddValidationError(string message)
+        {
+            _validationErrors.Add(message);
+        }
+
+        /// <summary>
+        /// Выводит ошибки валидации в STDERR
+        /// </summary>
+        public void PrintValidationErrors()
+        {
+            _validationErrors.ForEach(Error.WriteLine);
+        }
     }
 }

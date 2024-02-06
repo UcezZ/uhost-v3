@@ -1,4 +1,4 @@
-﻿using RabbitMQ.Client.Core.DependencyInjection.Services;
+﻿using Hangfire;
 using Uhost.Core.Common;
 using Uhost.Core.Extensions;
 using Uhost.Core.Services.Video;
@@ -8,22 +8,21 @@ namespace Uhost.Core.Services.Scheduler
 {
     public sealed class SchedulerService : ISchedulerService
     {
-        private readonly IQueueService _queue;
+        private readonly BackgroundJobClient _client;
 
-        public SchedulerService(IQueueService queue)
+        public SchedulerService(JobStorage jobStorage)
         {
-            _queue = queue;
-            _queue.RegisterQueue(TaskQueues.Conversion);
+            _client = new BackgroundJobClient(jobStorage);
         }
 
         public void ScheduleVideoConvert(int videoId, Types type)
         {
-            _queue.Enqueue<IVideoService>(e => e.Convert(videoId, type), TaskQueues.Conversion);
+            _client.Enqueue<IVideoService>(e => e.Convert(videoId, type), TaskQueues.Conversion);
         }
 
         public void ScheduleVideoStreamConvert(int videoId, string url)
         {
-            _queue.Enqueue<IVideoService>(e => e.FetchUrl(videoId, url), TaskQueues.Conversion);
+            _client.Enqueue<IVideoService>(e => e.FetchUrl(videoId, url), TaskQueues.Conversion);
         }
     }
 }

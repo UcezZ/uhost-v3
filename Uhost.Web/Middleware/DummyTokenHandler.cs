@@ -8,17 +8,22 @@ namespace Uhost.Web.Middleware
     public class DummyTokenHandler : ISecurityTokenValidator
     {
         private static readonly ClaimsPrincipal _emptyClaims = new ClaimsPrincipal();
+        private static readonly SecurityToken _emptyToken;
+        private static readonly JwtSecurityTokenHandler _tokenValidator;
 
-        private readonly JwtSecurityTokenHandler _tokenValidator;
-
-        public DummyTokenHandler()
+        static DummyTokenHandler()
         {
             _tokenValidator = new JwtSecurityTokenHandler();
+            _emptyToken = _tokenValidator.CreateToken(new SecurityTokenDescriptor());
         }
 
         public bool CanValidateToken => _tokenValidator.CanValidateToken;
 
-        public int MaximumTokenSizeInBytes { get => _tokenValidator.MaximumTokenSizeInBytes; set => _tokenValidator.MaximumTokenSizeInBytes = value; }
+        public int MaximumTokenSizeInBytes
+        {
+            get => _tokenValidator.MaximumTokenSizeInBytes;
+            set => _tokenValidator.MaximumTokenSizeInBytes = value;
+        }
 
         public bool CanReadToken(string securityToken) => _tokenValidator.CanReadToken(securityToken);
 
@@ -28,7 +33,7 @@ namespace Uhost.Web.Middleware
             {
                 var claim = _tokenValidator.ValidateToken(securityToken, validationParameters, out validatedToken);
 
-                if (claim == null || !claim.TryGetUserId(out var userId) || userId <= 0 || !claim.TryGetJti(out var jti))
+                if (claim == null || !claim.TryGetUserId(out var userId) || !claim.TryGetJti(out var jti))
                 {
                     return _emptyClaims;
                 }
@@ -38,8 +43,8 @@ namespace Uhost.Web.Middleware
             catch
             {
                 // оно всё ещё может свалиться, если вместо JWT в заголовке какая-нибудь гадость
-                validatedToken = _tokenValidator.CreateToken(new SecurityTokenDescriptor());
-                return new ClaimsPrincipal();
+                validatedToken = _emptyToken;
+                return _emptyClaims;
             }
         }
 

@@ -9,6 +9,8 @@
 
   <ItemGroup>
     <PackageReference Include="FFMpegCore" Version="4.7.0" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.6" />
+    <PackageReference Include="Hangfire.PostgreSql" Version="1.8.6" />
     <PackageReference Include="Hardware.Info" Version="10.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
@@ -22,9 +24,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Trigrams" Version="5.0.10" />
-    <PackageReference Include="RabbitMQ.Client" Version="6.0.0" />
-    <PackageReference Include="RabbitMQ.Client.Core.DependencyInjection" Version="4.3.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.10" />
     <PackageReference Include="RazorLight" Version="2.3.1" />
     <PackageReference Include="Sentry.AspNetCore" Version="2.1.8" />
     <PackageReference Include="StackExchange.Redis.Extensions.AspNetCore" Version="8.0.5" />

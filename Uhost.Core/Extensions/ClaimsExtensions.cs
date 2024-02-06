@@ -55,7 +55,7 @@ namespace Uhost.Core.Extensions
                 return false;
             }
 
-            return true;
+            return userId > 0;
         }
 
         /// <summary>

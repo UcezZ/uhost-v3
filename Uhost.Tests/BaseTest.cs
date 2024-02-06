@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
-using RabbitMQ.Client.Core.DependencyInjection;
 using System;
 using System.Text;
-using Uhost.Core;
 using Uhost.Core.Extensions;
 using Uhost.Web.Middleware;
 using Uhost.Web.Providers;
@@ -32,9 +30,6 @@ namespace Uhost.Tests
             services.AddScoped<IAuthorizationHandler, RightAuthHandler>();
             services.AddSingleton<IAuthorizationPolicyProvider, HasRightPolicyProvider>();
             services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizationResultTransformer>();
-
-            // RMQ
-            services.AddRabbitMqClient(CoreSettings.RabbitMqClientOptions);
 
             Provider = services.BuildServiceProvider();
         }

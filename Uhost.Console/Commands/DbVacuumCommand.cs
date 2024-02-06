@@ -12,7 +12,7 @@ namespace Uhost.Console.Commands
     [Verb("dbvacuum", HelpText = "Выполняет команду VACUUM во всех контекстах БД")]
     public sealed class DbVacuumCommand : BaseCommand
     {
-        public override void Run()
+        protected override void Run()
         {
             var ctxTypes = Assembly
                  .GetAssembly(typeof(CoreSettings))

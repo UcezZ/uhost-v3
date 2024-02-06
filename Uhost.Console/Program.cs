@@ -1,13 +1,17 @@
 ﻿using CommandLine;
+using Hangfire;
 using Microsoft.Extensions.DependencyInjection;
-using RabbitMQ.Client.Core.DependencyInjection;
+using Sentry;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Uhost.Console.Commands;
-using Uhost.Core;
+using Uhost.Console.Common;
 using Uhost.Core.Extensions;
+using Uhost.Core.Services.Log;
 using static System.Console;
+using static Uhost.Core.Data.Entities.Log;
 
 namespace Uhost.Console
 {
@@ -18,8 +22,10 @@ namespace Uhost.Console
             var services = new ServiceCollection();
             services.AddUhostCoreServices();
             services.AddLogWriter();
-            services.AddRabbitMqClient(CoreSettings.RabbitMqClientOptions);
+            services.AddSingleton<JobActivator, HangfireJobActivator>();
             var provider = services.BuildServiceProvider();
+
+            HangfireJobActivator.Init(services);
 
             WriteLine();
             CancelKeyPress += (s, e) => Process.GetCurrentProcess().Close();
@@ -31,9 +37,25 @@ namespace Uhost.Console
                 .Where(e => typeof(BaseCommand).IsAssignableFrom(e) && e.IsClass)
                 .ToArray();
 
-            Parser.Default
-                .ParseArguments(args, commands)
-                .WithParsed<BaseCommand>(c => c.UseServiceProvider(provider).Run());
+            try
+            {
+                Parser.Default
+                    .ParseArguments(args, commands)
+                    .WithParsed<BaseCommand>(c => c.UseServiceProvider(provider).ValidateAndRun());
+            }
+            catch (Exception e)
+            {
+                SentrySdk.CaptureException(e);
+
+                using (var svc = provider.GetRequiredService<ILogService>())
+                {
+                    svc.Add(Events.ConsoleCommandError, new
+                    {
+                        Args = args,
+                        Exception = e?.ToDetailedDataObject()
+                    });
+                }
+            }
         }
     }
 }

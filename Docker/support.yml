@@ -139,19 +139,6 @@ services:
     volumes:
       - "graylog_volume:/usr/share/graylog/data"
 
-  rabbitmq:
-    container_name: "${APP_NAME}-rabbitmq"
-    image: rabbitmq:3.12.7-management-alpine
-    restart: unless-stopped
-    environment:
-      - RABBITMQ_DEFAULT_USER=${RMQ_USER}
-      - RABBITMQ_DEFAULT_PASS=${RMQ_PASSWORD}
-    ports:
-      - "${FORWARD_HOST}:${FORWARD_RABBITMQ_PORT}:15672"
-      - "${FORWARD_HOST}:${FORWARD_RABBITMQ_AMQP_PORT}:5672"
-    volumes:
-      - rabbitmq_volume:/var/lib/rabbitmq
-
 volumes:
   postgres_volume:
   graylog_volume:
@@ -159,4 +146,3 @@ volumes:
   mongo_cfg_volume:
   redis_volume:
   elasticsearch_volume:
-  rabbitmq_volume:

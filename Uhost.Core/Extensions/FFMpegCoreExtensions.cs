@@ -110,14 +110,14 @@ namespace Uhost.Core.Extensions
         }
 
         /// <summary>
-        /// Задаёт параметр -r
+        /// Задаёт параметр -fpsmax
         /// </summary>
         /// <param name="options"></param>
         /// <param name="rate"></param>
         /// <returns></returns>
         public static FFMpegArgumentOptions WithMaxFramerate(this FFMpegArgumentOptions options, int rate)
         {
-            return options.WithCustomArgument($"-r {rate}");
+            return options.WithCustomArgument($"-fpsmax {rate}");
         }
 
         /// <summary>
@@ -170,6 +170,28 @@ namespace Uhost.Core.Extensions
         }
 
         /// <summary>
+        /// Задаёт параметр -qmin
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static FFMpegArgumentOptions WithQMin(this FFMpegArgumentOptions options, byte value)
+        {
+            return options.WithCustomArgument($"-qmin {value}");
+        }
+
+        /// <summary>
+        /// Задаёт параметр -qmax
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static FFMpegArgumentOptions WithQMax(this FFMpegArgumentOptions options, byte value)
+        {
+            return options.WithCustomArgument($"-qmin {value}");
+        }
+
+        /// <summary>
         /// Применяет заготовку кодирования видео
         /// </summary>
         /// <param name="options"></param>
@@ -185,6 +207,8 @@ namespace Uhost.Core.Extensions
                 .WithTune("hq")
                 .WithFpsMode(FpsMode.Vfr)
                 .WithPixelFormat(PixelFormat.Nv12)
+                .WithQMin(28)
+                .WithQMax(35)
                 .UsingMultithreading(true)
                 .WithoutMetadata();
 

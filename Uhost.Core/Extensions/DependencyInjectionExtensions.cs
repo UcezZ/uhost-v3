@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hangfire;
+using Hangfire.PostgreSql;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 using StackExchange.Redis.Extensions.Newtonsoft;
@@ -51,6 +53,9 @@ namespace Uhost.Core.Extensions
             ConnectionMultiplexer.SetFeatureFlag("preventthreadtheft", true);
             services.AddStackExchangeRedisExtensions<NewtonsoftSerializer>(CoreSettings.RedisConfig);
 
+            // Hangfire
+            services.AddSingleton<JobStorage>(new PostgreSqlStorage(CoreSettings.SqlConnectionString));
+
             return services;
         }
 
@@ -80,7 +85,7 @@ namespace Uhost.Core.Extensions
 
             if (constructor == null)
             {
-                throw new InvalidOperationException($"Class \"{type.FullName}\" doesn't contain parameterless constructor");
+                throw new InvalidOperationException($"Class \"{type.FullName}\" can not be instantiated using DI");
             }
 
             var argTypes = constructor.GetParameters();

@@ -11,8 +11,9 @@ namespace Uhost.Core.Data.Entities
         public enum Events : int
         {
             Undefined = 0x00,
-
+            
             ConsoleLoadDefaultData = 0x01,
+            ConsoleCommandError = 0x02,
 
             FileUploaded = 0x11,
             FileUploadFail = 0x12,

@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -30,7 +31,7 @@ namespace Uhost.Console.Commands
         [Option("file", Required = true, HelpText = "Файл JSON с параметрами по умолчанию")]
         public string FileName { get; set; }
 
-        public override void Run()
+        protected override void Run()
         {
             var fileInfo = new FileInfo(FileName);
 
@@ -46,7 +47,7 @@ namespace Uhost.Console.Commands
                 return;
             }
 
-            using (var dbContext = GetService<PostgreSqlDbContext>())
+            using (var dbContext = Provider.GetRequiredService<PostgreSqlDbContext>())
             {
                 var rightRepo = new RightRepository(dbContext);
                 var roleRepo = new RoleRepository(dbContext);

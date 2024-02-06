@@ -2,7 +2,7 @@
   "profiles": {
     "Uhost.Console": {
       "commandName": "Project",
-      "commandLineArgs": "taskexecutor --queue ffmpeg --threads 2"
+      "commandLineArgs": "hangfire --queue ffmpeg --threads 2"
     }
   }
 }

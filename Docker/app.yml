@@ -41,15 +41,10 @@ services:
       file: support.yml
       service: graylog
 
-  rabbitmq:
-    extends:
-      file: support.yml
-      service: rabbitmq
-
   # app builder
-  builder:
+  backend-deploy:
     image: ucezz/dotnet-sdk:5.0-gdi
-    container_name: "${APP_NAME}-builder"
+    container_name: "${APP_NAME}-backend-deploy"
     volumes:
       - ../:/src:ro
       - "${EXTERNAL_DIR}/storage:/storage"
@@ -72,6 +67,9 @@ services:
       cp -pf /src/Uhost.Core/appsettings.docker.json /build/back/Uhost.Core/appsettings.json || exit 1;
       cp -pf /src/Uhost.Console/default-data.json /build/back/Uhost.Console/default-data.json || exit 1;
       cd /build/back;
+
+      dotnet restore || exit 1;
+
       dotnet ef database update --project Uhost.Core --context PostgreSqlDbContext || exit 1;
       dotnet ef database update --project Uhost.Core --context PostgreSqlLogDbContext || exit 1;
 
@@ -92,9 +90,9 @@ services:
         tag: builder
 
   # app runner
-  app:
+  backend:
     image: ucezz/dotnet-aspnet:5.0-gdi-ffmpeg
-    container_name: "${APP_NAME}-app"
+    container_name: "${APP_NAME}-backend"
     environment:
       ASPNETCORE_ENVIRONMENT: "${ASPNETCORE_ENVIRONMENT}"
     ports:
@@ -109,11 +107,9 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      rabbitmq:
-        condition: service_started
       graylog:
         condition: service_started
-      builder:
+      backend-deploy:
         condition: service_completed_successfully
     entrypoint: ./Uhost.Web
     logging:
@@ -123,9 +119,9 @@ services:
         tag: api
 
   # frontend builder
-  node:
+  frontend-deploy:
     image: ucezz/node:16.17-rsync-alpine
-    container_name: "${APP_NAME}-node"
+    container_name: "${APP_NAME}-frontend-deploy"
     volumes:
       - ../Frontend:/src:ro
       - build_volume:/build
@@ -163,18 +159,18 @@ services:
         gelf-address: udp://${FORWARD_HOST}:12201
         tag: node
 
-  # full-stack app
-  nginx:
+  # frontend server
+  frontend:
     image: nginx:1.25.2-alpine-slim
-    container_name: "${APP_NAME}-nginx"
+    container_name: "${APP_NAME}-frontend"
     restart: unless-stopped
     volumes:
       - deploy_volume:/deploy
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
-      node:
+      backend-deploy:
         condition: service_completed_successfully
-      builder:
+      frontend-deploy:
         condition: service_completed_successfully
     ports:
       - "${FORWARD_HOST}:${FORWARD_NGINX_PORT}:80"
@@ -193,4 +189,3 @@ volumes:
   mongo_cfg_volume:
   redis_volume:
   elasticsearch_volume:
-  rabbitmq_volume:

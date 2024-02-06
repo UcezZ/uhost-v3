@@ -21,7 +21,7 @@ ORDER BY relname";
         private const string _sqlSeqUpdateFmt = @"ALTER SEQUENCE ""{0}"" RESTART WITH {1}";
         private const string _sqlSeqValFmt = @"SELECT last_value FROM ""{0}""";
 
-        public override void Run()
+        protected override void Run()
         {
             var ctxTypes = Assembly
                  .GetAssembly(typeof(CoreSettings))

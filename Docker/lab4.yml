@@ -31,10 +31,10 @@ services:
       file: app.yml
       service: builder
 
-  app:
+  backend:
     extends:
       file: app.yml
-      service: app
+      service: backend
 
   mongodb:
     extends:

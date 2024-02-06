@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Hangfire;
+using Hangfire.PostgreSql;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,7 +12,6 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using RabbitMQ.Client.Core.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -51,6 +52,8 @@ namespace Uhost.Web
 
             services.AddScoped<IAuthService, AuthService>();
 
+            services.AddHangfire(e => e.UsePostgreSqlStorage(CoreSettings.SqlConnectionString));
+
             services.AddHttpContextAccessor();
 
             // Кодировка
@@ -60,9 +63,6 @@ namespace Uhost.Web
             services.AddScoped<IAuthorizationHandler, RightAuthHandler>();
             services.AddSingleton<IAuthorizationPolicyProvider, HasRightPolicyProvider>();
             services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizationResultTransformer>();
-
-            // RMQ
-            services.AddRabbitMqClient(CoreSettings.RabbitMqClientOptions);
 
             if (LocalEnvironment.IsDev)
             {
@@ -76,7 +76,7 @@ namespace Uhost.Web
                         Title = "uHost v3 API",
                         Description = "uHost v3 API"
                     });
-                    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+                    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                     {
                         Name = "Authorization",
                         Type = SecuritySchemeType.ApiKey,
@@ -85,20 +85,20 @@ namespace Uhost.Web
                         In = ParameterLocation.Header,
                         Description = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                     });
+
+                    var scheme = new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    };
+
                     options.AddSecurityRequirement(
                         new OpenApiSecurityRequirement
                         {
-                            {
-                                new OpenApiSecurityScheme()
-                                {
-                                    Reference = new OpenApiReference()
-                                    {
-                                        Type = ReferenceType.SecurityScheme,
-                                        Id = "Bearer"
-                                    }
-                                },
-                                new List<string>()
-                            }
+                            [scheme] = new List<string>()
                         }
                     );
 
@@ -177,6 +177,8 @@ namespace Uhost.Web
                     options.InjectStylesheet("style.css");
                 });
             }
+
+            app.UseHangfireDashboard("/hangfire");
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
