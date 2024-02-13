@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Uhost.Web.Properties;
 
 namespace Uhost.Web.Controllers
 {
@@ -17,7 +16,7 @@ namespace Uhost.Web.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return Content(ApiStrings.Home_Index.Replace("%ORIGIN%", $"//{HttpContext.Request.Host.Host}"), "text/html");
+            return View("Index", WebSettings.HomePageConfig);
         }
     }
 }

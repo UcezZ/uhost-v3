@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using Uhost.Core.Common;
 using Uhost.Core.Data;
@@ -36,7 +37,7 @@ WHERE num < 11";
         private readonly UserRepository _userRepo;
         private readonly IFileService _fileService;
 
-        public VideoReactionService(PostgreSqlDbContext dbContext, IServiceProvider provider, IFileService fileService) : base(dbContext, provider)
+        public VideoReactionService(IDbContextFactory<PostgreSqlDbContext> factory, IServiceProvider provider, IFileService fileService) : base(factory, provider)
         {
             _repo = new VideoReactionRepository(_dbContext);
             _videoRepo = new VideoRepository(_dbContext);

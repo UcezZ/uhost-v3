@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Uhost.Core.Models.User;
@@ -16,7 +15,7 @@ namespace Uhost.Web.Controllers
     /// Регистрация
     /// </summary>
     [Route("api/v2/register"), AllowAnonymous]
-    public class RegisterController : Controller, IDisposable, IAsyncDisposable
+    public class RegisterController : Controller
     {
         private readonly IRegisterService _service;
 
@@ -73,18 +72,6 @@ namespace Uhost.Web.Controllers
             {
                 return ResponseHelper.Success(model);
             }
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            _service?.Dispose();
-
-            base.Dispose(disposing);
-        }
-
-        async ValueTask IAsyncDisposable.DisposeAsync()
-        {
-            await _service.DisposeAsync();
         }
     }
 }

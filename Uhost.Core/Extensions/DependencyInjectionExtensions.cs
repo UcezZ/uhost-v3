@@ -3,7 +3,6 @@ using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
-using StackExchange.Redis.Extensions.Newtonsoft;
 using System;
 using System.Linq;
 using Uhost.Core.Data;
@@ -14,6 +13,7 @@ using Uhost.Core.Services.File;
 using Uhost.Core.Services.Graylog;
 using Uhost.Core.Services.Log;
 using Uhost.Core.Services.Razor;
+using Uhost.Core.Services.RedisSwitcher;
 using Uhost.Core.Services.Register;
 using Uhost.Core.Services.RestClient;
 using Uhost.Core.Services.Role;
@@ -26,14 +26,27 @@ namespace Uhost.Core.Extensions
     public static class DependencyInjectionExtensions
     {
         /// <summary>
+        /// Создаёт экземпляр контекста БД <typeparamref name="TContext"/>
+        /// </summary>
+        /// <typeparam name="TContext">Тип контекста БД</typeparam>
+        /// <param name="provider">Провайдер сервисов</param>
+        /// <returns></returns>
+        public static TContext GetDbContextScope<TContext>(this IServiceProvider provider) where TContext : DbContext
+        {
+            var factory = provider.GetRequiredService<IDbContextFactory<TContext>>();
+
+            return factory.CreateDbContext();
+        }
+
+        /// <summary>
         /// Добавляет в DI основные сервисы ядра проекта
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
         public static IServiceCollection AddUhostCoreServices(this IServiceCollection services)
         {
-            services.AddDbContext<PostgreSqlDbContext>(e => e.UseNpgsql(CoreSettings.SqlConnectionString));
-            services.AddDbContext<PostgreSqlLogDbContext>(e => e.UseNpgsql(CoreSettings.SqlLogConnectionString));
+            services.AddDbContextFactory<PostgreSqlDbContext>(e => e.UseNpgsql(CoreSettings.SqlConnectionString));
+            services.AddDbContextFactory<PostgreSqlLogDbContext>(e => e.UseNpgsql(CoreSettings.SqlLogConnectionString));
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
@@ -48,10 +61,10 @@ namespace Uhost.Core.Extensions
 
             services.AddSingleton<ISchedulerService, SchedulerService>();
             services.AddSingleton<IRazorService, RazorService>();
+            services.AddSingleton<IRedisSwitcherService, RedisSwitcherService>();
 
             // Redis
             ConnectionMultiplexer.SetFeatureFlag("preventthreadtheft", true);
-            services.AddStackExchangeRedisExtensions<NewtonsoftSerializer>(CoreSettings.RedisConfig);
 
             // Hangfire
             services.AddSingleton<JobStorage>(new PostgreSqlStorage(CoreSettings.SqlConnectionString));

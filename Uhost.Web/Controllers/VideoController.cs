@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Threading.Tasks;
 using Uhost.Core.Attributes.Validation;
 using Uhost.Core.Extensions;
@@ -21,7 +20,7 @@ namespace Uhost.Web.Controllers
     /// Видео
     /// </summary>
     [Route("api/v2/videos")]
-    public class VideoController : Controller, IDisposable, IAsyncDisposable
+    public class VideoController : Controller
     {
         private readonly IVideoService _service;
 
@@ -162,18 +161,6 @@ namespace Uhost.Web.Controllers
             _service.Delete(token);
 
             return ResponseHelper.Success();
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            _service?.Dispose();
-
-            base.Dispose(disposing);
-        }
-
-        async ValueTask IAsyncDisposable.DisposeAsync()
-        {
-            await _service.DisposeAsync();
         }
     }
 }

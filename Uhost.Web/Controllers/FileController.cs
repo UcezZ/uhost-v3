@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 using Uhost.Core.Attributes.Validation;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.File;
@@ -21,7 +19,7 @@ namespace Uhost.Web.Controllers
     /// Файлы
     /// </summary>
     [Route("api/v2/files"), Authorize]
-    public class FileController : Controller, IDisposable, IAsyncDisposable
+    public class FileController : Controller
     {
         private readonly IFileService _service;
 
@@ -111,18 +109,6 @@ namespace Uhost.Web.Controllers
             _service.Delete(idParsed);
 
             return ResponseHelper.Success();
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            _service?.Dispose();
-
-            base.Dispose(disposing);
-        }
-
-        async ValueTask IAsyncDisposable.DisposeAsync()
-        {
-            await _service.DisposeAsync();
         }
     }
 }

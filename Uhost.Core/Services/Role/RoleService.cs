@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Uhost.Core.Data;
@@ -15,7 +16,7 @@ namespace Uhost.Core.Services.Role
         private readonly RoleRepository _repo;
         private readonly RightRepository _rightRepo;
 
-        public RoleService(PostgreSqlDbContext dbContext, IServiceProvider provider) : base(dbContext, provider)
+        public RoleService(IDbContextFactory<PostgreSqlDbContext> factory, IServiceProvider provider) : base(factory, provider)
         {
             _repo = new RoleRepository(_dbContext);
             _rightRepo = new RightRepository(_dbContext);

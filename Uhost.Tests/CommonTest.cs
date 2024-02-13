@@ -12,32 +12,43 @@ namespace Uhost.Tests
     public class CommonTest
     {
         private const string _sourceDir = @"X:\Common\Media";
-        private readonly Random _r = new Random();
 
-        [Fact]
-        public async Task FF()
+        private static FileInfo GetAnyMediaFile()
         {
             var dir = new DirectoryInfo(_sourceDir);
-
-            if (!dir.Exists)
-            {
-                return;
-            }
-
             var file = dir.GetFiles()
-                .Where(e => e.Extension.IsMatchesRegex(@"mp\S|mkv"))
-                .OrderBy(e => _r.NextDouble())
-                .FirstOrDefault();
+                .Where(e => e.Extension.IsMatchesRegex(@"mp(\S{1,2})|mkv"))
+                .RandomOrDefault();
 
-            if (file == null)
-            {
-                return;
-            }
+            return file;
+        }
+
+        [Fact]
+        public async Task ConversionTest()
+        {
+            var file = GetAnyMediaFile();
+
+            Assert.NotNull(file);
 
             var mediaInfo = await FFProbe.AnalyseAsync(file.FullName);
             var ffargs = FFMpegArguments
                 .FromFileInput(file.FullName)
-                .OutputToFile(Path.Combine(Path.GetTempPath(), "test480.mp4"), true, e => e.ApplyPreset(mediaInfo, Types.Video480p, TimeSpan.FromSeconds(10)));
+                .OutputToFile(Path.Combine(Path.GetTempPath(), "test480.mp4"), true, e => e.ApplyOptimalPreset(mediaInfo, Types.Video480p, TimeSpan.FromSeconds(10)));
+            await ffargs.ProcessAsynchronously(true);
+        }
+
+        [Fact]
+        public async Task HlsArguments()
+        {
+            var file = GetAnyMediaFile();
+
+            Assert.NotNull(file);
+
+            var mediaInfo = await FFProbe.AnalyseAsync(file.FullName);
+            var ffargs = FFMpegArguments
+                .FromFileInput(file.FullName)
+                .OutputToHls(Path.Combine(Path.GetTempPath(), "test.hls"), e => e.ApplyOptimalPreset(mediaInfo, Types.Video480p));
+
             await ffargs.ProcessAsynchronously(true);
         }
     }

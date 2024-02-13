@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Sentry;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace Uhost.Core.Services.File
         private readonly FileRepository _repo;
         private readonly ILogService _log;
 
-        public FileService(PostgreSqlDbContext dbContext, IServiceProvider provider, ILogService log) : base(dbContext, provider)
+        public FileService(IDbContextFactory<PostgreSqlDbContext> factory, IServiceProvider provider, ILogService log) : base(factory, provider)
         {
             _repo = new FileRepository(_dbContext);
             _log = log;

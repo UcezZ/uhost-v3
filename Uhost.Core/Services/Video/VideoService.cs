@@ -1,9 +1,9 @@
 ﻿using FFMpegCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Sentry;
 using Sentry.Protocol;
 using StackExchange.Redis;
-using StackExchange.Redis.Extensions.Core.Abstractions;
 using System;
 using System.Drawing;
 using System.IO;
@@ -17,6 +17,7 @@ using Uhost.Core.Models.Video;
 using Uhost.Core.Repositories;
 using Uhost.Core.Services.Comment;
 using Uhost.Core.Services.File;
+using Uhost.Core.Services.RedisSwitcher;
 using Uhost.Core.Services.Scheduler;
 using static Uhost.Core.Data.Entities.File;
 using Entity = Uhost.Core.Data.Entities.Video;
@@ -31,7 +32,7 @@ namespace Uhost.Core.Services.Video
         private readonly LogWriter _logger;
         private readonly ISchedulerService _scheduler;
         private readonly IFileService _fileService;
-        private readonly IRedisDatabase _redis;
+        private readonly IRedisSwitcherService _redis;
         private readonly ICommentService _commentService;
         private const string _redisProgressKeyMask = "progress_{0}";
         private static readonly TimeSpan _redisProgressKeyTtl = TimeSpan.FromMinutes(5);
@@ -46,7 +47,13 @@ namespace Uhost.Core.Services.Video
             Types.Video1080p
         };
 
-        public VideoService(PostgreSqlDbContext context, IServiceProvider provider, ISchedulerService scheduler, IFileService fileService, ICommentService commentService, IRedisDatabase redis) : base(context, provider)
+        public VideoService(
+            IDbContextFactory<PostgreSqlDbContext> factory,
+            IServiceProvider provider,
+            ISchedulerService scheduler,
+            IFileService fileService,
+            ICommentService commentService,
+            IRedisSwitcherService redis) : base(factory, provider)
         {
             _repo = new VideoRepository(_dbContext);
             _logger = provider.GetService<LogWriter>();
@@ -416,7 +423,7 @@ namespace Uhost.Core.Services.Video
             var mediaInfo = await FFProbe.AnalyseAsync(file.Path);
             var ffargs = FFMpegArguments
                 .FromFileInput(file.Path)
-                .OutputToFile(output.FullName, true, e => e.ApplyPreset(mediaInfo, type));
+                .OutputToFile(output.FullName, true, e => e.ApplyOptimalPreset(mediaInfo, type));
 
             await DoConversion(ffargs, output, id, type);
         }
@@ -579,10 +586,10 @@ namespace Uhost.Core.Services.Video
             try
             {
                 var key = _redisProgressKeyMask.Format(token);
-                var value = await _redis.Database.StringGetAsync(key);
+                var value = await _redis.ExecuteAsync(async e => await e.StringGetAsync(key));
                 var model = !value.IsNullOrEmpty && value.TryCastTo<VideoConversionProgressModel>(out var casted) ? casted : new VideoConversionProgressModel();
                 model.Fetch = progress;
-                await _redis.Database.StringSetAsync(key, model.ToJson(), expiry: _redisProgressKeyTtl, flags: CommandFlags.FireAndForget);
+                await _redis.ExecuteAsync(async e => await e.StringSetAsync(key, model.ToJson(), expiry: _redisProgressKeyTtl, flags: CommandFlags.FireAndForget));
             }
             catch { }
         }
@@ -599,10 +606,10 @@ namespace Uhost.Core.Services.Video
             try
             {
                 var key = _redisProgressKeyMask.Format(token);
-                var value = await _redis.Database.StringGetAsync(key);
+                var value = await _redis.ExecuteAsync(async e => await e.StringGetAsync(key));
                 var model = !value.IsNullOrEmpty && value.TryCastTo<VideoConversionProgressModel>(out var casted) ? casted : new VideoConversionProgressModel();
                 model.Resolutions[type] = progress;
-                await _redis.Database.StringSetAsync(key, model.ToJson(), expiry: _redisProgressKeyTtl, flags: CommandFlags.FireAndForget);
+                await _redis.ExecuteAsync(async e => await e.StringSetAsync(key, model.ToJson(), expiry: _redisProgressKeyTtl, flags: CommandFlags.FireAndForget));
             }
             catch { }
         }
@@ -615,7 +622,7 @@ namespace Uhost.Core.Services.Video
         public async Task<VideoConversionProgressModel> GetConversionProgressAsync(string token)
         {
             var key = _redisProgressKeyMask.Format(token);
-            var value = await _redis.Database.StringGetAsync(key);
+            var value = await _redis.ExecuteAsync(async e => await e.StringGetAsync(key));
             var model = !value.IsNullOrEmpty && value.TryCastTo<VideoConversionProgressModel>(out var casted) ? casted : null;
 
             return model;

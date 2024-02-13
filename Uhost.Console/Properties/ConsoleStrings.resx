@@ -124,7 +124,12 @@
     <value>Обработчик задач Hangfire остановлен</value>
   </data>
   <data name="Hangfire_Info_Start" xml:space="preserve">
-    <value>Запущен обработчик задач Hangfire. Исполняемые очереди: {0}</value>
+    <value>Запущен обработчик задач Hangfire
+    Исполняемые очереди: {0}
+    Количество потоков: {1}</value>
+  </data>
+  <data name="Hangfire_Warn_FfmpegThreads" xml:space="preserve">
+    <value>Использование большого количества потоков для очереди конвертации может нарушить конвертацию!</value>
   </data>
   <data name="LoadDefaultData_Error_FileNotFound" xml:space="preserve">
     <value>Файл "{0}" не найден</value>

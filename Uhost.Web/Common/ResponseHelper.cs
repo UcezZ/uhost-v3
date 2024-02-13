@@ -148,7 +148,7 @@ namespace Uhost.Web.Common
                     Success = false,
                     Errors = new[]
                     {
-                        string.Format(ApiStrings.Right_Error_ShouldHaveAny, string.Join(", ", missingRight.Select(e => e.TranslateEnumValue())))
+                        string.Format(ApiStrings.Right_Error_ShouldHaveAny, string.Join(", ", missingRight.Select(e => e.Translate())))
                     }
                 },
                 HttpStatusCode.Forbidden);

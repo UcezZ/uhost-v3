@@ -8,10 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Uhost.Core.Properties
-{
-
-
+namespace Uhost.Core.Properties {
+    using System;
+    
+    
     /// <summary>
     ///   Класс ресурса со строгой типизацией для поиска локализованных строк и т.д.
     /// </summary>
@@ -22,70 +22,58 @@ namespace Uhost.Core.Properties
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class EnumTranslations
-    {
-
+    internal class EnumTranslations {
+        
         private static global::System.Resources.ResourceManager resourceMan;
-
+        
         private static global::System.Globalization.CultureInfo resourceCulture;
-
+        
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal EnumTranslations()
-        {
+        internal EnumTranslations() {
         }
-
+        
         /// <summary>
         ///   Возвращает кэшированный экземпляр ResourceManager, использованный этим классом.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager
-        {
-            get
-            {
-                if (object.ReferenceEquals(resourceMan, null))
-                {
+        internal static global::System.Resources.ResourceManager ResourceManager {
+            get {
+                if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Uhost.Core.Properties.EnumTranslations", typeof(EnumTranslations).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
             }
         }
-
+        
         /// <summary>
         ///   Перезаписывает свойство CurrentUICulture текущего потока для всех
         ///   обращений к ресурсу с помощью этого класса ресурса со строгой типизацией.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture
-        {
-            get
-            {
+        internal static global::System.Globalization.CultureInfo Culture {
+            get {
                 return resourceCulture;
             }
-            set
-            {
+            set {
                 resourceCulture = value;
             }
         }
-
+        
         /// <summary>
         ///   Ищет локализованную строку, похожую на Значение не определено.
         /// </summary>
-        internal static string Undefined
-        {
-            get
-            {
+        internal static string Undefined {
+            get {
                 return ResourceManager.GetString("Undefined", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Значение .
+        ///   Ищет локализованную строку, похожую на Значение для элемента перечисления &quot;{0}&quot; не определено.
         /// </summary>
-        internal static string UndefinedFmt
-        {
-            get
-            {
+        internal static string UndefinedFmt {
+            get {
                 return ResourceManager.GetString("UndefinedFmt", resourceCulture);
             }
         }

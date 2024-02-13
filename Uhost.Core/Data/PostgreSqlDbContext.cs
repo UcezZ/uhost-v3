@@ -23,8 +23,6 @@ namespace Uhost.Core.Data
         public DbSet<Playlist> Playlists { get; private set; }
         public DbSet<PlaylistEntry> PlaylistEntries { get; private set; }
 
-        public PostgreSqlDbContext() : base() { }
-
         public PostgreSqlDbContext(DbContextOptions<PostgreSqlDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder builder)

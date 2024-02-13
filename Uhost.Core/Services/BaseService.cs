@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Reflection;
 using Uhost.Core.Common;
 using Uhost.Core.Data;
 using Uhost.Core.Extensions;
@@ -14,7 +15,7 @@ using UserRoleEntity = Uhost.Core.Data.Entities.UserRole;
 
 namespace Uhost.Core.Services
 {
-    public abstract class BaseService : IDisposable, IAsyncDisposable
+    public abstract class BaseService : IDisposable
     {
         private static readonly string _rightsSql = $@"SELECT DISTINCT
     rr.""{nameof(RoleRightEntity.RightId)}""
@@ -28,9 +29,9 @@ ORDER BY
         protected readonly PostgreSqlDbContext _dbContext;
         protected readonly IHttpContextAccessor _httpContextAccessor;
 
-        public BaseService(PostgreSqlDbContext dbContext, IServiceProvider provider)
+        public BaseService(IDbContextFactory<PostgreSqlDbContext> factory, IServiceProvider provider)
         {
-            _dbContext = dbContext;
+            _dbContext = factory.CreateDbContext();
             _httpContextAccessor = provider.GetService<IHttpContextAccessor>();
         }
 
@@ -57,14 +58,19 @@ ORDER BY
             return false;
         }
 
-        public virtual void Dispose()
+        public void Dispose()
         {
             _dbContext.Dispose();
-        }
 
-        public virtual async ValueTask DisposeAsync()
-        {
-            await _dbContext.DisposeAsync();
+            var childDisposables = GetType().GetTypeInfo()?.DeclaredFields
+                .Where(e => !e.IsStatic && e.FieldType.IsAssignableTo(typeof(IDisposable)) && e.DeclaringType != typeof(BaseService))
+                .Select(e => e.GetValue(this) as IDisposable)
+                .OfType<IDisposable>();
+
+            if (childDisposables != null && childDisposables.Any())
+            {
+                childDisposables.ForEach(e => e.Dispose());
+            }
         }
     }
 }

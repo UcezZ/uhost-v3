@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Sentry;
-using StackExchange.Redis.Extensions.Core.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +8,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Uhost.Core.Common;
 using Uhost.Core.Extensions;
+using Uhost.Core.Services.RedisSwitcher;
 using Uhost.Web.Common;
 using Uhost.Web.Properties;
 using static System.Console;
@@ -41,12 +41,12 @@ namespace Uhost.Web.Middleware
                 .ToList();
         }
 
-        private readonly IRedisDatabase _redis;
+        private readonly IRedisSwitcherService _redis;
         private readonly RequestDelegate _next;
 
-        public RedisTokenHandlerMiddleware(IRedisClientFactory redisFactory, RequestDelegate next)
+        public RedisTokenHandlerMiddleware(IRedisSwitcherService redis, RequestDelegate next)
         {
-            _redis = redisFactory.GetDefaultRedisDatabase();
+            _redis = redis;
             _next = next;
         }
 
@@ -80,7 +80,7 @@ namespace Uhost.Web.Middleware
                     }
 
                     var key = RedisKey(userId, jti);
-                    var exists = await _redis.ExistsAsync(key);
+                    var exists = await _redis.ExecuteAsync(async e => await e.KeyExistsAsync(key));
 
                     if (!exists)
                     {

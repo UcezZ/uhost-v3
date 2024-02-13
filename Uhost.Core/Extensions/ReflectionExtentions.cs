@@ -29,7 +29,7 @@ namespace Uhost.Core.Extensions
             var types = args
                 .Select(e => e.GetType())
                 .ToArray();
-            var constructor = type.GetConstructor(types);
+            var constructor = type.GetConstructor(types) ?? throw new InvalidOperationException($"The type '{type?.FullName}' has no constructor with args: [{args?.Select(e => $"{e?.GetType().Name}: {e}").Join(", ")}]");
 
             return constructor.Invoke(args);
         }
@@ -44,5 +44,11 @@ namespace Uhost.Core.Extensions
             return typeof(Task).IsAssignableFrom(methodInfo.ReturnType) ||
                   (methodInfo.ReturnType.IsGenericType && methodInfo.ReturnType.GetGenericTypeDefinition() == typeof(Task<>));
         }
+
+        ///<inheritdoc cref="Type.IsAssignableTo(Type?)"/>
+        public static bool IsAssignableTo<T>(this Type type) => type.IsAssignableTo(typeof(T));
+
+        ///<inheritdoc cref="Type.IsAssignableFrom(Type?)"/>
+        public static bool IsAssignableFrom<T>(this Type type) => type.IsAssignableFrom(typeof(T));
     }
 }

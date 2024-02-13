@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Net;
-using System.Threading.Tasks;
 using Uhost.Core.Attributes.Validation;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.User;
@@ -18,7 +16,7 @@ namespace Uhost.Web.Controllers
     /// Пользователи
     /// </summary>
     [Route("api/v2/users"), Authorize]
-    public class UserController : Controller, IDisposable, IAsyncDisposable
+    public class UserController : Controller
     {
         private readonly IUserService _service;
 
@@ -223,18 +221,6 @@ namespace Uhost.Web.Controllers
             _service.Update(userId, model);
 
             return ResponseHelper.Success(_service.GetOne(userId));
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            _service?.Dispose();
-
-            base.Dispose(disposing);
-        }
-
-        async ValueTask IAsyncDisposable.DisposeAsync()
-        {
-            await _service.DisposeAsync();
         }
     }
 }

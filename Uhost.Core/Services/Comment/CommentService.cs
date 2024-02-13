@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using Uhost.Core.Data;
 using Uhost.Core.Extensions;
@@ -21,7 +22,7 @@ namespace Uhost.Core.Services.Comment
         private readonly VideoRepository _videoRepo;
         private readonly IFileService _fileService;
 
-        public CommentService(PostgreSqlDbContext dbContext, IServiceProvider provider, IFileService fileService) : base(dbContext, provider)
+        public CommentService(IDbContextFactory<PostgreSqlDbContext> factory, IServiceProvider provider, IFileService fileService) : base(factory, provider)
         {
             _repo = new CommentRepository(_dbContext);
             _videoRepo = new VideoRepository(_dbContext);

@@ -11,7 +11,7 @@ using static System.Console;
 namespace Uhost.Console.Commands
 {
     [Verb("updateseq", HelpText = "Обновляет последовательности генерации ИД сущностей во всех контекстах БД")]
-    public sealed class UpdateEntitySeqCommand : BaseCommand
+    public sealed class UpdateSequencesCommand : BaseCommand
     {
         private const string _sqlGet = @"SELECT relname 
 FROM pg_class 
@@ -29,8 +29,11 @@ ORDER BY relname";
                  .Where(e => typeof(DbContext).IsAssignableFrom(e) && e.IsClass)
                  .ToList();
 
+            var methodInfo = typeof(DependencyInjectionExtensions).GetMethods()
+                .FirstOrDefault(e => e.Name == nameof(DependencyInjectionExtensions.GetDbContextScope) && e.IsGenericMethod);
+
             var ctxObjects = ctxTypes
-                .Select(e => e.Instantiate())
+                .Select(e => methodInfo.MakeGenericMethod(e).Invoke(null, Provider.AsSingleElementEnumerable().ToArray()))
                 .ToList();
 
             var ctxs = ctxObjects

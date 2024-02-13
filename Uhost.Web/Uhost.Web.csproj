@@ -31,6 +31,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="Views\Shared\Index.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Update="Properties\ApiStrings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ApiStrings.Designer.cs</LastGenOutput>

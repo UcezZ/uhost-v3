@@ -14,7 +14,7 @@ using Uhost.Core.Models;
 
 namespace Uhost.Core.Common
 {
-    public abstract class BaseRepository<TEntity> where TEntity : BaseEntity, new()
+    public abstract class BaseRepository<TEntity> : IDisposable, IAsyncDisposable where TEntity : BaseEntity, new()
     {
         private DbSet<TEntity> _objectSet;
         protected readonly DbContext _dbContext;
@@ -576,5 +576,15 @@ WHERE ""Id"" <> {id} AND ({uniquePropNames.Select(e => $"\"{e}\" = @{e}").Join("
         /// <inheritdoc cref="DatabaseExtensions.FromSqlRaw{T1, T2, T3}(DatabaseFacade, string, NpgsqlParameter[])"/>
         public IEnumerable<Tuple<T1, T2, T3>> FromSqlRaw<T1, T2, T3>(string sql, params NpgsqlParameter[] args) =>
             _dbContext.Database.FromSqlRaw<T1, T2, T3>(sql, args);
+
+        public async ValueTask DisposeAsync()
+        {
+            await _dbContext.DisposeAsync();
+        }
+
+        public void Dispose()
+        {
+            _dbContext.Dispose();
+        }
     }
 }

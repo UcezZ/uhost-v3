@@ -121,6 +121,6 @@
     <value>Значение не определено</value>
   </data>
   <data name="UndefinedFmt" xml:space="preserve">
-    <value>Значение </value>
+    <value>Значение для элемента перечисления "{0}" не определено</value>
   </data>
 </root>

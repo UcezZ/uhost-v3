@@ -79,11 +79,22 @@ namespace Uhost.Console.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Запущен обработчик задач Hangfire. Исполняемые очереди: {0}.
+        ///   Ищет локализованную строку, похожую на Запущен обработчик задач Hangfire
+        ///    Исполняемые очереди: {0}
+        ///    Количество потоков: {1}.
         /// </summary>
         internal static string Hangfire_Info_Start {
             get {
                 return ResourceManager.GetString("Hangfire_Info_Start", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Использование большого количества потоков для очереди конвертации может нарушить конвертацию!.
+        /// </summary>
+        internal static string Hangfire_Warn_FfmpegThreads {
+            get {
+                return ResourceManager.GetString("Hangfire_Warn_FfmpegThreads", resourceCulture);
             }
         }
         

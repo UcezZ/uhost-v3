@@ -10,7 +10,7 @@ using QueryModel = Uhost.Core.Models.File.FileQueryModel;
 
 namespace Uhost.Core.Services.File
 {
-    public interface IFileService : IDisposable, IAsyncDisposable
+    public interface IFileService : IDisposable
     {
         Entity Add(FileUploadModel model);
         Entity Add(IFormFile file, Entity.Types type = Entity.Types.Other, string dynName = null, int? dynId = null);

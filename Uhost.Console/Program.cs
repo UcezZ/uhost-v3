@@ -25,8 +25,6 @@ namespace Uhost.Console
             services.AddSingleton<JobActivator, HangfireJobActivator>();
             var provider = services.BuildServiceProvider();
 
-            HangfireJobActivator.Init(services);
-
             WriteLine();
             CancelKeyPress += (s, e) => Process.GetCurrentProcess().Close();
 
@@ -49,11 +47,7 @@ namespace Uhost.Console
 
                 using (var svc = provider.GetRequiredService<ILogService>())
                 {
-                    svc.Add(Events.ConsoleCommandError, new
-                    {
-                        Args = args,
-                        Exception = e?.ToDetailedDataObject()
-                    });
+                    svc.Add(Events.ConsoleCommandError, new { Args = args, Exception = e?.ToDetailedDataObject() }, true);
                 }
             }
         }

@@ -5,7 +5,7 @@ using Entity = Uhost.Core.Data.Entities.Role;
 
 namespace Uhost.Core.Services.Role
 {
-    public interface IRoleService : IDisposable, IAsyncDisposable
+    public interface IRoleService : IDisposable
     {
         Entity Add(RoleCreateModel model);
         bool CheckRightIds(IEnumerable<int> ids, out int invalid);

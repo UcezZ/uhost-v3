@@ -4,7 +4,9 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Uhost.Core.Attributes;
 using Uhost.Core.Config;
+using Uhost.Core.Extensions;
 using static System.Console;
 
 namespace Uhost.Core
@@ -56,6 +58,10 @@ namespace Uhost.Core
             Load(typeof(CoreSettings));
         }
 
+        /// <summary>
+        /// Заполнение класса конфигурации из конфигурационного файла
+        /// </summary>
+        /// <param name="type">typeof целевого статического класса</param>
         public static void Load(Type type)
         {
             var simpleProps = type
@@ -71,11 +77,25 @@ namespace Uhost.Core
 
                 if (value == null)
                 {
-                    throw new Exception($"NULL value got from key '{prop.Name}'");
+                    if (prop.CustomAttributes.Any(e => e.AttributeType == typeof(UnnecessaryAttribute)))
+                    {
+                        try
+                        {
+                            prop.SetValue(null, prop.PropertyType.Instantiate());
+                        }
+                        catch (Exception e)
+                        {
+                            Error.WriteLine($"[WARN] Failed to instantiate unnecessary field of type '{prop.PropertyType.FullName}': {e.Message}");
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception($"NULL value got from key '{prop.Name}'");
+                    }
                 }
                 if (prop.PropertyType == typeof(string))
                 {
-                    prop.SetValue(null, value);
+                    prop.SetValue(null, value?.ToString());
                 }
                 else
                 {
@@ -92,11 +112,29 @@ namespace Uhost.Core
 
             foreach (var prop in complexProps)
             {
-                prop.SetValue(null, Configuration.GetSection(prop.Name).Get(prop.PropertyType));
+                var value = Configuration.GetSection(prop.Name).Get(prop.PropertyType);
 
-                if (prop.GetValue(null) == null)
+                if (value == null)
                 {
-                    throw new Exception($"NULL section got from key '{prop.Name}'");
+                    if (prop.CustomAttributes.Any(e => e.AttributeType == typeof(UnnecessaryAttribute)))
+                    {
+                        try
+                        {
+                            prop.SetValue(null, prop.PropertyType.Instantiate());
+                        }
+                        catch (Exception e)
+                        {
+                            Error.WriteLine($"[WARN] Failed to instantiate unnecessary field of type '{prop.PropertyType.FullName}': {e.Message}");
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception($"NULL section got from key '{prop.Name}'");
+                    }
+                }
+                else
+                {
+                    prop.SetValue(null, value);
                 }
             }
         }

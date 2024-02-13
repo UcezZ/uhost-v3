@@ -337,9 +337,9 @@ namespace Uhost.Core.Extensions
         public static bool TryCastTo(this object input, Type type, out object value) =>
             input.TryCastTo(type, out value, out _);
 
-        /// <inheritdoc cref="TranslateEnumValue{T}(T?)"/>
-        public static string TranslateEnumValue<T>(this T value) where T : struct, Enum =>
-            ((T?)value).TranslateEnumValue();
+        /// <inheritdoc cref="Translate{T}(T?)"/>
+        public static string Translate<T>(this T value) where T : struct, Enum =>
+            ((T?)value).Translate();
 
         /// <summary>
         /// Преобразует значение перечисления в человекопонятный текст
@@ -347,7 +347,7 @@ namespace Uhost.Core.Extensions
         /// <typeparam name="T">Перечисление</typeparam>
         /// <param name="value">Значение</param>
         /// <returns></returns>
-        public static string TranslateEnumValue<T>(this T? value) where T : struct, Enum
+        public static string Translate<T>(this T? value) where T : struct, Enum
         {
             if (!typeof(T).IsEnum)
             {

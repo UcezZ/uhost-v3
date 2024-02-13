@@ -9,15 +9,15 @@ namespace Uhost.Core.Services
     /// Класс для обработки ответа разделенного на странички
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class Pager<T> : List<T>
+    public sealed class Pager<T> : List<T>, IDisposable
     {
         public const int DefCurrentPage = 1;
         public const int DefPerPage = 15;
 
-        public int CurrentPage { get; set; }
-        public int PerPage { get; set; }
+        public int CurrentPage { get; }
+        public int PerPage { get; }
         public int TotalPages => (int)Math.Ceiling((double)Total / PerPage);
-        public int Total { get; set; }
+        public int Total { get; }
         public bool HasPreviousPage => CurrentPage > 1;
         public bool HasNextPage => CurrentPage < TotalPages;
 
@@ -30,11 +30,12 @@ namespace Uhost.Core.Services
         public Pager(IEnumerable<T> data, PagedQueryModel query, int exclude = 0)
         {
             CurrentPage = query.Page;
+            PerPage = query.PerPage;
+
             if (CurrentPage < 1)
             {
                 CurrentPage = 1;
             }
-            PerPage = query.PerPage;
             if (PerPage < 1)
             {
                 PerPage = 1;
@@ -59,19 +60,8 @@ namespace Uhost.Core.Services
         /// Возвращаем объект пагинации
         /// </summary>
         /// <returns></returns>
-        public object Paginate()
-        {
-            return new
-            {
-                Pager = new
-                {
-                    PerPage,
-                    CurrentPage,
-                    TotalPages,
-                    Total
-                },
-                Items = this
-            };
-        }
+        public PagerResultModel<T> Paginate() => this;
+
+        public void Dispose() => Clear();
     }
 }

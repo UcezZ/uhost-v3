@@ -1,9 +1,12 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Uhost.Core.Data;
 using Uhost.Core.Extensions;
 using Uhost.Core.Repositories;
+using static System.Console;
 using static Uhost.Core.Data.Entities.Log;
 using Entity = Uhost.Core.Data.Entities.Log;
 
@@ -12,22 +15,26 @@ namespace Uhost.Core.Services.Log
     public sealed class LogService : BaseService, ILogService
     {
         private readonly LogRepository _repo;
+        private readonly static IDictionary<Events, string> _allEvents;
 
-        public static IEnumerable<object> AllEvents { get; }
+        public IDictionary<Events, string> AllEvents => _allEvents;
 
         static LogService()
         {
-            AllEvents = Enum
+            _allEvents = Enum
                 .GetValues<Events>()
-                .Select(e => new { Id = (int)e, Name = e.ToString() });
+                .ToDictionary(e => e, e => e.Translate());
         }
 
-        public LogService(PostgreSqlDbContext dbContext, PostgreSqlLogDbContext logContext, IServiceProvider provider) : base(dbContext, provider)
+        public LogService(
+            IDbContextFactory<PostgreSqlDbContext> factory,
+            IDbContextFactory<PostgreSqlLogDbContext> logFactory,
+            IServiceProvider provider) : base(factory, provider)
         {
-            _repo = new LogRepository(logContext);
+            _repo = new LogRepository(logFactory.CreateDbContext());
         }
 
-        public void Add(Events ev, object data = null)
+        public void Add(Events ev, object data = null, bool writeToStdOut = false)
         {
             var entity = new Entity
             {
@@ -38,6 +45,11 @@ namespace Uhost.Core.Services.Log
             };
 
             _repo.Add(entity);
+
+            if (writeToStdOut)
+            {
+                WriteLine($"{ev.Translate()}\r\n{data?.ToJson(Formatting.Indented)}");
+            }
         }
     }
 }

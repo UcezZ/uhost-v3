@@ -13,8 +13,6 @@ namespace Uhost.Core.Data
 
         public DbSet<Log> Logs { get; private set; }
 
-        public PostgreSqlLogDbContext() : base() { }
-
         public PostgreSqlLogDbContext(DbContextOptions<PostgreSqlLogDbContext> options) : base(options) { }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

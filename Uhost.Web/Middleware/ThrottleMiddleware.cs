@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using StackExchange.Redis;
-using StackExchange.Redis.Extensions.Core.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Uhost.Core.Common;
 using Uhost.Core.Extensions;
+using Uhost.Core.Services.RedisSwitcher;
 using Uhost.Web.Attributes;
 using Uhost.Web.Common;
 using Uhost.Web.Properties;
@@ -46,9 +46,9 @@ end";
         }
 
         private readonly RequestDelegate _next;
-        private readonly IRedisDatabase _redis;
+        private readonly IRedisSwitcherService _redis;
 
-        public ThrottleMiddleware(RequestDelegate next, IRedisDatabase redis)
+        public ThrottleMiddleware(RequestDelegate next, IRedisSwitcherService redis)
         {
             _next = next;
             _redis = redis;
@@ -100,12 +100,12 @@ end";
             var redisKey = $"{_redisKeyPrefix}_{context.ResolveClientIp()}";
             var prepared = LuaScript.Prepare(_lua);
 
-            var result = await prepared.EvaluateAsync(_redis.Database, new
+            var result = await _redis.ExecuteAsync(async e => await prepared.EvaluateAsync(e, new
             {
                 Key = redisKey,
                 attribute.Count,
                 attribute.SpanSeconds
-            });
+            }));
 
             return (int)result == 1;
         }

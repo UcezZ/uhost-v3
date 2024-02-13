@@ -5,7 +5,7 @@ using Entity = Uhost.Core.Data.Entities.VideoReaction;
 
 namespace Uhost.Core.Services.VideoReaction
 {
-    public interface IVideoReactionService : IDisposable, IAsyncDisposable
+    public interface IVideoReactionService : IDisposable
     {
         bool AreReactionsAllowed(string videoToken);
         bool CheckUserRestrictions(string videoToken, out Rights missing);

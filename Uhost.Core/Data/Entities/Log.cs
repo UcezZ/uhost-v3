@@ -10,8 +10,11 @@ namespace Uhost.Core.Data.Entities
     {
         public enum Events : int
         {
+            /// <summary>
+            /// Неизвестный тип события
+            /// </summary>
             Undefined = 0x00,
-            
+
             ConsoleLoadDefaultData = 0x01,
             ConsoleCommandError = 0x02,
 

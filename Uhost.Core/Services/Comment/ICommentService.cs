@@ -5,7 +5,7 @@ using QueryModel = Uhost.Core.Models.Comment.CommentQueryModel;
 
 namespace Uhost.Core.Services.Comment
 {
-    public interface ICommentService : IDisposable, IAsyncDisposable
+    public interface ICommentService : IDisposable
     {
         Entity Add(string videoToken, string text);
         bool AreCommentsAllowed(string videoToken);

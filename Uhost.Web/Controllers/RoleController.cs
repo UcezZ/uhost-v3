@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 using Uhost.Core.Attributes.Validation;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.Role;
@@ -17,7 +15,7 @@ namespace Uhost.Web.Controllers
     /// Роли пользователей
     /// </summary>
     [Route("api/v2/roles"), Authorize]
-    public class RoleController : Controller, IDisposable, IAsyncDisposable
+    public class RoleController : Controller
     {
         private readonly IRoleService _service;
 
@@ -144,18 +142,6 @@ namespace Uhost.Web.Controllers
             _service.Delete(idParsed);
 
             return ResponseHelper.Success();
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            _service?.Dispose();
-
-            base.Dispose(disposing);
-        }
-
-        async ValueTask IAsyncDisposable.DisposeAsync()
-        {
-            await _service.DisposeAsync();
         }
     }
 }

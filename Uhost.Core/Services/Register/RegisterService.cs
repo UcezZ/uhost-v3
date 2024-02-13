@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Sentry;
-using StackExchange.Redis.Extensions.Core.Abstractions;
 using System;
 using System.Net;
 using System.Threading.Tasks;
@@ -11,6 +10,7 @@ using Uhost.Core.Models.User;
 using Uhost.Core.Properties;
 using Uhost.Core.Services.Email;
 using Uhost.Core.Services.Razor;
+using Uhost.Core.Services.RedisSwitcher;
 using Uhost.Core.Services.User;
 
 namespace Uhost.Core.Services.Register
@@ -20,14 +20,14 @@ namespace Uhost.Core.Services.Register
     /// </summary>
     public sealed class RegisterService : IRegisterService
     {
-        private readonly IRedisDatabase _redis;
+        private readonly IRedisSwitcherService _redis;
         private readonly IUserService _users;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IEmailService _email;
         private readonly IRazorService _razor;
         private static readonly TimeSpan _redisKeyTtl = TimeSpan.FromMinutes(30);
 
-        public RegisterService(IServiceProvider provider, IRedisDatabase redis, IEmailService email, IUserService users, IRazorService razor)
+        public RegisterService(IServiceProvider provider, IRedisSwitcherService redis, IEmailService email, IUserService users, IRazorService razor)
         {
             _contextAccessor = provider.GetService<IHttpContextAccessor>();
             _redis = redis;
@@ -70,7 +70,7 @@ namespace Uhost.Core.Services.Register
             {
                 var html = await _razor.RenderToStringAsync(RazorService.Templates.Registration, dataModel);
                 _email.Send(CoreSettings.SmtpConfig.Sender, model.Email, dataModel.Title, html, true);
-                await _redis.Database.StringSetAsync(key, model.ToJson(), _redisKeyTtl);
+                await _redis.ExecuteAsync(async e => await e.StringSetAsync(key, model.ToJson(), _redisKeyTtl));
 
                 return true;
             }
@@ -91,7 +91,7 @@ namespace Uhost.Core.Services.Register
         public async Task<UserViewModel> ConfirmRegistration(string code)
         {
             var key = GetRedisKey(code, _contextAccessor?.HttpContext?.ResolveClientIp());
-            var value = await _redis.Database.StringGetAsync(key);
+            var value = await _redis.ExecuteAsync(async e => await e.StringGetAsync(key));
 
             if (value.IsNull || !value.HasValue || !value.TryCastTo<UserRegisterModel>(out var model))
             {
@@ -102,7 +102,7 @@ namespace Uhost.Core.Services.Register
 
             if (entity != null)
             {
-                await _redis.Database.KeyDeleteAsync(key);
+                await _redis.ExecuteAsync(async e => await e.KeyDeleteAsync(key));
 
                 return _users.GetOne(entity.Id);
             }
@@ -114,11 +114,6 @@ namespace Uhost.Core.Services.Register
         {
             _users.Dispose();
             _email.Dispose();
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            await _users.DisposeAsync();
         }
     }
 }

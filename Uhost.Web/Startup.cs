@@ -47,14 +47,11 @@ namespace Uhost.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-
             services.AddUhostCoreServices();
-
             services.AddScoped<IAuthService, AuthService>();
-
             services.AddHangfire(e => e.UsePostgreSqlStorage(CoreSettings.SqlConnectionString));
-
             services.AddHttpContextAccessor();
+            services.AddRazorPages();
 
             // Кодировка
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);

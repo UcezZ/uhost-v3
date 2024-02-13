@@ -188,7 +188,7 @@ namespace Uhost.Core.Extensions
         /// <returns></returns>
         public static FFMpegArgumentOptions WithQMax(this FFMpegArgumentOptions options, byte value)
         {
-            return options.WithCustomArgument($"-qmin {value}");
+            return options.WithCustomArgument($"-qmax {value}");
         }
 
         /// <summary>
@@ -199,7 +199,7 @@ namespace Uhost.Core.Extensions
         /// <param name="type"></param>
         /// <param name="maxDuration"></param>
         /// <returns></returns>
-        public static FFMpegArgumentOptions ApplyPreset(this FFMpegArgumentOptions options, IMediaAnalysis mediaInfo, Types type, TimeSpan? maxDuration = null)
+        public static FFMpegArgumentOptions ApplyOptimalPreset(this FFMpegArgumentOptions options, IMediaAnalysis mediaInfo, Types type, TimeSpan? maxDuration = null)
         {
             options = options
                 .WithVideoCodec(FFConfig.VideoCodec)
@@ -267,6 +267,26 @@ namespace Uhost.Core.Extensions
             }
 
             return options;
+        }
+
+        /// <summary>
+        /// Преобразует видео в HLS файлы
+        /// </summary>
+        /// <param name="arguments"></param>
+        /// <param name="hlsPath"></param>
+        /// <param name="addArguments"></param>
+        /// <returns></returns>
+        public static FFMpegArgumentProcessor OutputToHls(this FFMpegArguments arguments, string hlsPath, Action<FFMpegArgumentOptions> addArguments = null)
+        {
+            void args(FFMpegArgumentOptions e)
+            {
+                addArguments?.Invoke(e);
+                e.WithCustomArgument("-hls_time 10")
+                    .WithCustomArgument("-hls_list_size 0")
+                    .WithCustomArgument("-f hls");
+            }
+
+            return arguments.OutputToFile(hlsPath, true, args);
         }
     }
 }

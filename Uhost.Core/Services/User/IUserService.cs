@@ -5,7 +5,7 @@ using Entity = Uhost.Core.Data.Entities.User;
 
 namespace Uhost.Core.Services.User
 {
-    public interface IUserService : IDisposable, IAsyncDisposable
+    public interface IUserService : IDisposable
     {
         Entity Add(UserCreateModel model);
         Entity Add(UserRegisterModel model);

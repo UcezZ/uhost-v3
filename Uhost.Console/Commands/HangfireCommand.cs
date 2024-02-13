@@ -9,7 +9,9 @@ using System.Threading;
 using Uhost.Console.Properties;
 using Uhost.Core.Common;
 using Uhost.Core.Extensions;
+using Uhost.Core.Services;
 using static System.Console;
+using static Uhost.Core.Services.LogWriter;
 
 namespace Uhost.Console.Commands
 {
@@ -56,6 +58,7 @@ namespace Uhost.Console.Commands
 
             var jobActivator = Provider.GetRequiredService<JobActivator>();
             var jobStorage = Provider.GetRequiredService<JobStorage>();
+            var logger = Provider.GetRequiredService<LogWriter>();
 
             // не выполняем провалившиеся задания
             GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 0 });
@@ -67,12 +70,21 @@ namespace Uhost.Console.Commands
                 Activator = jobActivator
             };
 
+            if (Threads > 3 && Queues.Contains(TaskQueues.Conversion))
+            {
+                logger.WriteLine(ConsoleStrings.Hangfire_Warn_FfmpegThreads, Severity.Warn);
+            }
+
             using (var hangfireServer = new BackgroundJobServer(options, jobStorage))
             {
+                logger.WriteLine(ConsoleStrings.Hangfire_Info_Start, Severity.Info, Queues.Join(", "), Threads);
+
                 while (!_break)
                 {
                     Thread.Sleep(1000);
                 }
+
+                logger.WriteLine(ConsoleStrings.Hangfire_Info_End, Severity.Info);
             }
         }
 

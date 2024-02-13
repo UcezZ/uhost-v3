@@ -38,11 +38,8 @@ namespace Uhost.Core.Common
 
         static Tools()
         {
-            using (var ctx = new PostgreSqlDbContext())
-            {
-                //RightNames = ctx.Rights.ToDictionary(e => (Rights)e.Id, e => e.Name);
-                RightNames = Enum.GetValues<Rights>().ToDictionary(e => e, e => e.ToString());
-            }
+            //RightNames = ctx.Rights.ToDictionary(e => (Rights)e.Id, e => e.Name);
+            RightNames = Enum.GetValues<Rights>().ToDictionary(e => e, e => e.ToString());
         }
 
         /// <summary>
@@ -52,7 +49,7 @@ namespace Uhost.Core.Common
         /// <param name="data">объект</param>
         /// <param name="gzip">сжать дамп в gzip</param>
         /// <returns></returns>
-        public static async Task<string> WriteDumpAsync(string filename, object data, bool gzip)
+        public static async Task<string> WriteDumpAsync(string filename, object data, bool gzip = false)
         {
             if (gzip)
             {
@@ -79,7 +76,7 @@ namespace Uhost.Core.Common
         /// <param name="data">объект</param>
         /// <param name="gzip">сжать дамп в gzip</param>
         /// <returns></returns>
-        public static string WriteDump(string filename, object data, bool gzip)
+        public static string WriteDump(string filename, object data, bool gzip = true)
         {
             if (gzip)
             {

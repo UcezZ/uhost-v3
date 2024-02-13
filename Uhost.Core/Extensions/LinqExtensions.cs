@@ -6,6 +6,8 @@ namespace Uhost.Core.Extensions
 {
     public static class LinqExtensions
     {
+        private static readonly Random _random = new Random();
+
         /// <summary>
         /// Implementation of LinQ Sum for enumeration of <see cref="TimeSpan"/>
         /// </summary>
@@ -158,6 +160,110 @@ namespace Uhost.Core.Extensions
             var toAdd = values.Where(e => !collection.Any(i => distinstSelector.Invoke(i).Equals(distinstSelector.Invoke(e))));
 
             collection.AddRange(toAdd);
+        }
+
+        /// <summary>
+        /// Добавляет индекс к элементам перечисления
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="enumerable"></param>
+        /// <returns></returns>
+        public static IEnumerable<(int Index, T Value)> AsIndexValueEnumerable<T>(this IEnumerable<T> enumerable)
+        {
+            var index = 0;
+
+            return enumerable.Select(e => (index++, e));
+        }
+
+        /// <summary>
+        /// Параллельная выборка по двум перечислениям. Выборка заканчивается с концом меньшего из двух перечислений, если они разной длины
+        /// </summary>
+        /// <typeparam name="T1"></typeparam>
+        /// <typeparam name="T2"></typeparam>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public static IEnumerable<(T1 Left, T2 Right)> ParallelSelect<T1, T2>(this IEnumerable<T1> left, IEnumerable<T2> right)
+        {
+            var leftEnum = left.GetEnumerator();
+            var rightEnum = right.GetEnumerator();
+
+            try
+            {
+                while (leftEnum.MoveNext() && rightEnum.MoveNext())
+                {
+                    yield return (leftEnum.Current, rightEnum.Current);
+                }
+            }
+            finally
+            {
+                leftEnum.Dispose();
+                rightEnum.Dispose();
+            }
+        }
+
+        public static IEnumerable<T> AsSingleElementEnumerable<T>(this T element)
+        {
+            yield return element;
+        }
+
+        public static void AddRange<T>(this ICollection<T> collection, params T[] items)
+        {
+            collection.AddRange(items.AsEnumerable());
+        }
+
+        public static IEnumerable<IEnumerable<T>> Transpose<T>(this IEnumerable<IEnumerable<T>> source)
+        {
+            var enumerators = source.Select(i => i.GetEnumerator()).ToList();
+
+            try
+            {
+                while (enumerators.All(e => e.MoveNext()))
+                {
+                    yield return enumerators.Select(e => e.Current).ToList();
+                }
+            }
+            finally
+            {
+                foreach (var enumerator in enumerators)
+                {
+                    enumerator.Dispose();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Возвращает первый случайный элемент перечисления или значение по умолчанию, если перечисление пустое
+        /// </summary>
+        /// <typeparam name="T">Тип элемента</typeparam>
+        /// <param name="enumerable">Перечисление</param>
+        /// <param name="predicate">Доп. условие выборки</param>
+        public static T RandomOrDefault<T>(this IEnumerable<T> enumerable, Func<T, bool> predicate = null)
+        {
+            predicate ??= e => true;
+
+            return enumerable
+                .OrderBy(e => _random.NextDouble())
+                .FirstOrDefault(predicate);
+        }
+
+        /// <summary>
+        /// Поворачивает коллекцию на указанное кол-во элементов
+        /// </summary>
+        /// <typeparam name="T">Тип элемента</typeparam>
+        /// <param name="collection">Коллекция</param>
+        /// <param name="count">Кол-во элементов</param>
+        public static void Rotate<T>(this IList<T> collection, int count = 1)
+        {
+            if (collection.Count > 1)
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    var item = collection[0];
+                    collection.RemoveAt(0);
+                    collection.Add(item);
+                }
+            }
         }
     }
 }

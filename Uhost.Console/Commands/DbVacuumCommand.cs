@@ -17,10 +17,15 @@ namespace Uhost.Console.Commands
             var ctxTypes = Assembly
                  .GetAssembly(typeof(CoreSettings))
                  .GetTypes()
-                 .Where(e => typeof(DbContext).IsAssignableFrom(e) && e.IsClass)
+                 .Where(e => e.IsAssignableTo<DbContext>() && e.IsClass)
                  .ToList();
 
-            var ctxObjects = ctxTypes.Select(e => e.Instantiate()).ToList();
+            var methodInfo = typeof(DependencyInjectionExtensions).GetMethods()
+                .FirstOrDefault(e => e.Name == nameof(DependencyInjectionExtensions.GetDbContextScope) && e.IsGenericMethod);
+
+            var ctxObjects = ctxTypes
+                .Select(e => methodInfo.MakeGenericMethod(e).Invoke(null, Provider.AsSingleElementEnumerable().ToArray()))
+                .ToList();
 
             var ctxs = ctxObjects.OfType<DbContext>().ToList();
 

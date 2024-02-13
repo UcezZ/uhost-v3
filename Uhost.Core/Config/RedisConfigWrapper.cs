@@ -1,14 +1,12 @@
 ﻿using StackExchange.Redis;
-using StackExchange.Redis.Extensions.Core.Configuration;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using Uhost.Core.Extensions;
 
 namespace Uhost.Core.Config
 {
     /// <summary>
-    /// Universal wrapper for redis configuration to use JSON deserialization
+    /// Универсальный класс конфигурации Redis
     /// </summary>
     public sealed class RedisConfigWrapper
     {
@@ -45,12 +43,6 @@ namespace Uhost.Core.Config
         /// <inheritdoc cref="ConfigurationOptions.KeepAlive"/>
         public int KeepAlive { get; set; }
 
-        /// <inheritdoc cref="RedisConfiguration.PoolSize"/>
-        public int PoolSize { get => _poolSize < 1 ? 32 : _poolSize; set => _poolSize = value; }
-
-        /// <inheritdoc cref="RedisConfiguration.WorkCount"/>
-        public int WorkCount { get => _workCount < 1 ? 32 : _workCount; set => _workCount = value; }
-
         public static implicit operator ConfigurationOptions(RedisConfigWrapper obj)
         {
             var endPoints = obj.EndPoints
@@ -58,7 +50,7 @@ namespace Uhost.Core.Config
                 .Where(e => e != null)
                 .ToList();
 
-            return new ConfigurationOptions
+            var config = new ConfigurationOptions
             {
                 EndPoints = new EndPointCollection(endPoints),
                 ConnectTimeout = obj.ConnectTimeout,
@@ -70,40 +62,27 @@ namespace Uhost.Core.Config
                 AbortOnConnectFail = obj.AbortOnConnectFail,
                 KeepAlive = obj.KeepAlive
             };
+
+            return config;
         }
 
-        public static implicit operator RedisConfiguration(RedisConfigWrapper obj)
+        public IEnumerable<ConfigurationOptions> AsConfigurationOptionsEnumerable()
         {
-            var endPoints = obj.EndPoints
+            return EndPoints
                 .Select(e => e.TryParseEndPoint(out var endPoint) ? endPoint : null)
                 .Where(e => e != null)
-                .ToList();
-
-            var redisHosts = endPoints
-                .OfType<IPEndPoint>()
-                .Select(e => new RedisHost { Host = e.Address.ToString(), Port = e.Port })
-                .Concat(endPoints
-                    .OfType<DnsEndPoint>()
-                    .Select(e => new RedisHost { Host = e.Host, Port = e.Port }))
-                .ToArray();
-
-            return new RedisConfiguration
-            {
-                AbortOnConnectFail = obj.AbortOnConnectFail,
-                ConnectionSelectionStrategy = ConnectionSelectionStrategy.RoundRobin,
-                ConnectTimeout = obj.ConnectTimeout,
-                Hosts = redisHosts,
-                Database = obj.DefaultDatabase,
-                PoolSize = obj.PoolSize,
-                WorkCount = obj.WorkCount,
-                ServerEnumerationStrategy = new ServerEnumerationStrategy
+                .Select(e => new ConfigurationOptions
                 {
-                    Mode = ServerEnumerationStrategy.ModeOptions.All,
-                    TargetRole = ServerEnumerationStrategy.TargetRoleOptions.Any,
-                    UnreachableServerAction = ServerEnumerationStrategy.UnreachableServerActionOptions.IgnoreIfOtherAvailable
-                },
-                Ssl = obj.Ssl
-            };
+                    EndPoints = new EndPointCollection(new[] { e }),
+                    ConnectTimeout = ConnectTimeout,
+                    DefaultDatabase = DefaultDatabase,
+                    IncludeDetailInExceptions = IncludeDetailInExceptions,
+                    ConnectRetry = ConnectRetry,
+                    SyncTimeout = SyncTimeout,
+                    Ssl = Ssl,
+                    AbortOnConnectFail = AbortOnConnectFail,
+                    KeepAlive = KeepAlive
+                });
         }
     }
 }
