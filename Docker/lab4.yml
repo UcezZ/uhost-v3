@@ -30,6 +30,18 @@ services:
     extends:
       file: deploy.yml
       service: backend-deploy
+    depends_on:
+      pgsql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      graylog:
+        condition: service_started
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://${FORWARD_HOST}:12201
+        tag: builder
 
   backend:
     extends:
@@ -38,6 +50,33 @@ services:
     environment:
       BACKEND_USE_GRAYLOG: true
       ASPNETCORE_ENVIRONMENT: "${ASPNETCORE_ENVIRONMENT}"
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://${FORWARD_HOST}:12201
+        tag: backend
+
+  frontend-deploy:
+    extends:
+      file: deploy.yml
+      service: frontend-deploy
+    depends_on:
+      - graylog
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://${FORWARD_HOST}:12201
+        tag: frontend-deploy
+
+  frontend:
+    extends:
+      file: deploy.yml
+      service: frontend
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://${FORWARD_HOST}:12201
+        tag: frontend
 
   postgres-exporter:
     container_name: "${APP_NAME}-postgres-exporter"

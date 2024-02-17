@@ -42,8 +42,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      graylog:
-        condition: service_started
     command: >
       bash -c "
       rm -rf /build/back;
@@ -68,11 +66,6 @@ services:
       /deploy/back/Uhost.Console loaddefaultdata --file /deploy/back/default-data.json || exit 1;
       /deploy/back/Uhost.Console updateseq || exit 1;
       /deploy/back/Uhost.Console dbvacuum || exit 1;"
-    logging:
-      driver: gelf
-      options:
-        gelf-address: udp://${FORWARD_HOST}:12201
-        tag: builder
 
   # app runner
   backend:
@@ -97,11 +90,6 @@ services:
       backend-deploy:
         condition: service_completed_successfully
     entrypoint: ./Uhost.Web
-    logging:
-      driver: gelf
-      options:
-        gelf-address: udp://${FORWARD_HOST}:12201
-        tag: api
 
   # frontend builder
   frontend-deploy:
@@ -134,13 +122,6 @@ services:
       mkdir -p /deploy/front;
       rsync -vhrat /build/front/build/ /deploy/front/;
       ls -lag /deploy/front;"
-    depends_on:
-      - graylog
-    logging:
-      driver: gelf
-      options:
-        gelf-address: udp://${FORWARD_HOST}:12201
-        tag: node
 
   # frontend and media server
   frontend:
@@ -160,11 +141,6 @@ services:
         condition: service_completed_successfully
     ports:
       - "${FORWARD_HOST}:${FORWARD_NGINX_PORT}:80"
-    logging:
-      driver: gelf
-      options:
-        gelf-address: udp://${FORWARD_HOST}:12201
-        tag: nginx
 
 volumes:
   build_volume:
