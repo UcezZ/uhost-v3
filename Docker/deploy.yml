@@ -99,6 +99,8 @@ services:
       - ../Frontend:/src:ro
       - build_volume:/build
       - deploy_volume:/deploy
+    environment:
+      PUBLIC_URL: "${REACT_PUBLIC_URL}"
     command: >
       bash -c "
       mkdir -p /build/tmp;
