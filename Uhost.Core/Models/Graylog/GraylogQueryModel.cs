@@ -7,9 +7,15 @@ namespace Uhost.Core.Models.Graylog
 {
     public class GraylogQueryModel
     {
+        /// <summary>
+        /// Запрос Graylog
+        /// </summary>
         [StringLengthValidation(1, 250, allowEmpty: false)]
         public string Query { get; set; }
 
+        /// <summary>
+        /// Возвращаемые поля Graylog
+        /// </summary>
         [Required(ErrorMessageResourceType = typeof(CoreStrings), ErrorMessageResourceName = nameof(CoreStrings.Common_Error_RequiredFmt))]
         public IEnumerable<string> Fields { get; set; }
 

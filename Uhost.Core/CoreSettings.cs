@@ -37,6 +37,7 @@ namespace Uhost.Core
 
         public static SentryConfigWrapper SentryConfig { get; private set; }
 
+        [Unnecessary]
         public static GraylogApiIntegration GraylogApi { get; private set; }
 
         public static SmtpClientWrapper SmtpConfig { get; private set; }

@@ -14,7 +14,7 @@ namespace Uhost.Core.Models.Graylog
     {
         private const string _queryKey = "query";
         private const string _fieldsKey = "fields";
-        private static readonly string _authHeaderValue = $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{CoreSettings.GraylogApi.Login}:{CoreSettings.GraylogApi.Password}"))}";
+        private static readonly string _authHeaderValue = $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{CoreSettings.GraylogApi?.Login}:{CoreSettings.GraylogApi?.Password}"))}";
 
         /// <summary>
         /// Запрос
@@ -38,7 +38,7 @@ namespace Uhost.Core.Models.Graylog
 
         protected override HttpMethod HttpMethod => HttpMethod.Get;
 
-        protected override string Url => $"http://{CoreSettings.GraylogApi.Endpoint}/api/search/universal/relative/export";
+        protected override string Url => $"http://{CoreSettings.GraylogApi?.Endpoint}/api/search/universal/relative/export";
 
         public override HttpRequestMessage ToHttpRequest()
         {

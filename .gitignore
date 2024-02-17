@@ -10,6 +10,7 @@ default-data.json
 Uhost.Web.xml
 /out
 tmp
+/Uhost.Web/wwwroot
 
 # front
 /Frontend/node_modules

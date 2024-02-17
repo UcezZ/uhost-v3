@@ -8,7 +8,7 @@
 1. Создать /Docker/.env по аналогии с /Docker/.env.template
 1. Создать /Uhost.Core/appsettings.docker.json по аналогии с /Uhost.Core/appsettings.template.json, прописать подключения, специфичные для работы из контейнера
 1. Создать /Uhost.Console/default-data.json по аналогии с /Uhost.Console/default-data.template.json
-1. Выполнить в папке проекта `docker-compose -f ./Docker/app.yml up` и дождаться пока всё запустится
+1. Выполнить в папке проекта `docker-compose -f ./Docker/deploy.yml up` и дождаться пока всё запустится
 1. Проект инициализирован и запущен
 
 ### Запуск в Visual Studio

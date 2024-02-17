@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Uhost.Web.Properties;
 
 namespace Uhost.Web.Controllers
 {
     /// <summary>
     /// Контроллер по умолчанию
     /// </summary>
-    [AllowAnonymous]
+    [AllowAnonymous, ApiExplorerSettings(IgnoreApi = true)]
     public class HomeController : Controller
     {
         /// <summary>
@@ -17,6 +18,12 @@ namespace Uhost.Web.Controllers
         public IActionResult Index()
         {
             return View("Index", WebSettings.HomePageConfig);
+        }
+
+        [HttpGet("swagger/style.css")]
+        public IActionResult SwaggerStyles()
+        {
+            return Content(ApiStrings.SwaggerStylesheet, "text/css");
         }
     }
 }

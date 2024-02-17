@@ -10,9 +10,6 @@ namespace Uhost.Core.Config
     /// </summary>
     public sealed class RedisConfigWrapper
     {
-        private int _poolSize;
-        private int _workCount;
-
         /// <inheritdoc cref="ConfigurationOptions.EndPoints"/>
         public IEnumerable<string> EndPoints { get; set; }
 

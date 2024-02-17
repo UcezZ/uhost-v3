@@ -4,6 +4,7 @@ using System;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.Graylog;
 using Uhost.Core.Services.Graylog;
+using Uhost.Web.Attributes;
 using Uhost.Web.Common;
 using Uhost.Web.Extensions;
 
@@ -12,7 +13,7 @@ namespace Uhost.Web.Controllers
     /// <summary>
     /// Интеграция с Graylog
     /// </summary>
-    [Route("api/v2/graylog"), Authorize]
+    [Route("api/v2/graylog"), AllowAnonymous, IgnoreIfVariableUndefined("BACKEND_USE_GRAYLOG")]
     public class GraylogController : Controller
     {
         private readonly IGraylogService _service;

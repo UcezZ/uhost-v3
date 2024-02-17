@@ -1,6 +1,5 @@
 ﻿using CommandLine;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -47,7 +46,7 @@ namespace Uhost.Console.Commands
                 return;
             }
 
-            using (var dbContext = Provider.GetRequiredService<PostgreSqlDbContext>())
+            using (var dbContext = Provider.GetDbContextScope<PostgreSqlDbContext>())
             {
                 var rightRepo = new RightRepository(dbContext);
                 var roleRepo = new RoleRepository(dbContext);
