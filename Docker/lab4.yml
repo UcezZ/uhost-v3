@@ -3,53 +3,41 @@ name: uhost-v3
 services:
   pgsql:
     extends:
-      file: app.yml
+      file: deploy.yml
       service: pgsql
 
   redis:
     extends:
-      file: app.yml
+      file: deploy.yml
       service: redis
 
   adminer:
     extends:
-      file: app.yml
+      file: deploy.yml
       service: adminer
 
   redis-commander:
     extends:
-      file: app.yml
+      file: deploy.yml
       service: redis-commander
 
   mailhog:
     extends:
-      file: app.yml
+      file: deploy.yml
       service: mailhog
 
-  builder:
+  backend-deploy:
     extends:
-      file: app.yml
-      service: builder
+      file: deploy.yml
+      service: backend-deploy
 
   backend:
     extends:
-      file: app.yml
+      file: deploy.yml
       service: backend
-
-  mongodb:
-    extends:
-      file: app.yml
-      service: mongodb
-
-  elasticsearch:
-    extends:
-      file: app.yml
-      service: elasticsearch
-
-  graylog:
-    extends:
-      file: app.yml
-      service: graylog
+    environment:
+      BACKEND_USE_GRAYLOG: true
+      ASPNETCORE_ENVIRONMENT: "${ASPNETCORE_ENVIRONMENT}"
 
   postgres-exporter:
     container_name: "${APP_NAME}-postgres-exporter"
@@ -90,8 +78,66 @@ services:
     ports:
       - "${FORWARD_HOST}:${FORWARD_GRAFANA_PORT}:3000"
 
+  # Mongo DB
+  mongodb:
+    container_name: "${APP_NAME}-mongo"
+    image: mongo:3
+    restart: unless-stopped
+    volumes:
+      - mongo_db_volume:/data/db
+      - mongo_cfg_volume:/data/configdb
+
+  elasticsearch:
+    container_name: "${APP_NAME}-elasticsearch"
+    image: elasticsearch:5.6.3
+    restart: unless-stopped
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=localhost
+      - network.host=0.0.0.0
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elasticsearch_volume:/usr/share/elasticsearch/data
+
+  graylog:
+    container_name: "${APP_NAME}-graylog"
+    image: graylog/graylog:2.4.0-1
+    restart: unless-stopped
+    environment:
+      # CHANGE ME!
+      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
+      # Password: admin
+      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+      - GRAYLOG_WEB_ENDPOINT_URI=http://${FORWARD_HOST}:${FORWARD_GRAYLOG_PORT}/api
+    links:
+      - mongodb:mongo
+      - elasticsearch
+    depends_on:
+      - mongodb
+      - elasticsearch
+    ports:
+      # HTTP
+      - ${FORWARD_GRAYLOG_PORT}:9000
+      # Syslog TCP
+      - 1514:1514
+      # Syslog UDP
+      - 1514:1514/udp
+      # GELF TCP
+      - 12201:12201
+      # GELF UDP
+      - 12201:12201/udp
+    volumes:
+      - "graylog_volume:/usr/share/graylog/data"
+
 volumes:
-  app_volume:
+  build_volume:
+  deploy_volume:
   postgres_volume:
   graylog_volume:
   mongo_db_volume:

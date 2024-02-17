@@ -1,0 +1,92 @@
+FROM alpine:3.12 AS base_image
+
+FROM base_image AS build
+
+RUN apk add --no-cache \
+    curl \
+    build-base \
+    openssl \
+    openssl-dev \
+    zlib-dev \
+    linux-headers \
+    pcre-dev \
+    ffmpeg \
+    ffmpeg-dev \
+    perl-dev \
+    git \
+    bash
+
+RUN mkdir /src
+
+# nginx
+RUN mkdir /src/nginx
+RUN curl -sL https://nginx.org/download/nginx-1.16.1.tar.gz | tar -C /src/nginx --strip 1 -xz
+
+WORKDIR /src
+
+# vod
+RUN git clone https://github.com/kaltura/nginx-vod-module.git
+
+# ndk
+RUN git clone https://github.com/simpl/ngx_devel_kit.git
+
+# lua
+RUN mkdir /src/lua-nginx-module
+RUN curl -sL https://github.com/openresty/lua-nginx-module/archive/v0.10.26.tar.gz | tar -C /src/lua-nginx-module --strip 1 -xz
+
+# resty
+RUN git clone https://github.com/openresty/lua-resty-core.git
+
+# resty redis
+RUN git clone https://github.com/openresty/lua-resty-redis.git
+
+# resty lrucache
+RUN git clone https://github.com/openresty/lua-resty-lrucache.git
+
+# luajit2
+RUN git clone https://github.com/openresty/luajit2.git
+
+# resty build
+WORKDIR /src/lua-resty-core
+RUN make install LUA_LIB_DIR=/usr/local/share/lua/5.1
+
+# resty redis build
+WORKDIR /src/lua-resty-redis
+RUN make install LUA_LIB_DIR=/usr/local/share/lua/5.1
+
+# resty lrucache build
+WORKDIR /src/lua-resty-lrucache
+RUN make install LUA_LIB_DIR=/usr/local/share/lua/5.1
+
+# luajit2 build
+WORKDIR /src/luajit2
+RUN make install
+ARG LUAJIT_LIB=/usr/local/lib
+ARG LUAJIT_INC=/usr/local/include/luajit-2.1
+
+# nginx build
+WORKDIR /src/nginx
+RUN ./configure --prefix=/usr/local/nginx \
+    --with-http_ssl_module \
+    --with-file-aio \
+    --with-threads \
+    --add-module=/src/ngx_devel_kit \
+    --add-module=/src/lua-nginx-module \
+    --add-module=/src/nginx-vod-module
+RUN make && make install
+RUN rm -rf /usr/local/nginx/html /usr/local/nginx/conf/*.default
+
+# dest image build
+FROM base_image
+RUN apk add --no-cache \
+    ca-certificates \
+    openssl \
+    pcre \
+    zlib \
+    ffmpeg \
+    bind-tools
+COPY --from=build /usr/local/nginx /usr/local/nginx
+COPY --from=build /usr/local/lib/libluajit-5.1.so.2 /usr/local/lib/libluajit-5.1.so.2
+COPY --from=build /usr/local/share/lua/5.1 /usr/local/share/lua/5.1
+COPY ./nginx.conf /usr/local/nginx/conf/nginx.conf
+ENTRYPOINT ["/usr/local/nginx/sbin/nginx", "-g", "daemon off;"]
