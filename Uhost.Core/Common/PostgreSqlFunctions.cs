@@ -14,6 +14,12 @@ namespace Uhost.Core.Common
         /// Преобразуется в SQL-выражение <c>word_similarity(<paramref name="source"/>, <paramref name="target"/>)</c>.
         /// </summary>
         public static double TrgmWordSimilarity(string source, string target) => throw new NotImplementedException();
+
+        /// <summary>
+        /// Преобразуется в SQL-вырашение <c>RANDOM()</c>
+        /// </summary>
+        /// <returns></returns>
+        public static double Random() => throw new NotImplementedException();
     }
 }
 #pragma warning restore IDE0060 // Удалите неиспользуемый параметр

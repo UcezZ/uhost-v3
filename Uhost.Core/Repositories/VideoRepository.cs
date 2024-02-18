@@ -73,7 +73,14 @@ namespace Uhost.Core.Repositories
             }
             else
             {
-                q = q.OrderBy(query);
+                if (query.SortByParsed == Entity.SortBy.Random)
+                {
+                    q = q.OrderBy(e => PostgreSqlFunctions.Random());
+                }
+                else
+                {
+                    q = q.OrderBy(query);
+                }
             }
 
             return q;

@@ -13,7 +13,8 @@ namespace Uhost.Core.Data.Entities
             Id,
             Name,
             Duration,
-            CreatedAt
+            CreatedAt,
+            Random
         }
 
         public int UserId { get; set; }

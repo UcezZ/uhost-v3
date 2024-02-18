@@ -38,5 +38,7 @@ namespace Uhost.Core.Models
         /// Спаршенное направление сортировки
         /// </summary>
         internal SortDirections? SortDirectParsed => SortDirection.ParseEnum<SortDirections>();
+
+        internal bool IsDescending => SortDirectParsed == SortDirections.Desc;
     }
 }

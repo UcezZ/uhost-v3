@@ -5,6 +5,7 @@ using Sentry;
 using Sentry.Protocol;
 using StackExchange.Redis;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -20,6 +21,7 @@ using Uhost.Core.Services.File;
 using Uhost.Core.Services.RedisSwitcher;
 using Uhost.Core.Services.Scheduler;
 using static Uhost.Core.Data.Entities.File;
+using static Uhost.Core.Data.Entities.Right;
 using Entity = Uhost.Core.Data.Entities.Video;
 using FileEntity = Uhost.Core.Data.Entities.File;
 using QueryModel = Uhost.Core.Models.Video.VideoQueryModel;
@@ -92,6 +94,45 @@ namespace Uhost.Core.Services.Video
             }
 
             return pager.Paginate();
+        }
+
+        /// <summary>
+        /// Получение случайных видео
+        /// </summary>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public IEnumerable<VideoShortViewModel> GetRandom(int count)
+        {
+            var query = new QueryModel
+            {
+                SortBy = nameof(Entity.SortBy.Random)
+            };
+
+            OverrideByUserRestrictions(query);
+
+            var models = _repo
+                .GetAll<VideoShortViewModel>(query)
+                .Take(count)
+                .ToList();
+
+            if (models.Any())
+            {
+                var files = _fileService
+                    .GetByDynEntity<FileShortViewModel>(models.Select(e => e.Id), typeof(Entity))
+                    .ToList();
+
+                foreach (var model in models)
+                {
+                    model.ThumbnailUrl = files
+                        .FirstOrDefault(e => e.DynId == model.Id && e.TypeParsed == Types.VideoThumbnail)?
+                        .Url;
+                    model.Resolutions = files
+                        .Where(e => e.DynId == model.Id && _videoResolutionTypes.Contains(e.TypeParsed))
+                        .Select(e => e.Type[5..]);
+                }
+            }
+
+            return models;
         }
 
         /// <summary>
@@ -630,9 +671,15 @@ namespace Uhost.Core.Services.Video
 
         public void OverrideByUserRestrictions(QueryModel query)
         {
-            if (TryGetUserRights(out var rights))
+            if (TryGetUserRights(out var rights) && TryGetUserId(out var userId))
             {
-
+                query.ShowHidden &= rights.Contains(Rights.VideoGetAll) || query.UserId == userId;
+                query.ShowPrivate &= rights.Contains(Rights.VideoGetAll) || query.UserId == userId;
+            }
+            else
+            {
+                query.ShowHidden = false;
+                query.ShowPrivate = false;
             }
         }
     }

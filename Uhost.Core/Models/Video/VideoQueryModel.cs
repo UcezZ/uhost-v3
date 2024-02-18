@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Uhost.Core.Attributes.Validation;
+using Uhost.Core.Extensions;
 using Uhost.Core.Properties;
 using Entity = Uhost.Core.Data.Entities.Video;
 
@@ -57,5 +58,7 @@ namespace Uhost.Core.Models.Video
 
         [EnumValidation(typeof(Entity.SortBy), nameof(Entity.SortBy.Id), ErrorMessageResourceType = typeof(CoreStrings), ErrorMessageResourceName = nameof(CoreStrings.Common_Error_SortBy))]
         public override string SortBy { get; set; }
+
+        internal Entity.SortBy? SortByParsed => SortBy.ParseEnum<Entity.SortBy>();
     }
 }

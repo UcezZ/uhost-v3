@@ -46,6 +46,16 @@ namespace Uhost.Web.Controllers
         }
 
         /// <summary>
+        /// Получить случайные видео 
+        /// </summary>
+        /// <param name="count">Количество</param>
+        [HttpGet("random"), AllowAnonymous]
+        public IActionResult GetRandom(int? count)
+        {
+            return ResponseHelper.Success(_service.GetRandom(count > 0 ? (int)count : 16));
+        }
+
+        /// <summary>
         /// Получить видео по токену
         /// </summary>
         /// <param name="token">Токен видео</param>

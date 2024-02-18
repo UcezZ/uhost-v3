@@ -23,6 +23,10 @@ namespace Uhost.Core.Extensions
                 .HasDbFunction(typeof(PostgreSqlFunctions).GetMethod(nameof(PostgreSqlFunctions.TrgmAreSimilar)))
                 .HasTranslation(e => new SqlBinaryExpression(ExpressionType.Modulo, e.First(), e.Last(), typeof(bool), null));
 
+            builder
+                .HasDbFunction(typeof(PostgreSqlFunctions).GetMethod(nameof(PostgreSqlFunctions.Random)))
+                .HasTranslation(e => new SqlFunctionExpression("RANDOM", e, false, e.Select(b => false), typeof(double), null));
+
             return builder;
         }
     }
