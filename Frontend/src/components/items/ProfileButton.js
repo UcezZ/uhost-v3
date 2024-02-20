@@ -2,14 +2,20 @@ import { IconButton } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import { useState } from "react";
-import YesNoDialog from './YesNoDialog';
-import AuthEndpoint from '../api/AuthEndpoint';
+import { useContext, useState } from 'react';
+import YesNoDialog from '../YesNoDialog';
+import AuthEndpoint from '../../api/AuthEndpoint';
+import { Link } from 'react-router-dom';
+import config from '../../config.json';
+import StateContext from '../../utils/StateContext';
+import PopupAuthForm from '../forms/PopupAuthForm';
 
 export default function ProfileButton() {
     const [anchorEl, setAnchorEl] = useState(null);
     const [confirmLogout, setConfirmLogout] = useState(null);
-    const open = Boolean(anchorEl);
+    const [authFormVisible, setAuthFormVisible] = useState(false);
+    const { user, setUser } = useContext(StateContext);
+
     function onClick(event) {
         setAnchorEl(event.currentTarget);
     };
@@ -32,6 +38,12 @@ export default function ProfileButton() {
             .catch(e => { });
 
         setConfirmLogout(false);
+        setUser();
+    }
+
+    function onLoginClick(event) {
+        setAuthFormVisible(true);
+        onClose();
     }
 
     return (
@@ -41,23 +53,24 @@ export default function ProfileButton() {
                 color="inherit"
                 aria-label="profile"
                 id="profile-button"
-                aria-controls={open ? 'profile-menu' : undefined}
+                aria-controls={anchorEl ? undefined : 'profile-menu'}
                 aria-haspopup="true"
-                aria-expanded={open ? 'true' : undefined}
+                aria-expanded={anchorEl ? undefined : 'true'}
                 onClick={onClick}>
                 <AccountCircleIcon />
             </IconButton>
             <Menu
                 id="profile-menu"
                 anchorEl={anchorEl}
-                open={open}
+                open={!!anchorEl}
                 onClose={onClose}
                 MenuListProps={{
                     'aria-labelledby': 'profile-button',
                 }}
             >
-                <MenuItem onClick={onClose}>Profile</MenuItem>
-                <MenuItem onClick={onLogoutClick}>Logout</MenuItem>
+                {!user && <MenuItem onClick={onLoginClick}>Log in</MenuItem>}
+                {user && <MenuItem onClick={onClose}><Link to={`${config.webroot}/profile`}>Profile</Link></MenuItem>}
+                {user && <MenuItem onClick={onLogoutClick}>Log out</MenuItem>}
             </Menu>
             <YesNoDialog
                 onNo={onLogoutNo}
@@ -66,6 +79,7 @@ export default function ProfileButton() {
                 setVisible={setConfirmLogout}
                 message='Вы действительно хотите выйти?'
             />
+            <PopupAuthForm visible={authFormVisible} setVisible={setAuthFormVisible} next={e => setAnchorEl(null)} />
         </div>
     );
 }

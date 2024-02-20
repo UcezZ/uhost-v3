@@ -102,7 +102,7 @@ namespace Uhost.Web
                     var webXml = Path.Combine(AppContext.BaseDirectory, $"{typeof(WebSettings).Assembly.GetName().Name}.xml");
                     var coreXml = Path.Combine(AppContext.BaseDirectory, $"{typeof(CoreSettings).Assembly.GetName().Name}.xml");
                     options.IncludeXmlComments(webXml, includeControllerXmlComments: true);
-                    options.IncludeXmlComments(coreXml);
+                    options.IncludeXmlComments(coreXml, includeControllerXmlComments: true);
                     options.OperationFilter<IgnorePropertyFilter>();
                     options.SchemaFilter<SwaggerIgnoreFilter>();
                 });

@@ -7,12 +7,12 @@ import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import AuthEndpoint from '../../api/AuthEndpoint';
-import StateContext from '../../context/StateContext';
+import StateContext from '../../utils/StateContext';
 import { CircularProgress } from '@mui/material';
 import Common from '../../utils/Common';
 
-export default function AuthForm({ next }) {
-    const { theme, setError } = useContext(StateContext);
+export default function AuthForm({ next, slim }) {
+    const { setError, setUser } = useContext(StateContext);
     const [loading, setLoading] = useState(false);
     const [loginError, setLoginError] = useState(false);
     const [passwordError, setPasswordError] = useState(false);
@@ -52,14 +52,16 @@ export default function AuthForm({ next }) {
 
         await AuthEndpoint.login(data)
             .then(e => {
-                if (e.data.success && e.data.result.token) {
+                if (e?.data?.success && e?.data?.result?.token) {
                     if (remember) {
                         localStorage.setItem('accessToken', e.data.result.token);
                     } else {
                         sessionStorage.setItem('accessToken', e.data.result.token);
                     }
 
-                    next();
+                    next && next();
+                    setLoading(false);
+                    setUser(e?.data?.result?.user);
                 }
                 else {
                     showError(JSON.stringify(e.data));
@@ -90,10 +92,9 @@ export default function AuthForm({ next }) {
     }
 
     return (
-        // <ThemeProvider theme={theme}>
         <Box
             sx={{
-                marginTop: 8,
+                marginTop: slim ? 0 : 8,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -154,6 +155,5 @@ export default function AuthForm({ next }) {
                 </Grid> */}
             </Box>
         </Box>
-        // </ThemeProvider>
     );
 }

@@ -8,12 +8,16 @@
     "@mui/icons-material": "^5.14.12",
     "@mui/material": "^5.14.12",
     "axios": "^1.5.1",
+    "core-js": "3",
     "linq": "^4.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-localization": "^1.0.19",
     "react-router-dom": "^6.16.0",
     "react-scripts": "5.0.1"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "*"
   },
   "scripts": {
     "start": "react-scripts start",

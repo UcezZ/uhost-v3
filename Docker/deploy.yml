@@ -93,7 +93,7 @@ services:
 
   # frontend builder
   frontend-deploy:
-    image: ucezz/node:16.17-rsync-alpine
+    image: ucezz/node:18.19-rsync-alpine
     container_name: "${APP_NAME}-frontend-deploy"
     volumes:
       - ../Frontend:/src:ro

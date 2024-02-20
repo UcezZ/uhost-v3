@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Common from '../utils/Common';
 //import { makeUrl, makeReqConfig } from './api-config.js';
 
 //export const API_URL = 'http://localhost:5101';
@@ -14,8 +15,8 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (cfg) => {
-        const local = localStorage.getItem('accessToken');
-        const session = sessionStorage.getItem('accessToken');
+        const local = localStorage.getItem(Common.tokenKey);
+        const session = sessionStorage.getItem(Common.tokenKey);
         if (local) {
             cfg.headers.Authorization = `Bearer ${local}`;
         } else if (session) {
