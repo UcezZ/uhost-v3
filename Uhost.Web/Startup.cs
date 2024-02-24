@@ -173,20 +173,20 @@ namespace Uhost.Web
                     options.RoutePrefix = "swagger";
                     options.InjectStylesheet("style.css");
                 });
-
-                app.UseHangfireDashboard("/hangfire", WebSettings.HangfireDashboardOptions);
             }
+
+            app.UseHangfireDashboard("/hangfire", WebSettings.HangfireDashboardOptions);
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseMiddleware<ThrottleMiddleware>();
+            app.UseMiddleware<SentryLegacyMiddleware>();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
-
-            app.UseMiddleware<ThrottleMiddleware>();
-            app.UseMiddleware<SentryLegacyMiddleware>();
-
-            app.UseAuthentication();
-            app.UseAuthorization();
 
             app.UseEndpoints(e => e.MapDefaultControllerRoute());
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
