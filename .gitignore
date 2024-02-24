@@ -11,6 +11,8 @@ Uhost.Web.xml
 /out
 tmp
 /Uhost.Web/wwwroot
+/Docker/build
+/deploy-win
 
 # front
 /Frontend/node_modules

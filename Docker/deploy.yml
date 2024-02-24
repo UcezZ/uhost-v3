@@ -35,8 +35,8 @@ services:
       - "${EXTERNAL_DIR}/storage:/storage"
       - "${EXTERNAL_DIR}/deploy-win:/deploy/win"
       - deploy_volume:/deploy
-      - build_volume:/build
-      - build_volume:/root/.nuget
+      - "${BUILD_DIR}:/build"
+      - "${BUILD_DIR}:/root/.nuget"
     depends_on:
       pgsql:
         condition: service_healthy
@@ -97,7 +97,7 @@ services:
     container_name: "${APP_NAME}-frontend-deploy"
     volumes:
       - ../Frontend:/src:ro
-      - build_volume:/build
+      - "${BUILD_DIR}:/build"
       - deploy_volume:/deploy
     environment:
       PUBLIC_URL: "${REACT_PUBLIC_URL}"
@@ -125,14 +125,14 @@ services:
       rsync -vhrat /build/front/build/ /deploy/front/;
       ls -lag /deploy/front;"
 
-  # frontend and media server
-  frontend:
+  # nginx server
+  nginx:
     image: ucezz/nginx:1.16.1-alpine-3.12-vod-lua
-    container_name: "${APP_NAME}-frontend"
+    container_name: "${APP_NAME}-nginx"
     restart: unless-stopped
     volumes:
-      - deploy_volume:/deploy
-      - ${EXTERNAL_DIR}:/opt/static/:ro
+      - deploy_volume:/deploy:ro
+      - ${EXTERNAL_DIR}/storage:/opt/static/uploads:ro
       - ./nginx/nginx.conf:/usr/local/nginx/conf/nginx.conf:ro
       - ./nginx/lua:/opt/lua:ro
       - ./nginx/entrypoint.sh:/entrypoint.sh:ro
@@ -145,7 +145,6 @@ services:
       - "${FORWARD_HOST}:${FORWARD_NGINX_PORT}:80"
 
 volumes:
-  build_volume:
   deploy_volume:
   postgres_volume:
   redis_volume:

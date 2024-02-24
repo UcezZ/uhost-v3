@@ -68,15 +68,15 @@ services:
         gelf-address: udp://${FORWARD_HOST}:12201
         tag: frontend-deploy
 
-  frontend:
+  nginx:
     extends:
       file: deploy.yml
-      service: frontend
+      service: nginx
     logging:
       driver: gelf
       options:
         gelf-address: udp://${FORWARD_HOST}:12201
-        tag: frontend
+        tag: nginx
 
   postgres-exporter:
     container_name: "${APP_NAME}-postgres-exporter"
@@ -175,7 +175,6 @@ services:
       - "graylog_volume:/usr/share/graylog/data"
 
 volumes:
-  build_volume:
   deploy_volume:
   postgres_volume:
   graylog_volume:
