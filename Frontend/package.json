@@ -9,7 +9,6 @@
     "@mui/material": "^5.14.12",
     "axios": "^1.5.1",
     "core-js": "3",
-    "linq": "^4.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-localization": "^1.0.19",

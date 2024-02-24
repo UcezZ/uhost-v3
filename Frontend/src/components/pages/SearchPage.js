@@ -11,7 +11,7 @@ import PagedResultNavigator from "../PagedResultNavigator";
 import Common from "../../utils/Common";
 
 export default function SearchPage() {
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [videos, setVideos] = useState([]);
     const [pager, setPager] = useState();
     const [search, setSearch] = useState('');
@@ -25,6 +25,7 @@ export default function SearchPage() {
     }
 
     useEffect(() => {
+        console.log(search);
         if (loading) {
             var useSearch = search?.length > 0;
             (useSearch ? VideoEndpoint.search(search, pager?.currentPage ?? 1, 3) : VideoEndpoint.random())
@@ -59,17 +60,21 @@ export default function SearchPage() {
     }
 
     return (
-        <Container>
+        <Container sx={{ maxWidth: '100% !important' }}>
             <CssBaseline />
-            <SearchBar style={{ maxWidth: '1280px' }} sx={{ marginTop: 1 }} onSearch={onSearch} />
-            {
-                loading
-                    ? <LoadingBox />
-                    : videos?.length > 0
-                        ? <VideoContainer videos={videos} pager={pager} onPageToggle={onPageToggle} />
-                        : <MessageBox text='Не найдено ни одного видео по запросу' />
-            }
-            {pager?.totalPages > 1 && <PagedResultNavigator pager={pager} onPageToggle={onPageToggle} sx={{ maxWidth: '1280px' }} />}
+            <Container sx={{ maxWidth: '1152px !important' }}>
+                <SearchBar sx={{ marginTop: 1 }} onSearch={onSearch} />
+            </Container>
+            <Container sx={{ maxWidth: '100% !important' }}>
+                {
+                    loading
+                        ? <LoadingBox />
+                        : videos?.length > 0
+                            ? <VideoContainer videos={videos} pager={pager} onPageToggle={onPageToggle} />
+                            : <MessageBox text='Не найдено ни одного видео по запросу' />
+                }
+                {pager?.totalPages > 1 && <PagedResultNavigator pager={pager} onPageToggle={onPageToggle} sx={{ maxWidth: '1280px' }} />}
+            </Container>
         </Container>
     );
 }
