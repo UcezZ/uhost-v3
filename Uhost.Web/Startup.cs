@@ -180,6 +180,8 @@ namespace Uhost.Web
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseEndpoints(e => e.MapDefaultControllerRoute());
+
             app.UseMiddleware<ThrottleMiddleware>();
             app.UseMiddleware<SentryLegacyMiddleware>();
 
@@ -188,7 +190,6 @@ namespace Uhost.Web
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
 
-            app.UseEndpoints(e => e.MapDefaultControllerRoute());
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
     }
