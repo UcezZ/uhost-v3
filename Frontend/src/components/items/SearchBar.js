@@ -37,7 +37,7 @@ export default function SearchBar({ sx, onSearch }) {
             setValue(q);
             onSearch && onSearch(q);
         }
-    })
+    }, [search]);
 
     return (
         <Paper
