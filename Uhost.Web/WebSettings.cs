@@ -1,4 +1,5 @@
-﻿using Uhost.Core;
+﻿using Hangfire;
+using Uhost.Core;
 using Uhost.Core.Attributes;
 using Uhost.Web.Config;
 
@@ -21,6 +22,12 @@ namespace Uhost.Web
         /// </summary>
         [Unnecessary]
         public static HomePageConfig HomePageConfig { get; private set; }
+
+        /// <summary>
+        /// Параметры дашборта HF
+        /// </summary>
+        [Unnecessary]
+        public static DashboardOptions HangfireDashboardOptions { get; private set; }
 
         static WebSettings() => CoreSettings.Load(typeof(WebSettings));
     }

@@ -173,9 +173,9 @@ namespace Uhost.Web
                     options.RoutePrefix = "swagger";
                     options.InjectStylesheet("style.css");
                 });
-            }
 
-            app.UseHangfireDashboard("/hangfire");
+                app.UseHangfireDashboard("/hangfire", WebSettings.HangfireDashboardOptions);
+            }
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
