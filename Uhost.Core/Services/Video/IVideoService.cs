@@ -15,11 +15,11 @@ namespace Uhost.Core.Services.Video
         object GetAllPaged(VideoQueryModel query);
         Task<VideoConversionProgressModel> GetConversionProgressAsync(string token);
         VideoViewModel GetOne(int id);
-        VideoViewModel GetOne(string token);
         void Update(string token, VideoUpdateModel model);
         void OverrideByUserRestrictions(VideoQueryModel query);
         Task FetchUrl(int id, string url);
         Task Convert(int id, Data.Entities.File.Types type);
         IEnumerable<VideoShortViewModel> GetRandom(int count);
+        Task<VideoViewModel> GetOne(string token);
     }
 }

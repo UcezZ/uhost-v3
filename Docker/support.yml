@@ -88,10 +88,11 @@ services:
     image: ucezz/nginx:1.16.1-alpine-3.12-vod-lua
     environment:
       REDIS_DBNUM: ${REDIS_DB_NUM}
+      VIDEO_TOKEN_SALT: ${VIDEO_TOKEN_SALT}
     depends_on:
       - redis
     volumes:
-      - ${EXTERNAL_DIR}:/opt/static/videos:ro
+      - ${EXTERNAL_DIR}/videos:/opt/static/videos:ro
       - ./nginx/nginx-dev.conf:/usr/local/nginx/conf/nginx.conf:ro
       - ./nginx/lua:/opt/lua:ro
       - ./nginx/entrypoint.sh:/entrypoint.sh:ro

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.User;
 using Entity = Uhost.Core.Data.Entities.Video;
@@ -16,7 +17,7 @@ namespace Uhost.Core.Models.Video
 
         public string Description { get; set; }
 
-        public string Duration { get; set; }
+        public string Duration => DurationObj.ToHumanFmt();
 
         public string Token { get; set; }
 
@@ -32,13 +33,15 @@ namespace Uhost.Core.Models.Video
 
         public UserShortViewModel User { get; set; }
 
+        internal TimeSpan DurationObj { get; set; }
+
         public override void LoadFromEntity(Entity entity)
         {
             Id = entity.Id;
             Name = entity.Name;
             CreatedAt = entity.CreatedAt.ToApiFmt();
             Description = entity.Description.Length > 32 ? entity.Description[..32] : entity.Description;
-            Duration = entity.Duration.ToHumanFmt();
+            DurationObj = entity.Duration;
             Token = entity.Token;
             UserId = entity.UserId;
             IsPrivate = entity.IsPrivate;

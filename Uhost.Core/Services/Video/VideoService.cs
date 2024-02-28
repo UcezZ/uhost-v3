@@ -1,6 +1,7 @@
 ﻿using FFMpegCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Sentry;
 using Sentry.Protocol;
 using StackExchange.Redis;
@@ -40,7 +41,7 @@ namespace Uhost.Core.Services.Video
         private static readonly TimeSpan _redisProgressKeyTtl = TimeSpan.FromMinutes(5);
         private static readonly TimeSpan _maxStreamDuration = TimeSpan.FromHours(4);
 
-        private static readonly Types[] _videoResolutionTypes = new[]
+        private static readonly Types[] _videoFileTypes = new[]
         {
             Types.Video240p,
             Types.Video480p,
@@ -48,6 +49,8 @@ namespace Uhost.Core.Services.Video
             Types.Video720p,
             Types.Video1080p
         };
+
+        public static IReadOnlyCollection<Types> VideoFileTypes => _videoFileTypes;
 
         public VideoService(
             IDbContextFactory<PostgreSqlDbContext> factory,
@@ -88,8 +91,11 @@ namespace Uhost.Core.Services.Video
                         .FirstOrDefault(e => e.DynId == model.Id && e.TypeParsed == Types.VideoThumbnail)?
                         .Url;
                     model.Resolutions = files
-                        .Where(e => e.DynId == model.Id && _videoResolutionTypes.Contains(e.TypeParsed))
-                        .Select(e => e.Type[5..]);
+                        .Where(e => e.DynId == model.Id && _videoFileTypes.Contains(e.TypeParsed))
+                        .Select(e => e.Type.ParseDigits())
+                        .Where(e => e > 0)
+                        .OrderBy(e => e)
+                        .Select(e => $"{e}p");
                 }
             }
 
@@ -127,8 +133,11 @@ namespace Uhost.Core.Services.Video
                         .FirstOrDefault(e => e.DynId == model.Id && e.TypeParsed == Types.VideoThumbnail)?
                         .Url;
                     model.Resolutions = files
-                        .Where(e => e.DynId == model.Id && _videoResolutionTypes.Contains(e.TypeParsed))
-                        .Select(e => e.Type[5..]);
+                        .Where(e => e.DynId == model.Id && _videoFileTypes.Contains(e.TypeParsed))
+                        .Select(e => e.Type.ParseDigits())
+                        .Where(e => e > 0)
+                        .OrderBy(e => e)
+                        .Select(e => $"{e}p");
                 }
             }
 
@@ -142,11 +151,41 @@ namespace Uhost.Core.Services.Video
         /// <returns></returns>
         public VideoViewModel GetOne(int id)
         {
+            var query = new QueryModel { Id = id };
+
+            OverrideByUserRestrictions(query);
+
             var model = _repo
-                .GetAll<VideoViewModel>(new QueryModel { Id = id })
+                .GetAll<VideoViewModel>()
                 .FirstOrDefault();
 
             return FillViewModel(model);
+        }
+
+        private async Task CreateRedisKeys(VideoViewModel model)
+        {
+            if (!TryGetUserIp(out var ip))
+            {
+                return;
+            }
+
+            model.CookieTtl = model.DurationObj.Add(TimeSpan.FromHours(1));
+
+            foreach (var url in model.UrlPaths.Values)
+            {
+                var value = new
+                {
+                    model.Token,
+                    model.AccessToken,
+                    Url = url,
+                    Ip = ip.ToString()
+                };
+
+                var keyPayload = (value.AccessToken + value.Url + value.Ip + CoreSettings.VideoTokenSalt).ComputeHash(HasherExtensions.EncryptionMethod.MD5);
+                var key = $"videotoken_{keyPayload}";
+
+                await _redis.ExecuteAsync(async e => await e.StringSetAsync(key, value.ToJson(Formatting.Indented), model.CookieTtl));
+            }
         }
 
         /// <summary>
@@ -154,13 +193,20 @@ namespace Uhost.Core.Services.Video
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        public VideoViewModel GetOne(string token)
+        public async Task<VideoViewModel> GetOne(string token)
         {
+            var query = new QueryModel { Token = token };
+
+            OverrideByUserRestrictions(query);
+
             var model = _repo
-                .GetAll<VideoViewModel>(new QueryModel { Token = token })
+                .GetAll<VideoViewModel>()
                 .FirstOrDefault();
 
-            return FillViewModel(model);
+            FillViewModel(model);
+            await CreateRedisKeys(model);
+
+            return model;
         }
 
         /// <summary>
@@ -180,9 +226,18 @@ namespace Uhost.Core.Services.Video
                     .FirstOrDefault(e => e.DynId == model.Id && e.TypeParsed == Types.VideoThumbnail)?
                     .Url;
                 var videoFiles = files
-                    .Where(e => e.DynId == model.Id && _videoResolutionTypes.Contains(e.TypeParsed));
-                model.Resolutions = videoFiles.Select(e => e.Type[5..]);
-                model.Urls = videoFiles.ToDictionary(e => e.TypeParsed, e => e.Url);
+                    .Where(e => e.DynId == model.Id && _videoFileTypes.Contains(e.TypeParsed));
+                model.Resolutions = videoFiles
+                    .Select(e => e.Type.ParseDigits())
+                    .Where(e => e > 0)
+                    .OrderBy(e => e)
+                    .Select(e => $"{e}p");
+                model.UrlPaths = videoFiles.ToDictionary(e => e.Type, e => e.UrlPath);
+                model.UrlPaths["Hls"] = Tools.UrlCombine(
+                    CoreSettings.HlsUrl,
+                    $",{videoFiles.Select(e => e.UrlPath).Join(",")},.urlset",
+                    "master.m3u8");
+                model.Urls = model.UrlPaths.ToDictionary(e => e.Key, e => Tools.UrlCombine(CoreSettings.MediaServerUrl, e.Value));
             }
 
             return model;
@@ -327,7 +382,7 @@ namespace Uhost.Core.Services.Video
                     dynType: typeof(Entity),
                     dynId: entity.Id);
 
-                _scheduler.ScheduleVideoStreamConvert(entity.Id, url);
+                _scheduler.ScheduleVideoStreamFetch(entity.Id, url);
 
                 return true;
             }
@@ -441,7 +496,7 @@ namespace Uhost.Core.Services.Video
         /// <returns></returns>
         public async Task Convert(int id, Types type)
         {
-            if (!_videoResolutionTypes.Contains(type))
+            if (!_videoFileTypes.Contains(type))
             {
                 throw new ArgumentException("Wrong file type specified", nameof(type));
             }

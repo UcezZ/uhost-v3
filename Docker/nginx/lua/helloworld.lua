@@ -1,39 +1,43 @@
-local redisAddr = os.getenv('REDIS_ADDR')
+local tools = require 'tools'
+local red = tools.connect_redis()
+local md5 = require 'md5'
 
-if not redisAddr then
+local sum = md5.sumhexa('amogus')
+
+ngx.say(sum)
+
+local token_salt = os.getenv('VIDEO_TOKEN_SALT')
+
+if not token_salt then
     ngx.header.content_type = 'text/plain'
     ngx.status = 500
-    ngx.say('Unable to gather Redis address')
-    return
+    ngx.say('Unable to gather token salt')
+    ngx.exit(500)
 end
 
-local redisDbNum = os.getenv('REDIS_DBNUM')
-if not redisDbNum then
-    ngx.header.content_type = 'text/plain'
-    ngx.status = 500
-    ngx.say('Unable to gather Redis DB num')
-    return
-end
+ngx.say(token_salt)
 
-local redis = require 'resty.redis'
-local red = redis:new()
+local video_token = ngx.var.cookie_video_token
 
-red:set_timeouts(1000, 1000, 1000) -- подключение к Redis
-local ok, err = red:connect(redisAddr, 6379)
-if not ok then
-    ngx.header.content_type = 'text/plain'
-    ngx.status = 500
-    ngx.say('Unable to connect to Redis: ', err)
-    return
-end
+ngx.say(video_token)
 
-local res, err = red:select(redisDbNum)
-if not res then
-    ngx.say('Failed to select database: ', err)
-    return
-end
+local query = tools.get_path()
 
-local res, err = red:get('avtobus')
+ngx.say(query)
+
+local client_addr = ngx.var.remote_addr
+
+ngx.say(client_addr)
+
+local key_payload = video_token .. query .. client_addr .. token_salt
+
+ngx.say(key_payload)
+
+local key = 'videotoken_' .. md5.sumhexa(key_payload)
+
+ngx.say(key)
+
+local res, err = red:get(key)
 if not res then
     ngx.header.content_type = 'text/plain'
     ngx.status = 500

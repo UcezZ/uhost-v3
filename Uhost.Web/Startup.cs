@@ -142,22 +142,22 @@ namespace Uhost.Web
             app.UseFileServer();
             app.UseRouting();
 
-            var storage = Path.GetFullPath(CoreSettings.FileStoragePath);
-
-            if (!Directory.Exists(storage))
-            {
-                Directory.CreateDirectory(storage);
-            }
-
-            app.UseStaticFiles(new StaticFileOptions()
-            {
-                FileProvider = new PhysicalFileProvider(storage),
-                RequestPath = Tools.UrlCombine(string.Empty, CoreSettings.UploadsUrl),
-                DefaultContentType = "application/octet-stream"
-            });
-
             if (env.IsDevelopment())
             {
+                var storage = Path.GetFullPath(CoreSettings.FileStoragePath);
+
+                if (!Directory.Exists(storage))
+                {
+                    Directory.CreateDirectory(storage);
+                }
+
+                app.UseStaticFiles(new StaticFileOptions()
+                {
+                    FileProvider = new PhysicalFileProvider(storage),
+                    RequestPath = Tools.UrlCombine(string.Empty, CoreSettings.UploadsUrl),
+                    DefaultContentType = "application/octet-stream"
+                });
+
                 app.UseCors(options =>
                 {
                     options.AllowAnyHeader();

@@ -14,6 +14,7 @@ namespace Uhost.Core
     public static class CoreSettings
     {
         private const string _jsonName = "appsettings.json";
+        private static string _mediaServerUrl;
 
         public static string JsonName { get; } = Path.Combine(AppContext.BaseDirectory, _jsonName);
 
@@ -29,9 +30,24 @@ namespace Uhost.Core
 
         public static string FileStoragePath { get; private set; }
 
+        public static string VideoStoragePath { get; private set; }
+
         public static string PublicUrl { get; private set; }
 
         public static string UploadsUrl { get; private set; }
+
+        public static string VideosUrl { get; private set; }
+
+        public static string HlsUrl { get; private set; }
+
+        public static string VideoTokenSalt { get; private set; }
+
+        [Unnecessary]
+        public static string MediaServerUrl
+        {
+            get => _mediaServerUrl?.Length > 0 ? _mediaServerUrl : PublicUrl;
+            private set => _mediaServerUrl = value;
+        }
 
         public static RedisConfigWrapper RedisConfig { get; private set; }
 

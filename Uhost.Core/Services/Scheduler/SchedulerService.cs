@@ -20,7 +20,7 @@ namespace Uhost.Core.Services.Scheduler
             _client.Enqueue<IVideoService>(e => e.Convert(videoId, type), TaskQueues.Conversion);
         }
 
-        public void ScheduleVideoStreamConvert(int videoId, string url)
+        public void ScheduleVideoStreamFetch(int videoId, string url)
         {
             _client.Enqueue<IVideoService>(e => e.FetchUrl(videoId, url), TaskQueues.Conversion);
         }

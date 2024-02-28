@@ -12,6 +12,8 @@ import Common from "./utils/Common";
 import { createTheme } from '@mui/material/styles';
 import { orange, red } from '@mui/material/colors';
 import SearchPage from "./components/pages/SearchPage";
+import VideoPage from "./components/pages/VideoPage";
+import NotFoundPage from "./components/pages/NotFoundPage";
 
 export default function App() {
     const [error, setError] = useState(null);
@@ -69,6 +71,8 @@ export default function App() {
                         <Routes>
                             <Route path={`${config.webroot}/`} element={<SearchPage />} />
                             <Route path={`${config.webroot}/login`} element={<AuthPage />} />
+                            <Route path={`${config.webroot}/video/:token`} element={<VideoPage />} />
+                            <Route path='*' element={<NotFoundPage />} />
                         </Routes>
                     </BrowserRouter>
                     <ErrorDialog />

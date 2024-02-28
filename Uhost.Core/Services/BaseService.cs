@@ -5,6 +5,7 @@ using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using Uhost.Core.Common;
 using Uhost.Core.Data;
@@ -56,6 +57,13 @@ ORDER BY
             rights = Array.Empty<Rights>();
 
             return false;
+        }
+
+        protected bool TryGetUserIp(out IPAddress ipAddress)
+        {
+            ipAddress = _httpContextAccessor?.HttpContext?.ResolveClientIp();
+
+            return ipAddress != null;
         }
 
         public void Dispose()

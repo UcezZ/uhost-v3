@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 using Uhost.Core.Attributes.Validation;
+using Uhost.Core.Common;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.Video;
 using Uhost.Core.Services.Video;
@@ -60,8 +63,8 @@ namespace Uhost.Web.Controllers
         /// </summary>
         /// <param name="token">Токен видео</param>
         /// <returns></returns>
-        [HttpGet("{token}")]
-        public IActionResult GetOne(
+        [HttpGet("{token}"), AllowAnonymous]
+        public async Task<IActionResult> GetOne(
             [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Token), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Video_Error_NotFound))]
             string token)
         {
@@ -70,7 +73,20 @@ namespace Uhost.Web.Controllers
                 return ResponseHelper.Error(ModelState.GetErrors());
             }
 
-            return ResponseHelper.Success(_service.GetOne(token));
+            var model = await _service.GetOne(token);
+
+            var cookieOptions = new CookieOptions
+            {
+                IsEssential = true,
+                Expires = DateTimeOffset.Now.Add(model.GetCookieTtl()),
+                SameSite = LocalEnvironment.IsDev
+                    ? SameSiteMode.None
+                    : SameSiteMode.Strict
+            };
+
+            Response.Cookies.Append("video_token", model.GetAccessToken(), cookieOptions);
+
+            return ResponseHelper.Success(model);
         }
 
         /// <summary>
@@ -128,7 +144,10 @@ namespace Uhost.Web.Controllers
             }
             else
             {
-                return ResponseHelper.Success(_service.GetOne(entity.Id).Having(e => e.IsInfinite = isInfinite));
+                var videoModel = _service.GetOne(entity.Id).ToPropertiesDictionary();
+                videoModel["IsInfinite"] = isInfinite;
+
+                return ResponseHelper.Success(videoModel);
             }
         }
 
@@ -139,7 +158,7 @@ namespace Uhost.Web.Controllers
         /// <param name="model">Можель данных</param>
         /// <returns></returns>
         [HttpPut("{token}"), HasRightAuthorize(Rights.VideoCreateUpdate)]
-        public IActionResult Update(
+        public async Task<IActionResult> Update(
             [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Token), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Video_Error_NotFound))]
             string token,
             [FromForm] VideoUpdateModel model)
@@ -151,7 +170,20 @@ namespace Uhost.Web.Controllers
 
             _service.Update(token, model);
 
-            return ResponseHelper.Success(_service.GetOne(token));
+            var updated = await _service.GetOne(token);
+
+            var cookieOptions = new CookieOptions
+            {
+                IsEssential = true,
+                Expires = new DateTimeOffset().Add(updated.GetCookieTtl()),
+                SameSite = LocalEnvironment.IsDev
+                    ? SameSiteMode.None
+                    : SameSiteMode.Strict
+            };
+
+            Response.Cookies.Append("video_token", updated.GetAccessToken(), cookieOptions);
+
+            return ResponseHelper.Success(updated);
         }
 
         /// <summary>

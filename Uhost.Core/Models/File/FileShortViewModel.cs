@@ -23,6 +23,8 @@ namespace Uhost.Core.Models.File
 
         internal string DynName { get; set; }
 
+        internal string UrlPath { get; set; }
+
         internal bool Exists
         {
             get
@@ -51,6 +53,7 @@ namespace Uhost.Core.Models.File
             DynName = entity.DynName;
             Url = entity.GetUrl();
             Path = entity.GetPath();
+            UrlPath = entity.GetUrlPath();
         }
     }
 }

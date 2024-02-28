@@ -148,7 +148,14 @@ namespace Uhost.Core.Common
         /// <returns></returns>
         public static string UrlCombine(params string[] parts)
         {
-            var url = string.Join("/", parts.Select(e => e?.Replace('\\', '/').Trim().Trim(new[] { '/', '\\' })));
+            var url = parts
+                .Select(e => e?.Replace('\\', '/').Trim().Trim(new[] { '/', '\\' }))
+                .Join("/");
+
+            if (!url.Contains("://") && url.Contains(":/"))
+            {
+                url = url.Replace(":/", "://");
+            }
 
             return url;
         }
@@ -191,6 +198,10 @@ namespace Uhost.Core.Common
                 "application/octet-stream";
         }
 
+        /// <summary>
+        /// Создаёт путь к файлу <paramref name="fileName"/>
+        /// </summary>
+        /// <param name="fileName"></param>
         public static void MakePath(string fileName)
         {
             var dirName = Path.GetDirectoryName(fileName);

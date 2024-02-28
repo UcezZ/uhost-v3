@@ -17,6 +17,7 @@ namespace Uhost.Core.Extensions
         private const string _similarLat = "ABEKMHOPCTYXabekmhopctyx";
         private const string _pgEscapeChars = "_%()";
         private const char _pgEscapeChar = '\\';
+        private static readonly Regex _digitRegex = new Regex(@"\d{1,}");
 
         /// <summary>
         /// Валидация строки Email-адреса
@@ -245,6 +246,52 @@ namespace Uhost.Core.Extensions
             }
 
             return true;
+        }
+
+        public static string ReverseString(this string input)
+        {
+            if (input == null)
+            {
+                return null;
+            }
+
+            return new string(input.Reverse().ToArray());
+        }
+
+        public static int EqualityFromStart(this string a, string b)
+        {
+            if (a == null || b == null)
+            {
+                return 0;
+            }
+
+            int i;
+
+            for (i = 0; i < a.Length && i < b.Length && a[i] == b[i]; ++i) ;
+
+            return i;
+        }
+
+        public static int EqualityFromEnd(this string a, string b)
+        {
+            if (a == null || b == null)
+            {
+                return 0;
+            }
+
+            return EqualityFromStart(a.ReverseString(), b.ReverseString());
+        }
+
+        public static int ParseDigits(this string input)
+        {
+            var match = _digitRegex.Match(input);
+
+            if (match.Success)
+            {
+                return int.TryParse(match.Value, out var result) ? result : 0;
+            }
+
+            return 0;
         }
     }
 }

@@ -268,7 +268,8 @@ namespace Uhost.Core.Data
 
         public void DetachAllEntities()
         {
-            ChangeTracker.Entries().ToList()
+            ChangeTracker.Entries()
+                .ToList()
                 .ForEach(x => x.State = EntityState.Detached);
         }
     }

@@ -5,7 +5,7 @@ using Uhost.Web.Config;
 
 namespace Uhost.Web
 {
-    public partial class WebSettings
+    public static class WebSettings
     {
         /// <summary>
         /// Время жизни токена в минутах

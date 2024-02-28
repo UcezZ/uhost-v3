@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Uhost.Core.Properties;
 using static System.Console;
@@ -36,6 +37,17 @@ namespace Uhost.Core.Extensions
         public static JToken ToJToken(this object data)
         {
             return JToken.FromObject(data);
+        }
+
+        /// <summary>
+        /// Клонирование объекта через JSON
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static T JsonClone<T>(this T obj)
+        {
+            return JToken.FromObject(obj).ToObject<T>();
         }
 
         /// <summary>
@@ -467,6 +479,33 @@ namespace Uhost.Core.Extensions
             }
 
             props.Clear();
+        }
+
+        /// <summary>
+        /// Преобразует объект в словарь свойств
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="propertyFilter"></param>
+        /// <returns></returns>
+        public static Dictionary<string, object> ToPropertiesDictionary(this object obj, Func<PropertyInfo, bool> propertyFilter = default)
+        {
+            propertyFilter ??= e => true;
+            var dictionary = new Dictionary<string, object>();
+            var props = obj.GetType().GetProperties().Where(propertyFilter);
+
+            foreach (var prop in props)
+            {
+                try
+                {
+                    dictionary[prop.Name] = prop.GetValue(obj);
+                }
+                catch
+                {
+                    dictionary[prop.Name] = null;
+                }
+            }
+
+            return dictionary;
         }
     }
 }

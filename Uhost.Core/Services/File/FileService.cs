@@ -72,18 +72,38 @@ namespace Uhost.Core.Services.File
                     file.Directory.Create();
                 }
 
-                using (var stream = file.OpenWrite())
+                var doCopy = true;
+
+                if (data is FileStream fileStream)
                 {
-                    stream.SetLength(0);
-                    data.Position = 0;
-                    data.CopyTo(stream);
+                    try
+                    {
+                        var fileInfo = new FileInfo(fileStream.Name);
+                        fileStream.Close();
+                        fileInfo.MoveTo(file.FullName, true);
+                        doCopy = false;
+                    }
+                    catch
+                    {
+                        data = new FileStream(fileStream.Name, FileMode.Open, FileAccess.Read);
+                    }
+                }
+
+                if (doCopy)
+                {
+                    using (var stream = file.OpenWrite())
+                    {
+                        stream.SetLength(0);
+                        data.Position = 0;
+                        data.CopyTo(stream);
+                    }
                 }
 
                 try
                 {
                     file.CreationTime = entity.CreatedAt;
-                    file.LastAccessTime = entity.CreatedAt;
-                    file.LastWriteTime = entity.CreatedAt;
+                    file.LastAccessTime = entity.UpdatedAt?? entity.CreatedAt;
+                    file.LastWriteTime = entity.UpdatedAt ?? entity.CreatedAt;
                 }
                 catch { }
 
