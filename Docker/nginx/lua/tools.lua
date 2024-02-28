@@ -49,11 +49,22 @@ function tools.get_path()
         local ix = path:find('[^/]*$')
 
         if ix and ix > 3 then
-            return path:sub(1, ix - 2)
+            return path:sub(2, ix - 2)
         end
     end
 
-    return path
+    return path:sub(2)
+end
+
+function tools.get_client_ip()
+    local x_forwarded_for = ngx.req.get_headers()['X-Forwarded-For']
+    local addr = ngx.var.remote_addr
+
+    if not x_forwarded_for then
+        return addr
+    else
+        return string.match(x_forwarded_for, '^([^:]+)')
+    end
 end
 
 return tools

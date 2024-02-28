@@ -32,7 +32,7 @@ services:
     container_name: "${APP_NAME}-backend-deploy"
     volumes:
       - ../:/src:ro
-      - "${EXTERNAL_DIR}/storage:/storage"
+      - "${EXTERNAL_DIR}:/storage"
       - "${EXTERNAL_DIR}/deploy-win:/deploy/win"
       - deploy_volume:/deploy
       - "${BUILD_DIR}:/build"
@@ -76,7 +76,7 @@ services:
     ports:
       - "${FORWARD_HOST}:${FORWARD_HTTP_PORT}:5000"
     volumes:
-      - "${EXTERNAL_DIR}/storage:/storage"
+      - "${EXTERNAL_DIR}:/storage"
       - deploy_volume:/deploy
     working_dir: /deploy/back
     restart: unless-stopped
@@ -85,8 +85,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      graylog:
-        condition: service_started
       backend-deploy:
         condition: service_completed_successfully
     entrypoint: ./Uhost.Web
@@ -135,7 +133,7 @@ services:
       VIDEO_TOKEN_SALT: ${VIDEO_TOKEN_SALT}
     volumes:
       - deploy_volume:/deploy:ro
-      - ${EXTERNAL_DIR}/storage:/opt/static/uploads:ro
+      - ${EXTERNAL_DIR}/uploads:/opt/static/uploads:ro
       - ${EXTERNAL_DIR}/videos:/opt/static/videos:ro
       - ./nginx/nginx.conf:/usr/local/nginx/conf/nginx.conf:ro
       - ./nginx/lua:/opt/lua:ro
@@ -147,6 +145,7 @@ services:
         condition: service_completed_successfully
     ports:
       - "${FORWARD_HOST}:${FORWARD_NGINX_PORT}:80"
+    entrypoint: /entrypoint.sh
 
 volumes:
   deploy_volume:

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
+using Sentry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -70,14 +71,22 @@ ORDER BY
         {
             _dbContext.Dispose();
 
-            var childDisposables = GetType().GetTypeInfo()?.DeclaredFields
-                .Where(e => !e.IsStatic && e.FieldType.IsAssignableTo(typeof(IDisposable)) && e.DeclaringType != typeof(BaseService))
-                .Select(e => e.GetValue(this) as IDisposable)
-                .OfType<IDisposable>();
-
-            if (childDisposables != null && childDisposables.Any())
+            try
             {
-                childDisposables.ForEach(e => e.Dispose());
+                var childDisposables = GetType().GetTypeInfo()?.DeclaredFields
+                    .Where(e => !e.IsStatic && e.FieldType.IsAssignableTo(typeof(IDisposable)) && e.DeclaringType != typeof(BaseService))
+                    .Select(e => e.GetValue(this) as IDisposable)
+                    .OfType<IDisposable>()
+                    .ToList();
+
+                if (childDisposables != null && childDisposables.Any())
+                {
+                    childDisposables.ForEach(e => e.Dispose());
+                }
+            }
+            catch (Exception e)
+            {
+                SentrySdk.CaptureException(e);
             }
         }
     }

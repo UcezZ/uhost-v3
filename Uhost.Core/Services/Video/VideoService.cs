@@ -156,7 +156,7 @@ namespace Uhost.Core.Services.Video
             OverrideByUserRestrictions(query);
 
             var model = _repo
-                .GetAll<VideoViewModel>()
+                .GetAll<VideoViewModel>(query)
                 .FirstOrDefault();
 
             return FillViewModel(model);
@@ -200,7 +200,7 @@ namespace Uhost.Core.Services.Video
             OverrideByUserRestrictions(query);
 
             var model = _repo
-                .GetAll<VideoViewModel>()
+                .GetAll<VideoViewModel>(query)
                 .FirstOrDefault();
 
             FillViewModel(model);
@@ -233,10 +233,15 @@ namespace Uhost.Core.Services.Video
                     .OrderBy(e => e)
                     .Select(e => $"{e}p");
                 model.UrlPaths = videoFiles.ToDictionary(e => e.Type, e => e.UrlPath);
-                model.UrlPaths["Hls"] = Tools.UrlCombine(
-                    CoreSettings.HlsUrl,
-                    $",{videoFiles.Select(e => e.UrlPath).Join(",")},.urlset",
-                    "master.m3u8");
+
+                if (videoFiles.Any())
+                {
+                    model.UrlPaths["Hls"] = Tools.UrlCombine(
+                        CoreSettings.HlsUrl,
+                        $",{videoFiles.Select(e => e.UrlPath).Join(",")},.urlset",
+                        "master.m3u8");
+                }
+                
                 model.Urls = model.UrlPaths.ToDictionary(e => e.Key, e => Tools.UrlCombine(CoreSettings.MediaServerUrl, e.Value));
             }
 
