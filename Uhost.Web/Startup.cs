@@ -165,7 +165,10 @@ namespace Uhost.Web
                     options.AllowCredentials();
                     options.SetIsOriginAllowed(e => true);
                 });
+            }
 
+            if (WebSettings.UseSwagger)
+            {
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {

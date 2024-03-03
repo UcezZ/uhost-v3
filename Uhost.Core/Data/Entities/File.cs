@@ -46,7 +46,7 @@ namespace Uhost.Core.Data.Entities
         [Column(TypeName = "varchar(16)")]
         public string DynName { get; set; }
 
-        [Required, Column(TypeName = "char(40)")]
+        [Required, Column(TypeName = "char(32)")]
         public string Digest { get; set; }
 
         [Required, Column(TypeName = "char(32)")]

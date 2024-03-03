@@ -181,8 +181,11 @@ namespace Uhost.Core.Services.Video
                     Ip = ip.ToString()
                 };
 
-                var keyPayload = (value.AccessToken + value.Url + value.Ip + CoreSettings.VideoTokenSalt).ComputeHash(HasherExtensions.EncryptionMethod.MD5);
-                var key = $"videotoken_{keyPayload}";
+                var keyPayload = LocalEnvironment.IsDev
+                    ? $"{value.AccessToken}{value.Url}{CoreSettings.VideoTokenSalt}"
+                    : $"{value.AccessToken}{value.Url}{value.Ip}{CoreSettings.VideoTokenSalt}";
+                var keyHash = keyPayload.ComputeHash(HasherExtensions.EncryptionMethod.MD5);
+                var key = $"videotoken_{keyHash}";
 
                 await _redis.ExecuteAsync(async e => await e.StringSetAsync(key, value.ToJson(Formatting.Indented), model.CookieTtl));
             }
@@ -241,7 +244,7 @@ namespace Uhost.Core.Services.Video
                         $",{videoFiles.Select(e => e.UrlPath).Join(",")},.urlset",
                         "master.m3u8");
                 }
-                
+
                 model.Urls = model.UrlPaths.ToDictionary(e => e.Key, e => Tools.UrlCombine(CoreSettings.MediaServerUrl, e.Value));
             }
 
@@ -514,7 +517,8 @@ namespace Uhost.Core.Services.Video
             {
                 if (!file.Exists)
                 {
-                    SentrySdk.CaptureMessage($"File \"{file.Path}\" not found", SentryLevel.Warning);
+                    _logger?.WriteLine($"File \"{file.Path}\" not found, convetring #{id}, {type}", LogWriter.Severity.Warn);
+                    SentrySdk.CaptureMessage($"File \"{file.Path}\" not found, convetring #{id}, {type}", SentryLevel.Warning);
                 }
 
                 return;

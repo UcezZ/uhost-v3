@@ -43,28 +43,37 @@ function tools.connect_redis()
 end
 
 function tools.get_path()
-    local path = ngx.var.request_uri
+    local path = ngx.var.request_uri:sub(2)
 
-    if path:sub(-3) == '.ts' then
+    if string.match(path, '/[0-9a-fA-F]+/[0-9a-fA-F]+/[0-9a-fA-F]+/[%w%d%-_]+%.[%w%d%-_]+$') then
         local ix = path:find('[^/]*$')
 
         if ix and ix > 3 then
-            return path:sub(2, ix - 2)
+            path = path:sub(0, ix - 2)
+        end
+
+        if string.match(path, '^hls/videos') then
+            path = path:sub(5)
         end
     end
 
-    return path:sub(2)
+    return path
 end
 
 function tools.get_client_ip()
     local x_forwarded_for = ngx.req.get_headers()['X-Forwarded-For']
+    local x_forwarded = ngx.req.get_headers()['X-Forwarded']
     local addr = ngx.var.remote_addr
 
-    if not x_forwarded_for then
-        return addr
-    else
+    if x_forwarded_for then
         return string.match(x_forwarded_for, '^([^:]+)')
     end
+
+    if x_forwarded then
+        return string.match(x_forwarded, '^([^:]+)')
+    end
+
+    return addr
 end
 
 return tools

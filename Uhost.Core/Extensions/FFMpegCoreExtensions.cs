@@ -192,6 +192,17 @@ namespace Uhost.Core.Extensions
         }
 
         /// <summary>
+        /// Задаёт параметр -g
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static FFMpegArgumentOptions WithKeyFrames(this FFMpegArgumentOptions options, byte value)
+        {
+            return options.WithCustomArgument($"-g {value}");
+        }
+
+        /// <summary>
         /// Применяет заготовку кодирования видео
         /// </summary>
         /// <param name="options"></param>
@@ -221,7 +232,8 @@ namespace Uhost.Core.Extensions
                         .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitToMin(240)))
                         .WithVideoBitrate(240)
                         .WithMaxRate(384)
-                        .WithMaxFramerate(18);
+                        .WithMaxFramerate(18)
+                        .WithKeyFrames(30);
                     break;
                 case Types.Video360p:
                     options = options
@@ -230,7 +242,8 @@ namespace Uhost.Core.Extensions
                         .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitToMin(360)))
                         .WithVideoBitrate(640)
                         .WithMaxRate(1024)
-                        .WithMaxFramerate(24);
+                        .WithMaxFramerate(24)
+                        .WithKeyFrames(30);
                     break;
                 case Types.Video480p:
                     options = options
@@ -239,7 +252,8 @@ namespace Uhost.Core.Extensions
                         .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitToMin(480)))
                         .WithVideoBitrate(1024)
                         .WithMaxRate(1536)
-                        .WithMaxFramerate(30);
+                        .WithMaxFramerate(30)
+                        .WithKeyFrames(30);
                     break;
                 case Types.Video720p:
                     options = options
@@ -248,7 +262,8 @@ namespace Uhost.Core.Extensions
                         .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitToMin(720)))
                         .WithVideoBitrate(1536)
                         .WithMaxRate(2560)
-                        .WithMaxFramerate(48);
+                        .WithMaxFramerate(48)
+                        .WithKeyFrames(60);
                     break;
                 case Types.Video1080p:
                     options = options
@@ -257,7 +272,8 @@ namespace Uhost.Core.Extensions
                         .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitToMin(1080)))
                         .WithVideoBitrate(3840)
                         .WithMaxRate(6144)
-                        .WithMaxFramerate(60);
+                        .WithMaxFramerate(60)
+                        .WithKeyFrames(60);
                     break;
             }
 
