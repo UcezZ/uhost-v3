@@ -61,7 +61,7 @@ services:
 
       rm -rf /deploy/win/* || exit 1;
       dotnet publish -r win-x64 -p:PublishSingleFile=true --self-contained true -c Release -o /deploy/win Uhost.Console || exit 1;
-      cp -pf /src/Uhost.Core/appsettings.json /deploy/win/appsettings.json || exit 1;
+      cp -pf /src/Uhost.Core/appsettings.deploy-win.json /deploy/win/appsettings.json || exit 1;
 
       /deploy/back/Uhost.Console loaddefaultdata --file /deploy/back/default-data.json || exit 1;
       /deploy/back/Uhost.Console updateseq || exit 1;
@@ -88,6 +88,26 @@ services:
       backend-deploy:
         condition: service_completed_successfully
     entrypoint: ./Uhost.Web
+
+  # app hangfire runner
+  backend-hangfire:
+    image: ucezz/dotnet-aspnet:5.0-gdi-ffmpeg
+    container_name: "${APP_NAME}-backend-hangfire"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "${ASPNETCORE_ENVIRONMENT}"
+    volumes:
+      - "${EXTERNAL_DIR}:/storage"
+      - deploy_volume:/deploy
+    working_dir: /deploy/back
+    restart: unless-stopped
+    depends_on:
+      pgsql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      backend-deploy:
+        condition: service_completed_successfully
+    entrypoint: ./Uhost.Console hangfire --queue fetch,distr
 
   # frontend builder
   frontend-deploy:

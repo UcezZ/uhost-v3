@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, CssBaseline, Typography } from "@mui/material";
+import { Button, Card, CardContent, Typography } from "@mui/material";
 import { Container } from "@mui/system";
 import { red } from "@mui/material/colors";
 import { Link } from "react-router-dom";
@@ -14,7 +14,6 @@ export default function NotFoundPage() {
             alignItems: 'center',
             margin: '2em'
         }}>
-            <CssBaseline />
             <Card sx={{
                 width: '400px',
                 maxWidth: '100%',

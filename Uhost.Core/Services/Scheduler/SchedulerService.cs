@@ -22,7 +22,7 @@ namespace Uhost.Core.Services.Scheduler
 
         public void ScheduleVideoStreamFetch(int videoId, string url)
         {
-            _client.Enqueue<IVideoService>(e => e.FetchUrl(videoId, url), TaskQueues.Conversion);
+            _client.Enqueue<IVideoService>(e => e.FetchStream(videoId, url), TaskQueues.Fetch);
         }
     }
 }

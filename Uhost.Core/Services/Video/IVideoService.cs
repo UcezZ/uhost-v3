@@ -17,7 +17,7 @@ namespace Uhost.Core.Services.Video
         VideoViewModel GetOne(int id);
         void Update(string token, VideoUpdateModel model);
         void OverrideByUserRestrictions(VideoQueryModel query);
-        Task FetchUrl(int id, string url);
+        Task FetchStream(int id, string url);
         Task Convert(int id, Data.Entities.File.Types type);
         IEnumerable<VideoShortViewModel> GetRandom(int count);
         Task<VideoViewModel> GetOne(string token);

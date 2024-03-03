@@ -16,5 +16,5 @@ export default {
             sortDirection: sortDir
         }
     }),
-    getByAlias: (alias) => api.get(`${config.apiroot}/videos/${alias}`)
+    getByToken: (token) => api.get(`${config.apiroot}/videos/${token}`, { withCredentials: true, headers: { crossDomain: true } })
 };

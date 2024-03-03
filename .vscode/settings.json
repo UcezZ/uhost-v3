@@ -4,5 +4,9 @@
             "Docker/*.yml",
             "!Docker/prometheus-config.yml"
         ]
+    },
+    "files.associations": {
+        "appsettings.json": "jsonc",
+        "appsettings.*.json": "jsonc"
     }
 }

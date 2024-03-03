@@ -4,6 +4,7 @@
     {
         public const string Default = "default";
         public const string Conversion = "ffmpeg";
+        public const string Fetch = "fetch";
         public const string Distribution = "distr";
     }
 }

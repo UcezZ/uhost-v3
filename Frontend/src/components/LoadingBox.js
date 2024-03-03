@@ -1,22 +1,16 @@
 import { CircularProgress, Container } from "@mui/material";
 
-const fullScreenStyle = {
-    top: 0,
-    left: 0,
-    width: '100vw',
-    height: '100vh'
-}
-
 export default function LoadingBox({ fullscreen }) {
     return (
         <Container
             style={{
-                ...(fullscreen && fullScreenStyle),
+                width: '100%',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
-                margin: fullscreen ? 0 : '2em'
+                padding: '2em',
+                margin: 'auto'
             }}
         >
             <CircularProgress size={100} />

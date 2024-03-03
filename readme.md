@@ -6,7 +6,9 @@
 1. Создать /Docker/sentry/.env по аналогии с /Docker/sentry/.env.template
 1. Запустить Sentry - выполнить в папке проекта `docker-compose -f ./Docker/sentry/sentry.yml up` и дождаться пока всё прогрузится
 1. Создать /Docker/.env по аналогии с /Docker/.env.template
-1. Создать /Uhost.Core/appsettings.docker.json по аналогии с /Uhost.Core/appsettings.template.json, прописать подключения, специфичные для работы из контейнера
+1. Создать /Uhost.Core/appsettings.json по аналогии с /Uhost.Core/appsettings.template.json, прописать подключения и пути, специфичные для работы из контейнера
+1. Создать /Uhost.Core/appsettings.docker.json по аналогии с /Uhost.Core/appsettings.template.json, прописать подключения и пути, специфичные для работы из контейнера
+1. Создать /Uhost.Core/appsettings.deploy-win.json по аналогии с /Uhost.Core/appsettings.template.json, прописать подключения и пути, специфичные для работы на машине, где будет обрабатываться очередь конвертации
 1. Создать /Uhost.Console/default-data.json по аналогии с /Uhost.Console/default-data.template.json
 1. Выполнить в папке проекта `docker-compose -f ./Docker/deploy.yml up` и дождаться пока всё запустится
 1. Проект инициализирован и запущен

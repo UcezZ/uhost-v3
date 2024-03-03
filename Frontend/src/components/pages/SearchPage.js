@@ -1,14 +1,13 @@
-import { CssBaseline } from "@mui/material";
-import { Container } from "@mui/system";
-import { useContext, useEffect, useState } from "react";
-import SearchBar from "../items/SearchBar";
-import LoadingBox from "../LoadingBox";
-import VideoEndpoint from "../../api/VideoEndpoint";
-import StateContext from "../../utils/StateContext";
-import MessageBox from "../MessageBox";
-import VideoContainer from "../VideoContainer";
-import PagedResultNavigator from "../PagedResultNavigator";
-import Common from "../../utils/Common";
+import { Container } from '@mui/system';
+import { useContext, useEffect, useState } from 'react';
+import SearchBar from '../items/SearchBar';
+import LoadingBox from '../LoadingBox';
+import VideoEndpoint from '../../api/VideoEndpoint';
+import StateContext from '../../utils/StateContext';
+import MessageBox from '../MessageBox';
+import VideoPreviewContainer from '../VideoPreviewContainer';
+import PagedResultNavigator from '../PagedResultNavigator';
+import Common from '../../utils/Common';
 
 export default function SearchPage() {
     const [loading, setLoading] = useState(false);
@@ -25,7 +24,6 @@ export default function SearchPage() {
     }
 
     useEffect(() => {
-        console.log(search);
         if (loading) {
             var useSearch = search?.length > 0;
             (useSearch ? VideoEndpoint.search(search, pager?.currentPage ?? 1, 3) : VideoEndpoint.random())
@@ -61,7 +59,6 @@ export default function SearchPage() {
 
     return (
         <Container sx={{ maxWidth: '100% !important' }}>
-            <CssBaseline />
             <Container sx={{ maxWidth: '1152px !important' }}>
                 <SearchBar sx={{ marginTop: 1 }} onSearch={onSearch} />
             </Container>
@@ -70,7 +67,7 @@ export default function SearchPage() {
                     loading
                         ? <LoadingBox />
                         : videos?.length > 0
-                            ? <VideoContainer videos={videos} pager={pager} onPageToggle={onPageToggle} />
+                            ? <VideoPreviewContainer videos={videos} pager={pager} onPageToggle={onPageToggle} />
                             : <MessageBox text='Не найдено ни одного видео по запросу' />
                 }
                 {pager?.totalPages > 1 && <PagedResultNavigator pager={pager} onPageToggle={onPageToggle} sx={{ maxWidth: '1280px' }} />}

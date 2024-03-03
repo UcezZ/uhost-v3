@@ -539,7 +539,7 @@ namespace Uhost.Core.Services.Video
         /// <param name="id">ИД сущности видео</param>
         /// <param name="url">URL потока</param>
         /// <returns></returns>
-        public async Task FetchUrl(int id, string url)
+        public async Task FetchStream(int id, string url)
         {
             var output = new FileInfo(Path.GetFullPath(Path.Combine(Path.GetFullPath("tmp"), $"temp_{Guid.NewGuid()}.mp4")));
             Tools.MakePath(output.FullName);

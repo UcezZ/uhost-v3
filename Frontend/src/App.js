@@ -14,6 +14,7 @@ import { orange, red } from '@mui/material/colors';
 import SearchPage from "./components/pages/SearchPage";
 import VideoPage from "./components/pages/VideoPage";
 import NotFoundPage from "./components/pages/NotFoundPage";
+import CssBaseline from '@mui/material/CssBaseline';
 
 export default function App() {
     const [error, setError] = useState(null);
@@ -67,6 +68,7 @@ export default function App() {
                     user, setUser
                 }}>
                     <BrowserRouter>
+                        <CssBaseline />
                         <Header />
                         <Routes>
                             <Route path={`${config.webroot}/`} element={<SearchPage />} />
