@@ -78,7 +78,7 @@ export default class Common {
 
         var h = Math.floor(seconds / 3600);
         var m = Math.floor((seconds % 3600) / 60);
-        var s = Math.floor(seconds % 30);
+        var s = Math.floor(seconds % 60);
 
         var formatted = h > 0
             ? `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
