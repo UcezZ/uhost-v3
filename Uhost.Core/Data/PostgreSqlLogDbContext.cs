@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using System.Reflection;
-using Uhost.Core.Common;
 using Uhost.Core.Data.Entities;
 
 namespace Uhost.Core.Data
@@ -14,20 +12,6 @@ namespace Uhost.Core.Data
         public DbSet<Log> Logs { get; private set; }
 
         public PostgreSqlLogDbContext(DbContextOptions<PostgreSqlLogDbContext> options) : base(options) { }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            var assembly = Assembly.GetAssembly(typeof(PostgreSqlDbContext));
-
-            optionsBuilder.UseNpgsql(CoreSettings.SqlLogConnectionString, e => e
-                .MigrationsAssembly(assembly.FullName)
-                .CommandTimeout(CoreSettings.SqlCommandTimeoutSeconds));
-
-            if (LocalEnvironment.IsDev)
-            {
-                optionsBuilder.EnableSensitiveDataLogging();
-            }
-        }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

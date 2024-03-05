@@ -22,7 +22,7 @@ export default function YesNoDialog({ visible, setVisible, onYes, onNo, message 
     return (
         <div>
             <Dialog
-                open={visible}
+                open={visible ?? false}
                 TransitionComponent={PopupTransition}
                 keepMounted
                 onClose={onClose}

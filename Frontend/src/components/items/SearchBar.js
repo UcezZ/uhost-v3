@@ -8,7 +8,10 @@ export default function SearchBar({ sx, onSearch }) {
     const [value, setValue] = useState('');
     const [search, setSearch] = useSearchParams();
 
-    function updateSearch() {
+    function handleSearch(event) {
+        event?.preventDefault && event.preventDefault();
+        onSearch && onSearch(value);
+
         if (value?.length > 0) {
             setSearch({ q: value });
         }
@@ -16,18 +19,15 @@ export default function SearchBar({ sx, onSearch }) {
             search.delete('q');
             setSearch(search);
         }
-    }
-
-    function handleSearch(event) {
-        event?.preventDefault && event.preventDefault();
-        onSearch && onSearch(value);
-        updateSearch();
     };
 
     function handleClear(event) {
         event?.preventDefault && event.preventDefault();
         setValue('');
         onSearch && onSearch('');
+
+        search.delete('q');
+        setSearch(search);
     }
 
     useEffect(() => {

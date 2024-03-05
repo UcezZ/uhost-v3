@@ -13,7 +13,7 @@ export default function PopupAuthForm({ visible, setVisible, next }) {
     return (
         <div>
             <Dialog
-                open={visible}
+                open={visible ?? false}
                 TransitionComponent={PopupTransition}
                 keepMounted
                 onClose={onClose}

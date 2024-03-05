@@ -27,6 +27,10 @@ namespace Uhost.Core.Extensions
                 .HasDbFunction(typeof(PostgreSqlFunctions).GetMethod(nameof(PostgreSqlFunctions.Random)))
                 .HasTranslation(e => new SqlFunctionExpression("RANDOM", e, false, e.Select(b => false), typeof(double), null));
 
+            builder
+                .HasDbFunction(typeof(PostgreSqlFunctions).GetMethod(nameof(PostgreSqlFunctions.Debloat)))
+                .HasTranslation(e => new SqlFunctionExpression("debloat", e, false, e.Select(b => false), typeof(string), null));
+
             return builder;
         }
     }

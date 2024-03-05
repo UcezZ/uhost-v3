@@ -1,6 +1,6 @@
 import { CircularProgress, Container } from "@mui/material";
 
-export default function LoadingBox({ fullscreen }) {
+export default function LoadingBox() {
     return (
         <Container
             style={{

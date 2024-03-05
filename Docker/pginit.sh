@@ -15,11 +15,6 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -c "
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -c "CREATE EXTENSION IF NOT EXISTS btree_gin;"
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -c "SELECT * FROM pg_extension;"
 
-# Обновим конфигурацию
-CONF_FILE=`psql --dbname $POSTGRES_DB --username $POSTGRES_USER -AXqtc "SHOW config_file;"`
-echo "pg_trgm.similarity_threshold = 0.3" >> $CONF_FILE
-echo "pg_trgm.word_similarity_threshold = 0.3" >> $CONF_FILE
-
 # Создание БД логов
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -c "CREATE DATABASE $POSTGRES_DB_LOGS;"
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB_LOGS" -c "ALTER DATABASE $POSTGRES_DB_LOGS OWNER TO $POSTGRES_USER;"

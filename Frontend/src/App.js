@@ -56,7 +56,7 @@ export default function App() {
     if (loading) {
         return (
             <ThemeProvider theme={theme} >
-                <LoadingBox fullscreen />
+                <LoadingBox />
             </ThemeProvider>
         );
     }

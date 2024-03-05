@@ -2,7 +2,7 @@
   "profiles": {
     "Uhost.Console": {
       "commandName": "Project",
-      "commandLineArgs": "hangfire --queue ffmpeg,default --threads 2"
+      "commandLineArgs": "recreateix"
     }
   }
 }

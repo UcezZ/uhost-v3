@@ -13,6 +13,7 @@ tmp
 /Uhost.Web/wwwroot
 /Docker/build
 /deploy-win
+/Docker/postgres.conf
 
 # front
 /Frontend/node_modules

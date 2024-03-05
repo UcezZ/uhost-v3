@@ -492,11 +492,7 @@ WHERE ""Id"" <> {id} AND ({uniquePropNames.Select(e => $"\"{e}\" = @{e}").Join("
                     cmd.CommandText = sql;
                     cmd.CommandType = CommandType.Text;
                     cmd.Parameters.AddRange(uniquePropNames.Select(e => new NpgsqlParameter { ParameterName = $"@{e}", Value = typeof(TModel).GetProperty(e)?.GetValue(model) }));
-
-                    if (cmd.Connection?.State != ConnectionState.Open)
-                    {
-                        cmd.Connection?.Open();
-                    }
+                    cmd.Connection?.SafeOpen();
 
                     rowsAffected = cmd.ExecuteNonQuery();
 
@@ -505,10 +501,7 @@ WHERE ""Id"" <> {id} AND ({uniquePropNames.Select(e => $"\"{e}\" = @{e}").Join("
                         rowsAffected = 0;
                     }
 
-                    if (cmd.Connection?.State != ConnectionState.Closed)
-                    {
-                        cmd.Connection?.Close();
-                    }
+                    cmd.Connection?.SafeClose();
                 }
             }
 

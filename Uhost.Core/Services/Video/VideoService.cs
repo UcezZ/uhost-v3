@@ -181,9 +181,7 @@ namespace Uhost.Core.Services.Video
                     Ip = ip.ToString()
                 };
 
-                var keyPayload = LocalEnvironment.IsDev
-                    ? $"{value.AccessToken}{value.Url}{CoreSettings.VideoTokenSalt}"
-                    : $"{value.AccessToken}{value.Url}{value.Ip}{CoreSettings.VideoTokenSalt}";
+                var keyPayload = $"{value.AccessToken}{value.Url}{CoreSettings.VideoTokenSalt}";
                 var keyHash = keyPayload.ComputeHash(HasherExtensions.EncryptionMethod.MD5);
                 var key = $"videotoken_{keyHash}";
 

@@ -29,12 +29,6 @@ namespace Uhost.Web
         [Unnecessary]
         public static DashboardOptions HangfireDashboardOptions { get; private set; }
 
-        /// <summary>
-        /// Использовать Swagger
-        /// </summary>
-        [Unnecessary]
-        public static bool UseSwagger { get; private set; }
-
         static WebSettings() => CoreSettings.Load(typeof(WebSettings));
     }
 }

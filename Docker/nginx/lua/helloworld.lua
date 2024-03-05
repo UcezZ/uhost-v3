@@ -25,11 +25,7 @@ local query = tools.get_path()
 
 ngx.say(query)
 
-local client_addr = ngx.var.remote_addr
-
-ngx.say(client_addr)
-
-local key_payload = video_token .. query .. client_addr .. token_salt
+local key_payload = video_token .. query .. token_salt
 
 ngx.say(key_payload)
 

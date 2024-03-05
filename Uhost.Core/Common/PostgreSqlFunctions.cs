@@ -20,6 +20,13 @@ namespace Uhost.Core.Common
         /// </summary>
         /// <returns></returns>
         public static double Random() => throw new NotImplementedException();
+
+        /// <summary>
+        /// Преобразуется в SQL-выражение <c>debloat(@input)</c>
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string Debloat(string input) => throw new NotImplementedException();
     }
 }
 #pragma warning restore IDE0060 // Удалите неиспользуемый параметр

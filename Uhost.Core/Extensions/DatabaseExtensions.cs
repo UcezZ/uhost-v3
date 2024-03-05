@@ -26,10 +26,7 @@ namespace Uhost.Core.Extensions
                 cmd.CommandText = sql;
                 cmd.CommandType = CommandType.Text;
 
-                if (connection.State != ConnectionState.Open)
-                {
-                    connection.Open();
-                }
+                connection.SafeOpen();
 
                 var table = new DataTable();
 
@@ -38,10 +35,7 @@ namespace Uhost.Core.Extensions
                     table.Load(reader);
                 }
 
-                if (connection.State != ConnectionState.Closed)
-                {
-                    connection.Close();
-                }
+                connection.SafeClose();
 
                 return table;
             }
@@ -60,10 +54,7 @@ namespace Uhost.Core.Extensions
                 cmd.CommandText = sql;
                 cmd.CommandType = CommandType.Text;
 
-                if (connection.State != ConnectionState.Open)
-                {
-                    connection.Open();
-                }
+                connection.SafeOpen();
 
                 var row = Array.Empty<object>();
 
@@ -76,10 +67,7 @@ namespace Uhost.Core.Extensions
                     }
                 }
 
-                if (connection.State != ConnectionState.Closed)
-                {
-                    connection.Close();
-                }
+                connection.SafeClose();
 
                 return row;
             }
@@ -183,7 +171,7 @@ namespace Uhost.Core.Extensions
                     cmd.Parameters.AddRange(args);
                 }
 
-                cmd.Connection.Open();
+                cmd.Connection.SafeOpen();
 
                 using (var reader = cmd.ExecuteReader(CommandBehavior.CloseConnection))
                 {
@@ -216,7 +204,7 @@ namespace Uhost.Core.Extensions
                     cmd.Parameters.AddRange(args);
                 }
 
-                cmd.Connection.Open();
+                cmd.Connection.SafeOpen();
 
                 using (var reader = cmd.ExecuteReader(CommandBehavior.CloseConnection))
                 {
@@ -259,6 +247,22 @@ namespace Uhost.Core.Extensions
                         yield return new Tuple<T1, T2, T3>((T1)reader.GetValue(0), (T2)reader.GetValue(1), (T3)reader.GetValue(2));
                     }
                 }
+            }
+        }
+
+        public static void SafeOpen(this IDbConnection conn)
+        {
+            if (conn.State != ConnectionState.Open)
+            {
+                conn.Open();
+            }
+        }
+
+        public static void SafeClose(this IDbConnection conn)
+        {
+            if (conn.State != ConnectionState.Closed)
+            {
+                conn.Close();
             }
         }
     }

@@ -10,7 +10,7 @@ using static Uhost.Core.Data.Entities.File;
 
 namespace Uhost.Console.Commands
 {
-    [Verb("migratevideos", HelpText = "Перемещает файлы, относящиеся к видео в папку видео")]
+    [Verb("migratevideos", HelpText = "Перемещает файлы, относящиеся к видео, в папку видео [миграция со старой версии хранилища]")]
     public sealed class MigrateVideosCommand : BaseCommand
     {
         protected override void Run()

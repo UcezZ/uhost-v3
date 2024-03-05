@@ -20,21 +20,13 @@ if not video_token then
 end
 
 local query = tools.get_path()
-local client_addr = tools.get_client_ip()
-local is_dev = os.getenv('IS_DEV') == 'TRUE'
-local key_payload
-
-if is_dev then
-    key_payload = video_token .. query .. token_salt
-else
-    key_payload = video_token .. query .. client_addr .. token_salt
-end
+local key_payload = video_token .. query .. token_salt
 
 local key_hash = md5.sumhexa(key_payload)
 local key = 'videotoken_' .. key_hash
 
 local red = tools.connect_redis()
-local res, err = red:get(key)
+local res, err = red:exists(key)
 if not res or err or res == ngx.null then
     red:close()
     ngx.header.content_type = 'text/plain'

@@ -17,7 +17,7 @@ namespace Uhost.Console
 {
     static class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
             var services = new ServiceCollection();
             services.AddUhostCoreServices();
@@ -32,7 +32,7 @@ namespace Uhost.Console
             var commands = Assembly
                 .GetAssembly(typeof(BaseCommand))
                 .GetTypes()
-                .Where(e => typeof(BaseCommand).IsAssignableFrom(e) && e.IsClass)
+                .Where(e => typeof(BaseCommand).IsAssignableFrom(e) && e.IsClass && !e.IsAbstract)
                 .ToArray();
 
             try
@@ -40,6 +40,8 @@ namespace Uhost.Console
                 Parser.Default
                     .ParseArguments(args, commands)
                     .WithParsed<BaseCommand>(c => c.UseServiceProvider(provider).ValidateAndRun());
+
+                return 0;
             }
             catch (Exception e)
             {
@@ -49,6 +51,8 @@ namespace Uhost.Console
                 {
                     svc.Add(Events.ConsoleCommandError, new { Args = args, Exception = e?.ToDetailedDataObject() }, true);
                 }
+
+                return 1;
             }
         }
     }

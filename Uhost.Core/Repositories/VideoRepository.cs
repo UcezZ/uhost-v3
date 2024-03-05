@@ -31,10 +31,6 @@ namespace Uhost.Core.Repositories
             {
                 q = q.Where(e => e.UserId == query.UserId);
             }
-            if (!string.IsNullOrEmpty(query.Name))
-            {
-                q = q.Where(e => PostgreSqlFunctions.TrgmAreSimilar(e.Name, query.Name) || EF.Functions.ILike(e.Name, $"%{query.Name.PostgresEscape()}%", "\\"));
-            }
             if (!query.IncludeDeleted)
             {
                 q = q.Where(e => e.DeletedAt == null);
@@ -58,15 +54,18 @@ namespace Uhost.Core.Repositories
 
             if (!string.IsNullOrEmpty(query.Name))
             {
+                q = q.Where(e => PostgreSqlFunctions.TrgmAreSimilar(PostgreSqlFunctions.Debloat(e.Name), PostgreSqlFunctions.Debloat(query.Name))
+                || EF.Functions.Like(PostgreSqlFunctions.Debloat(e.Name), "%" + PostgreSqlFunctions.Debloat(query.Name) + "%"));
+
                 if (query.SortDirectParsed == BaseQueryModel.SortDirections.Desc)
                 {
-                    q = q.OrderBy(e => PostgreSqlFunctions.TrgmWordSimilarity(e.Name, query.Name))
+                    q = q.OrderBy(e => PostgreSqlFunctions.TrgmWordSimilarity(PostgreSqlFunctions.Debloat(e.Name), PostgreSqlFunctions.Debloat(query.Name)))
                         .ThenByDescending(e => e.Name)
                         .ThenByDescending(e => e.CreatedAt);
                 }
                 else
                 {
-                    q = q.OrderByDescending(e => PostgreSqlFunctions.TrgmWordSimilarity(e.Name, query.Name))
+                    q = q.OrderByDescending(e => PostgreSqlFunctions.TrgmWordSimilarity(PostgreSqlFunctions.Debloat(e.Name), PostgreSqlFunctions.Debloat(query.Name)))
                         .ThenBy(e => e.Name)
                         .ThenBy(e => e.CreatedAt);
                 }

@@ -5,9 +5,13 @@ export default class Common {
         if (error?.response?.data?.errors) {
             if (error.response.data.errors instanceof String) {
                 return error.response.data.errors;
+            } else if ('message' in error.response.data.errors && 'stackTrace' in error.response.data.errors) {
+                console.log(error.response.data.errors.stackTrace);
+                return error.response.data.errors.message;
             } else {
                 return Object
                     .keys(error.response.data.errors)
+                    .filter(e => error.response.data.errors[e])
                     .map(e => `${e}: ${error.response.data.errors[e]?.join(', ')}`);
             }
         }
@@ -66,14 +70,22 @@ export default class Common {
      * @param {Number} seconds 
      */
     static timeToHuman(seconds) {
+        var negate = seconds < 0;
+
+        if (negate) {
+            seconds = -seconds;
+        }
+
         var h = Math.floor(seconds / 3600);
         var m = Math.floor((seconds % 3600) / 60);
         var s = Math.floor(seconds % 30);
 
-        if (h > 0) {
-            return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        } else {
-            return `${m}:${s.toString().padStart(2, '0')}`;
-        }
+        var formatted = h > 0
+            ? `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+            : `${m}:${s.toString().padStart(2, '0')}`;
+
+        return negate
+            ? `-${formatted}`
+            : formatted;
     }
 }

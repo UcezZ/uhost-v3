@@ -111,10 +111,7 @@ namespace Uhost.Core.Attributes.Validation
 
                 cmd.CommandText = $"SELECT DISTINCT \"{_propertyName}\" FROM \"{_tableName}\" WHERE {wheres.Join(" AND ")}";
 
-                if (cmd.Connection.State != ConnectionState.Open)
-                {
-                    cmd.Connection.Open();
-                }
+                cmd.Connection.SafeOpen();
 
                 using (var reader = cmd.ExecuteReader(CommandBehavior.CloseConnection))
                 {

@@ -57,8 +57,8 @@ export default function VideoPreview({ entity }) {
                 {
                     entity?.resolutions?.length > 0 &&
                     <Box sx={{ marginTop: '8px' }}>
-                        {entity.resolutions.map(e =>
-                            <Typography variant='button' sx={{
+                        {entity.resolutions.map((e, i) =>
+                            <Typography variant='button' key={i} sx={{
                                 bgcolor: red[500],
                                 color: 'white',
                                 padding: '4px',
