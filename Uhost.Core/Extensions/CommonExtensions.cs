@@ -384,6 +384,12 @@ namespace Uhost.Core.Extensions
         public static string ToHumanSize(this int size)
         {
             string sizeStr, unit;
+            bool negate = size < 0;
+
+            if (negate)
+            {
+                size = -size;
+            }
 
             if (size < 1 << 10)
             {
@@ -411,7 +417,9 @@ namespace Uhost.Core.Extensions
                 sizeStr = sizeStr[..4].Trim(',', '.');
             }
 
-            return $"{sizeStr} {unit}";
+            return negate
+                ? $"-{sizeStr} {unit}"
+                : $"{sizeStr} {unit}";
         }
 
         public static bool TryGetValue<TKey, TValue, TOutValue>(this IDictionary<TKey, TValue> dict, TKey key, out TOutValue value) where TOutValue : TValue

@@ -61,25 +61,33 @@ ORDER BY
                         .FromSqlRaw<string, string>(_sqlGet, new NpgsqlParameter("tables", tables))
                         .ToList();
 
+                    var szTotalBefore = ctx.Database.GetSize();
+
                     using (var trx = ctx.Database.BeginTransaction())
                     {
                         try
                         {
+
                             foreach (var ix in indexes)
                             {
                                 Write($"    {ix.Item1}: ");
 
                                 var dropSql = _ixDropFmt.Format(ix.Item1);
-                                ctx.Database.ExecuteSqlRaw(dropSql);
 
-                                Write("DROP ");
-
-                                ctx.Database.ExecuteSqlRaw(ix.Item2);
-
-                                WriteLine("OK");
+                                using (var timer = new Timer())
+                                {
+                                    ctx.Database.ExecuteSqlRaw(dropSql);
+                                    Write("DROP ");
+                                    ctx.Database.ExecuteSqlRaw(ix.Item2);
+                                    WriteLine($"OK in {timer.Milliseconds} ms");
+                                }
                             }
 
                             trx.Commit();
+
+                            var szTotalAfter = ctx.Database.GetSize();
+
+                            WriteLine($"Total freed: {(szTotalBefore - szTotalAfter).ToHumanSize()}");
                         }
                         catch
                         {

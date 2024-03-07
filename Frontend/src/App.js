@@ -13,6 +13,7 @@ import { createTheme } from '@mui/material/styles';
 import { orange, red } from '@mui/material/colors';
 import SearchPage from "./components/pages/SearchPage";
 import VideoPage from "./components/pages/VideoPage";
+import VideosPage from "./components/pages/VideosPage";
 import NotFoundPage from "./components/pages/NotFoundPage";
 import CssBaseline from '@mui/material/CssBaseline';
 
@@ -74,6 +75,7 @@ export default function App() {
                             <Route path={`${config.webroot}/`} element={<SearchPage />} />
                             <Route path={`${config.webroot}/login`} element={<AuthPage />} />
                             <Route path={`${config.webroot}/video/:token`} element={<VideoPage />} />
+                            <Route path={`${config.webroot}/videos`} element={<VideosPage />} />
                             <Route path='*' element={<NotFoundPage />} />
                         </Routes>
                     </BrowserRouter>

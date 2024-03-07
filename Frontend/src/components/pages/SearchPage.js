@@ -26,7 +26,7 @@ export default function SearchPage() {
     useEffect(() => {
         if (loading) {
             var useSearch = search?.length > 0;
-            (useSearch ? VideoEndpoint.search(search, pager?.currentPage ?? 1, 3) : VideoEndpoint.random())
+            (useSearch ? VideoEndpoint.search(search, pager?.currentPage ?? 1, 5) : VideoEndpoint.random())
                 .then(e => {
                     if (e?.data?.success && e?.data?.result) {
                         if (useSearch) {
@@ -63,6 +63,7 @@ export default function SearchPage() {
                 <SearchBar sx={{ marginTop: 1 }} onSearch={onSearch} />
             </Container>
             <Container sx={{ maxWidth: '100% !important' }}>
+                {pager?.totalPages > 1 && <PagedResultNavigator pager={pager} onPageToggle={onPageToggle} sx={{ maxWidth: '1280px' }} />}
                 {
                     loading
                         ? <LoadingBox />

@@ -75,7 +75,7 @@ const hls = Hls.isSupported() && new Hls({
 });
 
 export default function VideoContainer({ video }) {
-    const duration = Common.parseTime(video?.duration);
+    const [duration, setDuration] = useState(Common.parseTime(video?.duration));
     const storageKey = `video_${video?.token}`;
     const firstVideoUrl = video.urls[`video${video.resolutions.firstOrDefault()}`];
 
@@ -83,7 +83,7 @@ export default function VideoContainer({ video }) {
     const [prevRes, setPrevRes] = useState();
 
     const videoRef = useRef();
-    const [isPlaying, setIsPlaying] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(true);
     const [isMuted, setIsMuted] = useState(false);
     const [volume, setVolume] = useState(loadPlayerVolume());
     const [time, setTime] = useState(0);
@@ -161,13 +161,25 @@ export default function VideoContainer({ video }) {
     }
 
     function onVideoLoaded(e) {
+        var actualDuration = Math.round(videoRef?.current?.duration);
+
+        if (!isNaN(actualDuration) && actualDuration && actualDuration !== duration) {
+            setDuration(actualDuration);
+        }
+
         var value = Number(sessionStorage.getItem(`${storageKey}_time`));
 
         if (value && !isNaN(value)) {
             onTimeSeek(null, value);
         }
 
-        onPlayPause();
+        videoRef.current.volume = loadPlayerVolume() / 100;
+
+        if (videoRef.current.paused && isPlaying) {
+            videoRef.current.play();
+            setIsPlaying(true);
+        }
+
         videoRef.current.muted = false;
     }
 
@@ -187,6 +199,7 @@ export default function VideoContainer({ video }) {
     }
 
     useEffect(() => {
+        console.log(1);
         if (!videoRef?.current) {
             return;
         }
@@ -215,8 +228,6 @@ export default function VideoContainer({ video }) {
             } else {
                 hls.currentLevel = levelIndex - 1;
             }
-
-            console.log(`hls level change ${hls.currentLevel} ${levelIndex}`);
         }
 
         // если смена плеера или разрешения на mp4 или не поддерживается hls
@@ -250,7 +261,15 @@ export default function VideoContainer({ video }) {
         if (prevType !== playerType) {
             setPrevType(playerType);
         }
-    }, [playerType, playerRes]);
+    }, [playerType, playerRes, videoRef?.current]);
+
+    useEffect(() => {
+        const videoElement = document.querySelector('video');
+
+        if (videoElement) {
+            videoElement.play(); // Начать воспроизведение видео
+        }
+    }, [videoRef?.current]);
 
     return (
         <Card sx={{ marginTop: 3 }}>
@@ -267,6 +286,7 @@ export default function VideoContainer({ video }) {
                     onLoadedData={onVideoLoaded}
                     onEnded={onPlaybackEnded}
                     muted
+                    autoPlay
                 />
             </CardMedia>
             <CardActions>
