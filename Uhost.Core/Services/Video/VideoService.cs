@@ -466,11 +466,6 @@ namespace Uhost.Core.Services.Video
 
                 entity.Duration = mediaInfo.Duration;
 
-                if (LocalEnvironment.IsDev)
-                {
-                    mediaInfo.Dump();
-                }
-
                 var capTime = TimeSpan.FromSeconds(mediaInfo.Duration.TotalSeconds * 0.1);
 
                 var size = new Size(mediaInfo.PrimaryVideoStream.Width, mediaInfo.PrimaryVideoStream.Height);
