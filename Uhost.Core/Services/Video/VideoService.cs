@@ -436,8 +436,21 @@ namespace Uhost.Core.Services.Video
 
                 entity.Duration = mediaInfo.Duration;
 
-                var capTime = TimeSpan.FromSeconds(mediaInfo.Duration.TotalSeconds * 0.05);
-                var size = new Size(mediaInfo.PrimaryVideoStream.Width, mediaInfo.PrimaryVideoStream.Height).FitTo(320, 320);
+                if (LocalEnvironment.IsDev)
+                {
+                    mediaInfo.Dump();
+                }
+
+                var capTime = TimeSpan.FromSeconds(mediaInfo.Duration.TotalSeconds * 0.1);
+
+                var size = new Size(mediaInfo.PrimaryVideoStream.Width, mediaInfo.PrimaryVideoStream.Height);
+
+                if (FFMpegCoreAdditions.TryGetSize(rawVideoPath, out var altSize))
+                {
+                    size = altSize;
+                }
+
+                size = size.FitTo(320, 320);
 
                 var ffargs = FFMpegArguments
                     .FromFileInput(rawVideoPath)

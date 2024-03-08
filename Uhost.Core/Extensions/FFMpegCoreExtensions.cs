@@ -220,7 +220,6 @@ namespace Uhost.Core.Extensions
                 .WithPixelFormat(PixelFormat.Nv12)
                 .WithQMin(28)
                 .WithQMax(35)
-                .UsingMultithreading(true)
                 .WithoutMetadata();
 
             switch (type)
