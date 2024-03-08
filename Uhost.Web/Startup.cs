@@ -32,14 +32,10 @@ namespace Uhost.Web
     /// </summary>
     public class Startup
     {
-        /// <inheritdoc cref="Startup"/>
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            CoreSettings.Configuration.CopyTo(configuration);
         }
-
-        /// <inheritdoc cref="IConfiguration"/>
-        public IConfiguration Configuration { get; }
 
         /// <summary>
         /// Services configuration

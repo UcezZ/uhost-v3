@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -535,6 +536,45 @@ namespace Uhost.Core.Extensions
             catch { }
 
             return false;
+        }
+
+        /// <summary>
+        /// Получает все ключи
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="parentKey"></param>
+        /// <returns></returns>
+        public static IEnumerable<string> GetAllKeys(this IConfiguration config, string parentKey = null)
+        {
+            foreach (var child in config.GetChildren())
+            {
+                var currentKey = string.IsNullOrEmpty(parentKey) ? child.Key : $"{parentKey}:{child.Key}";
+                var hasChildren = false;
+
+                foreach (var key in child.GetAllKeys(currentKey))
+                {
+                    hasChildren = true;
+                    yield return key;
+                }
+
+                if (!hasChildren)
+                {
+                    yield return currentKey;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Рекурсивное копирование конфигурации
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="destination"></param>
+        public static void CopyTo(this IConfiguration source, IConfiguration destination)
+        {
+            foreach (var key in source.GetAllKeys())
+            {
+                destination[key] = source[key];
+            }
         }
     }
 }

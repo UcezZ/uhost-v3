@@ -49,6 +49,31 @@ namespace Uhost.Core.Extensions
         public static bool IsAssignableTo<T>(this Type type) => type.IsAssignableTo(typeof(T));
 
         ///<inheritdoc cref="Type.IsAssignableFrom(Type?)"/>
-        public static bool IsAssignableFrom<T>(this Type type) => type.IsAssignableFrom(typeof(T));
+        public static bool IsAssignableFrom<T>(this Type type) => type != null && type.IsAssignableFrom(typeof(T));
+
+
+        /// <summary>
+        /// Создаёт атрибут из данных атрибута
+        /// </summary>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <param name="customAttributeData"></param>
+        /// <returns></returns>
+        public static TAttribute ToAttributeInstance<TAttribute>(this CustomAttributeData customAttributeData) where TAttribute : Attribute
+        {
+            var args = customAttributeData.ConstructorArguments
+                .Select(e => e.Value)
+                .ToArray();
+
+            var instance = customAttributeData.Constructor.Invoke(args);
+
+            if (instance is TAttribute targetAttribute)
+            {
+                return targetAttribute;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

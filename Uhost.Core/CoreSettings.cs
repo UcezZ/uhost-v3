@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using FFMpegCore.Enums;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -8,6 +10,7 @@ using Uhost.Core.Attributes;
 using Uhost.Core.Config;
 using Uhost.Core.Extensions;
 using static System.Console;
+using static Uhost.Core.Extensions.FFMpegCoreExtensions;
 
 namespace Uhost.Core
 {
@@ -19,6 +22,8 @@ namespace Uhost.Core
         public static string JsonName { get; } = Path.Combine(AppContext.BaseDirectory, _jsonName);
 
         public static IConfiguration Configuration { get; }
+
+        public static IChangeToken ChangeTracking { get; }
 
         public static string SqlConnectionString { get; private set; }
 
@@ -58,6 +63,24 @@ namespace Uhost.Core
 
         public static SmtpClientWrapper SmtpConfig { get; private set; }
 
+        /// <summary>
+        /// Устройство для аппаратного ускорения декодирования видео. Необязательный параметр. Значение по умолчанию: <c>Auto</c>, может принимать значения: <c>Auto</c>, <c>D3D11VA</c>, <c>DXVA2</c>, <c>QSV</c>, <c>CUVID</c>, <c>VDPAU</c>, <c>VAAPI</c>, <c>LibMFX</c>, <c>CUDA</c>
+        /// </summary>
+        [Unnecessary(HardwareAccelerationDevices.Auto)]
+        public static HardwareAccelerationDevices InputHardwareAcceleration { get; private set; }
+
+        /// <summary>
+        /// Устройство для аппаратного ускорения кодирования видео. Необязательный параметр. Значение по умолчанию: <c>Auto</c>, может принимать значения: <c>Auto</c>, <c>D3D11VA</c>, <c>DXVA2</c>, <c>QSV</c>, <c>CUVID</c>, <c>VDPAU</c>, <c>VAAPI</c>, <c>LibMFX</c>, <c>CUDA</c>
+        /// </summary>
+        [Unnecessary(HardwareAccelerationDevices.Auto)]
+        public static HardwareAccelerationDevices OutputHardwareAcceleration { get; private set; }
+
+        /// <summary>
+        /// Скорость кодирования. Необязательный параметр. Значение по умолчанию: <c>Slow</c>, может принимать значения: <c>VerySlow</c>, <c>Slower</c>, <c>Slow</c>, <c>Medium</c>, <c>Fast</c>, <c>Faster</c>, <c>VeryFast</c>, <c>SuperFast</c>, <c>UltraFast</c>
+        /// </summary>
+        [Unnecessary(Speed.Slow)]
+        public static Speed EncodingSpeed { get; private set; }
+
         static CoreSettings()
         {
             try
@@ -73,6 +96,40 @@ namespace Uhost.Core
             }
 
             Load(typeof(CoreSettings));
+        }
+
+        /// <summary>
+        /// Загрузка значения по умолчанию для типа или значения по умолчанию из атрибута
+        /// </summary>
+        /// <param name="prop"></param>
+        private static void LoadIfNull(PropertyInfo prop)
+        {
+            var attribute = prop.CustomAttributes
+                .FirstOrDefault(e => e.AttributeType == typeof(UnnecessaryAttribute))?
+                .ToAttributeInstance<UnnecessaryAttribute>();
+
+            if (attribute != null)
+            {
+                try
+                {
+                    if (attribute.DefaultValue != null && attribute.DefaultValue.TryCastTo(prop.PropertyType, out var casted))
+                    {
+                        prop.SetValue(null, casted);
+                    }
+                    else
+                    {
+                        prop.SetValue(null, prop.PropertyType.Instantiate());
+                    }
+                }
+                catch (Exception e)
+                {
+                    Error.WriteLine($"[WARN] Failed to instantiate unnecessary field '{prop.Name}' of type '{prop.PropertyType.FullName}': {e.Message}");
+                }
+            }
+            else
+            {
+                throw new Exception($"NULL value got from key '{prop.Name}'");
+            }
         }
 
         /// <summary>
@@ -94,23 +151,9 @@ namespace Uhost.Core
 
                 if (value == null)
                 {
-                    if (prop.CustomAttributes.Any(e => e.AttributeType == typeof(UnnecessaryAttribute)))
-                    {
-                        try
-                        {
-                            prop.SetValue(null, prop.PropertyType.Instantiate());
-                        }
-                        catch (Exception e)
-                        {
-                            Error.WriteLine($"[WARN] Failed to instantiate unnecessary field '{prop.Name}' of type '{prop.PropertyType.FullName}': {e.Message}");
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception($"NULL value got from key '{prop.Name}'");
-                    }
+                    LoadIfNull(prop);
                 }
-                if (prop.PropertyType == typeof(string))
+                else if (prop.PropertyType == typeof(string))
                 {
                     prop.SetValue(null, value?.ToString());
                 }
@@ -133,21 +176,7 @@ namespace Uhost.Core
 
                 if (value == null)
                 {
-                    if (prop.CustomAttributes.Any(e => e.AttributeType == typeof(UnnecessaryAttribute)))
-                    {
-                        try
-                        {
-                            prop.SetValue(null, prop.PropertyType.Instantiate());
-                        }
-                        catch (Exception e)
-                        {
-                            Error.WriteLine($"[WARN] Failed to instantiate unnecessary field of type '{prop.PropertyType.FullName}': {e.Message}");
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception($"NULL section got from key '{prop.Name}'");
-                    }
+                    LoadIfNull(prop);
                 }
                 else
                 {

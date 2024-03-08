@@ -67,6 +67,22 @@ namespace Uhost.Core.Extensions
         }
 
         /// <summary>
+        /// Устройства аппаратного ускорения
+        /// </summary>
+        public enum HardwareAccelerationDevices
+        {
+            Auto = HardwareAccelerationDevice.Auto,
+            D3D11VA = HardwareAccelerationDevice.D3D11VA,
+            DXVA2 = HardwareAccelerationDevice.DXVA2,
+            QSV = HardwareAccelerationDevice.QSV,
+            CUVID = HardwareAccelerationDevice.CUVID,
+            VDPAU = HardwareAccelerationDevice.VDPAU,
+            VAAPI = HardwareAccelerationDevice.VAAPI,
+            LibMFX = HardwareAccelerationDevice.LibMFX,
+            CUDA = 8
+        }
+
+        /// <summary>
         /// Получает разрешение видеопотока
         /// </summary>
         /// <param name="stream"></param>
@@ -77,7 +93,7 @@ namespace Uhost.Core.Extensions
         }
 
         /// <summary>
-        /// Задаёт параметр -tune
+        /// Задаёт параметр <c>-tune</c>
         /// </summary>
         /// <param name="options"></param>
         /// <param name="tune"></param>
@@ -88,7 +104,7 @@ namespace Uhost.Core.Extensions
         }
 
         /// <summary>
-        /// Задаёт параметр -preset
+        /// Задаёт параметр <c>-preset</c>
         /// </summary>
         /// <param name="options"></param>
         /// <param name="preset"></param>
@@ -99,7 +115,7 @@ namespace Uhost.Core.Extensions
         }
 
         /// <summary>
-        /// Задаёт зараметр -maxrate
+        /// Задаёт зараметр <c>-maxrate</c>
         /// </summary>
         /// <param name="options"></param>
         /// <param name="rate"></param>
@@ -121,7 +137,7 @@ namespace Uhost.Core.Extensions
         }
 
         /// <summary>
-        /// Задаёт параметр -vsync
+        /// Задаёт параметр <c>-vsync</c>
         /// </summary>
         /// <param name="options"></param>
         /// <param name="vsync"></param>
@@ -137,7 +153,7 @@ namespace Uhost.Core.Extensions
         }
 
         /// <summary>
-        /// Задаёт параметр -t
+        /// Задаёт параметр <c>-t</c>
         /// </summary>
         /// <param name="options"></param>
         /// <param name="duration"></param>
@@ -148,7 +164,7 @@ namespace Uhost.Core.Extensions
         }
 
         /// <summary>
-        /// Задаёт параметр -fps_mode
+        /// Задаёт параметр <c>-fps_mode</c>
         /// </summary>
         /// <param name="options"></param>
         /// <param name="mode"></param>
@@ -159,7 +175,7 @@ namespace Uhost.Core.Extensions
         }
 
         /// <summary>
-        /// Задаёт параметр -pix_fmt
+        /// Задаёт параметр <c>-pix_fmt</c>
         /// </summary>
         /// <param name="options"></param>
         /// <param name="format"></param>
@@ -170,7 +186,7 @@ namespace Uhost.Core.Extensions
         }
 
         /// <summary>
-        /// Задаёт параметр -qmin
+        /// Задаёт параметр <c>-qmin</c>
         /// </summary>
         /// <param name="options"></param>
         /// <param name="value"></param>
@@ -181,7 +197,7 @@ namespace Uhost.Core.Extensions
         }
 
         /// <summary>
-        /// Задаёт параметр -qmax
+        /// Задаёт параметр <c>-qmax</c>
         /// </summary>
         /// <param name="options"></param>
         /// <param name="value"></param>
@@ -192,7 +208,7 @@ namespace Uhost.Core.Extensions
         }
 
         /// <summary>
-        /// Задаёт параметр -g
+        /// Задаёт параметр <c>-g</c>
         /// </summary>
         /// <param name="options"></param>
         /// <param name="value"></param>
@@ -200,6 +216,28 @@ namespace Uhost.Core.Extensions
         public static FFMpegArgumentOptions WithKeyFrames(this FFMpegArgumentOptions options, byte value)
         {
             return options.WithCustomArgument($"-g {value}");
+        }
+
+        /// <summary>
+        /// Задаёт параметр <c>-hwaccel</c>
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="device"></param>
+        /// <returns></returns>
+        public static FFMpegArgumentOptions WithHardwareAcceleration(this FFMpegArgumentOptions options, HardwareAccelerationDevices device)
+        {
+            return options.WithCustomArgument($"-hwaccel {device.ToString().ToLower()}");
+        }
+
+        /// <summary>
+        /// Задаёт параметр <c>-hwaccel_output_format</c>
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="device"></param>
+        /// <returns></returns>
+        public static FFMpegArgumentOptions WithOutputHardwareAcceleration(this FFMpegArgumentOptions options, HardwareAccelerationDevices device)
+        {
+            return options.WithCustomArgument($"-hwaccel_output_format {device.ToString().ToLower()}");
         }
 
         /// <summary>
@@ -213,8 +251,10 @@ namespace Uhost.Core.Extensions
         public static FFMpegArgumentOptions ApplyOptimalPreset(this FFMpegArgumentOptions options, IMediaAnalysis mediaInfo, FileTypes type, TimeSpan? maxDuration = null)
         {
             options = options
+                .WithHardwareAcceleration(CoreSettings.InputHardwareAcceleration)
+                .WithOutputHardwareAcceleration(CoreSettings.OutputHardwareAcceleration)
                 .WithVideoCodec(FFConfig.VideoCodec)
-                .WithPreset(Speed.VerySlow)
+                .WithPreset(CoreSettings.EncodingSpeed)
                 .WithTune("hq")
                 .WithFpsMode(FpsMode.Vfr)
                 .WithPixelFormat(PixelFormat.Nv12)

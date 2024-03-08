@@ -42,7 +42,6 @@ namespace Uhost.Core.Common
             if (_hwinfo.VideoControllerList.Any(e => e.Manufacturer.Contains("nvidia", StringComparison.InvariantCultureIgnoreCase)))
             {
                 VideoCodec = "h264_nvenc";
-
                 VideoPresets[Speed.VerySlow] = "p7";
                 VideoPresets[Speed.Slower] = "p6";
             }
