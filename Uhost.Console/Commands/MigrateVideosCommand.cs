@@ -26,7 +26,7 @@ namespace Uhost.Console.Commands
             var files = entities.Select(e => new
             {
                 e.Id,
-                Old = new FileInfo(e.GetPath(Types.Other)),
+                Old = new FileInfo(e.GetPath(FileTypes.Other)),
                 New = new FileInfo(e.GetPath())
             })
                 .Where(e => e.Old.Exists)

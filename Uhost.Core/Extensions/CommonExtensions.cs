@@ -515,5 +515,26 @@ namespace Uhost.Core.Extensions
 
             return dictionary;
         }
+
+        /// <summary>
+        /// Попытка удаления файла
+        /// </summary>
+        /// <param name="fileInfo"></param>
+        /// <returns></returns>
+        public static bool TryDeleteIfExists(this FileInfo fileInfo)
+        {
+            try
+            {
+                if (fileInfo.Exists)
+                {
+                    fileInfo.Delete();
+                }
+
+                return true;
+            }
+            catch { }
+
+            return false;
+        }
     }
 }

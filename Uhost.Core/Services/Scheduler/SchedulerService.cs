@@ -2,7 +2,6 @@
 using Uhost.Core.Common;
 using Uhost.Core.Extensions;
 using Uhost.Core.Services.Video;
-using static Uhost.Core.Data.Entities.File;
 
 namespace Uhost.Core.Services.Scheduler
 {
@@ -15,14 +14,14 @@ namespace Uhost.Core.Services.Scheduler
             _client = new BackgroundJobClient(jobStorage);
         }
 
-        public void ScheduleVideoConvert(int videoId, Types type)
+        public void ScheduleVideoConvert(int conversionStateId)
         {
-            _client.Enqueue<IVideoService>(e => e.Convert(videoId, type), TaskQueues.Conversion);
+            _client.Enqueue<IVideoService>(e => e.Convert(conversionStateId), TaskQueues.Conversion);
         }
 
-        public void ScheduleVideoStreamFetch(int videoId, string url)
+        public void ScheduleVideoStreamFetch(int conversionStateId, string url)
         {
-            _client.Enqueue<IVideoService>(e => e.FetchStream(videoId, url), TaskQueues.Fetch);
+            _client.Enqueue<IVideoService>(e => e.FetchStream(conversionStateId, url), TaskQueues.Fetch);
         }
     }
 }

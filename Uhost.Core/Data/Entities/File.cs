@@ -15,7 +15,7 @@ namespace Uhost.Core.Data.Entities
             UserId
         }
 
-        public enum Types
+        public enum FileTypes
         {
             Other,
             UserAvatar,

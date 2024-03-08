@@ -133,6 +133,13 @@ namespace Uhost.Core.Data
                 .HasForeignKey(e => e.PlaylistId)
                 .HasPrincipalKey(e => e.Id);
 
+            // статусы конвертации видео
+            builder.Entity<VideoConversionState>()
+                 .HasOne(e => e.Video)
+                 .WithMany(e => e.VideoConversionStates)
+                 .HasForeignKey(e => e.VideoId)
+                 .HasPrincipalKey(e => e.Id);
+
             #region AddIsUniqueConstraint
             builder.Entity<Right>()
                 .HasIndex(e => e.Name)
@@ -262,6 +269,19 @@ namespace Uhost.Core.Data
 
             builder.Entity<Playlist>()
                 .Property(e => e.Name)
+                .HasDefaultValue(string.Empty);
+
+            // статусы конвертации видео
+            builder.Entity<VideoConversionState>()
+                .Property(e => e.CreatedAt)
+                .HasDefaultValueSql(_sqlNow);
+
+            builder.Entity<VideoConversionState>()
+                .Property(e => e.Type)
+                .HasDefaultValue(string.Empty);
+
+            builder.Entity<VideoConversionState>()
+                .Property(e => e.State)
                 .HasDefaultValue(string.Empty);
             #endregion
         }

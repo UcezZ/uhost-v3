@@ -76,7 +76,7 @@ WHERE num < 11";
                     .GetAll<UserCommentViewModel>(userQuery)
                     .ToList();
                 var avatars = _fileService
-                    .GetByDynEntity<FileShortViewModel>(userQuery.Ids, typeof(UserEntity), Types.UserAvatar)
+                    .GetByDynEntity<FileShortViewModel>(userQuery.Ids, typeof(UserEntity), FileTypes.UserAvatar)
                     .ToList();
 
                 foreach (var user in users)

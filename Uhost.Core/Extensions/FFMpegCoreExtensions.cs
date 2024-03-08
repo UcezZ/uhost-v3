@@ -210,7 +210,7 @@ namespace Uhost.Core.Extensions
         /// <param name="type"></param>
         /// <param name="maxDuration"></param>
         /// <returns></returns>
-        public static FFMpegArgumentOptions ApplyOptimalPreset(this FFMpegArgumentOptions options, IMediaAnalysis mediaInfo, Types type, TimeSpan? maxDuration = null)
+        public static FFMpegArgumentOptions ApplyOptimalPreset(this FFMpegArgumentOptions options, IMediaAnalysis mediaInfo, FileTypes type, TimeSpan? maxDuration = null)
         {
             options = options
                 .WithVideoCodec(FFConfig.VideoCodec)
@@ -224,7 +224,7 @@ namespace Uhost.Core.Extensions
 
             switch (type)
             {
-                case Types.Video240p:
+                case FileTypes.Video240p:
                     options = options
                         .WithAudioBitrate(48)
                         .WithAudioCodec("aac")
@@ -234,7 +234,7 @@ namespace Uhost.Core.Extensions
                         .WithMaxFramerate(18)
                         .WithKeyFrames(30);
                     break;
-                case Types.Video360p:
+                case FileTypes.Video360p:
                     options = options
                         .WithAudioBitrate(64)
                         .WithAudioCodec("aac")
@@ -244,7 +244,7 @@ namespace Uhost.Core.Extensions
                         .WithMaxFramerate(24)
                         .WithKeyFrames(30);
                     break;
-                case Types.Video480p:
+                case FileTypes.Video480p:
                     options = options
                         .WithAudioBitrate(96)
                         .WithAudioCodec("aac")
@@ -254,7 +254,7 @@ namespace Uhost.Core.Extensions
                         .WithMaxFramerate(30)
                         .WithKeyFrames(30);
                     break;
-                case Types.Video720p:
+                case FileTypes.Video720p:
                     options = options
                         .WithAudioBitrate(112)
                         .WithAudioCodec("aac")
@@ -264,7 +264,7 @@ namespace Uhost.Core.Extensions
                         .WithMaxFramerate(48)
                         .WithKeyFrames(60);
                     break;
-                case Types.Video1080p:
+                case FileTypes.Video1080p:
                     options = options
                         .WithAudioBitrate(160)
                         .WithAudioCodec("aac")

@@ -17,7 +17,7 @@ namespace Uhost.Core.Models.File
         /// Тип файла
         /// </summary>
         /// <example>Other</example>
-        [EnumValidation(typeof(Entity.Types), nameof(Entity.Types.Other))]
+        [EnumValidation(typeof(Entity.FileTypes), nameof(Entity.FileTypes.Other))]
         public string Type { get; set; }
 
         /// <summary>
@@ -31,6 +31,6 @@ namespace Uhost.Core.Models.File
         [EntityNameValidation(true)]
         public string DynName { get; set; }
 
-        internal Entity.Types? TypeParsed => Type.ParseEnum<Entity.Types>();
+        internal Entity.FileTypes? TypeParsed => Type.ParseEnum<Entity.FileTypes>();
     }
 }

@@ -5,7 +5,6 @@ using System;
 using System.Threading.Tasks;
 using Uhost.Core.Attributes.Validation;
 using Uhost.Core.Common;
-using Uhost.Core.Extensions;
 using Uhost.Core.Models.Video;
 using Uhost.Core.Services.Video;
 using Uhost.Web.Attributes;
@@ -128,7 +127,7 @@ namespace Uhost.Web.Controllers
         /// Загрузка видео из потока или стороннего сервера
         /// </summary>
         /// <param name="model">Модель данных</param>
-        [HttpPost("url"), HasRightAuthorize(Rights.VideoCreateUpdate), BigFileUpload]
+        [HttpPost("url"), HasRightAuthorize(Rights.VideoCreateUpdate)]
         public IActionResult UploadUrl([FromForm] VideoUploadUrlModel model)
         {
             if (!ModelState.IsValid)
@@ -136,7 +135,7 @@ namespace Uhost.Web.Controllers
                 return ResponseHelper.Error(ModelState.GetErrors());
             }
 
-            var entity = _service.Add(model, out var isInfinite);
+            var entity = _service.Add(model);
 
             if (entity == null)
             {
@@ -144,10 +143,7 @@ namespace Uhost.Web.Controllers
             }
             else
             {
-                var videoModel = _service.GetOne(entity.Id).ToPropertiesDictionary();
-                videoModel["IsInfinite"] = isInfinite;
-
-                return ResponseHelper.Success(videoModel);
+                return ResponseHelper.Success(_service.GetOne(entity.Id));
             }
         }
 

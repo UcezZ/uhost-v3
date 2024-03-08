@@ -40,7 +40,7 @@ namespace Uhost.Core.Models.File
             }
         }
 
-        internal Entity.Types TypeParsed => Type.ParseEnum<Entity.Types>() ?? Entity.Types.Other;
+        internal Entity.FileTypes TypeParsed => Type.ParseEnum<Entity.FileTypes>() ?? Entity.FileTypes.Other;
 
         public override void LoadFromEntity(Entity entity)
         {

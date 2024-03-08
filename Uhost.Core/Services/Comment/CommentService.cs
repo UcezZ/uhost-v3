@@ -38,7 +38,7 @@ namespace Uhost.Core.Services.Comment
             if (pager.Any())
             {
                 var files = _fileService
-                    .GetByDynEntity<FileShortViewModel>(pager.Select(e => e.UserId), typeof(UserEntity), Types.UserAvatar)
+                    .GetByDynEntity<FileShortViewModel>(pager.Select(e => e.UserId), typeof(UserEntity), FileTypes.UserAvatar)
                     .ToList();
 
                 foreach (var user in pager.Select(e => e.User))
@@ -59,7 +59,7 @@ namespace Uhost.Core.Services.Comment
             if (model?.User != null)
             {
                 var userAvatar = _fileService
-                    .GetByDynEntity<FileShortViewModel>(model.UserId, typeof(UserEntity), Types.UserAvatar)
+                    .GetByDynEntity<FileShortViewModel>(model.UserId, typeof(UserEntity), FileTypes.UserAvatar)
                     .FirstOrDefault();
                 model.User.AvatarUrl = userAvatar?.Url;
             }

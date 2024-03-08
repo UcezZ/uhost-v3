@@ -33,7 +33,7 @@ namespace Uhost.Tests
             var mediaInfo = await FFProbe.AnalyseAsync(file.FullName);
             var ffargs = FFMpegArguments
                 .FromFileInput(file.FullName)
-                .OutputToFile(Path.Combine(Path.GetTempPath(), "test480.mp4"), true, e => e.ApplyOptimalPreset(mediaInfo, Types.Video480p, TimeSpan.FromSeconds(10)));
+                .OutputToFile(Path.Combine(Path.GetTempPath(), "test480.mp4"), true, e => e.ApplyOptimalPreset(mediaInfo, FileTypes.Video480p, TimeSpan.FromSeconds(10)));
             await ffargs.ProcessAsynchronously(true);
         }
 
@@ -47,7 +47,7 @@ namespace Uhost.Tests
             var mediaInfo = await FFProbe.AnalyseAsync(file.FullName);
             var ffargs = FFMpegArguments
                 .FromFileInput(file.FullName)
-                .OutputToHls(Path.Combine(Path.GetTempPath(), "test.hls"), e => e.ApplyOptimalPreset(mediaInfo, Types.Video480p));
+                .OutputToHls(Path.Combine(Path.GetTempPath(), "test.hls"), e => e.ApplyOptimalPreset(mediaInfo, FileTypes.Video480p));
 
             await ffargs.ProcessAsynchronously(true);
         }

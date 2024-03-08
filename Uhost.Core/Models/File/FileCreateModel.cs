@@ -8,7 +8,7 @@ namespace Uhost.Core.Models.File
     /// </summary>
     public class FileCreateModel : BaseModel<Entity>
     {
-        public Entity.Types Type { get; set; }
+        public Entity.FileTypes Type { get; set; }
         public string Name { get; set; }
         public int? UserId { get; set; }
         public int Size { get; set; }

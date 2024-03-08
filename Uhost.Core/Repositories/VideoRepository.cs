@@ -92,12 +92,14 @@ namespace Uhost.Core.Repositories
             return Get<TModel>(PrepareQuery(query));
         }
 
-        public string GetToken(int id)
+        public (string Token, TimeSpan Duration) GetTokenAndDuration(int id)
         {
-            return DbSet
+            var obj = DbSet
                 .Where(e => e.Id == id && e.DeletedAt == null)
-                .Select(e => e.Token)
+                .Select(e => new { e.Token, e.Duration })
                 .FirstOrDefault();
+
+            return (obj.Token, obj.Duration);
         }
 
         public int GetId(string token)
@@ -108,12 +110,13 @@ namespace Uhost.Core.Repositories
                 .FirstOrDefault();
         }
 
-        public TimeSpan GetDuration(int id)
+        internal void UpdateDuration(int id, TimeSpan duration)
         {
-            return DbSet
-                .Where(e => e.Id == id && e.DeletedAt == null)
-                .Select(e => e.Duration)
-                .FirstOrDefault();
+            if (FindEntity(id, out var entity))
+            {
+                entity.Duration = duration;
+                Save();
+            }
         }
     }
 }

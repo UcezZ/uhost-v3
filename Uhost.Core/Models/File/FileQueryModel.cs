@@ -15,10 +15,10 @@ namespace Uhost.Core.Models.File
 
         public IEnumerable<int> DynIds { get; set; }
 
-        [EnumValidation(typeof(Entity.Types), allowEmpty: true)]
+        [EnumValidation(typeof(Entity.FileTypes), allowEmpty: true)]
         public string Type { get; set; }
 
-        [EnumValidation(typeof(Entity.Types), allowEmpty: true)]
+        [EnumValidation(typeof(Entity.FileTypes), allowEmpty: true)]
         public IEnumerable<string> Types { get; set; }
 
         [EntityNameValidation(true)]

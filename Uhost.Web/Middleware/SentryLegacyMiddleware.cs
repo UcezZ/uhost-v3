@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using Sentry;
-using System;
 using System.Threading.Tasks;
 
 namespace Uhost.Web.Middleware
@@ -16,14 +16,12 @@ namespace Uhost.Web.Middleware
 
         public async Task Invoke(HttpContext context)
         {
-            try
+            await _next.Invoke(context);
+            var ctx = context.Features.Get<IExceptionHandlerFeature>();
+
+            if (ctx?.Error != null)
             {
-                await _next.Invoke(context);
-            }
-            catch (Exception e)
-            {
-                SentrySdk.CaptureException(e);
-                throw;
+                SentrySdk.CaptureException(ctx?.Error);
             }
         }
     }

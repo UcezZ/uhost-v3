@@ -139,6 +139,9 @@ namespace Uhost.Web
         {
             app.UseExceptionHandler("/error");
 
+            app.UseMiddleware<ThrottleMiddleware>();
+            app.UseMiddleware<SentryLegacyMiddleware>();
+
             app.UseFileServer();
             app.UseRouting();
 
@@ -181,9 +184,6 @@ namespace Uhost.Web
             app.UseAuthorization();
 
             app.UseEndpoints(e => e.MapDefaultControllerRoute());
-
-            app.UseMiddleware<ThrottleMiddleware>();
-            app.UseMiddleware<SentryLegacyMiddleware>();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {

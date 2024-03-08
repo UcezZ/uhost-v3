@@ -76,16 +76,17 @@ namespace Uhost.Core.Services.File
 
                 if (data is FileStream fileStream)
                 {
+                    var fileInfo = new FileInfo(fileStream.Name);
+
                     try
                     {
-                        var fileInfo = new FileInfo(fileStream.Name);
                         fileStream.Close();
                         fileInfo.MoveTo(file.FullName, true);
                         doCopy = false;
                     }
                     catch
                     {
-                        data = new FileStream(fileStream.Name, FileMode.Open, FileAccess.Read);
+                        data = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read);
                     }
                 }
 
@@ -102,7 +103,7 @@ namespace Uhost.Core.Services.File
                 try
                 {
                     file.CreationTime = entity.CreatedAt;
-                    file.LastAccessTime = entity.UpdatedAt?? entity.CreatedAt;
+                    file.LastAccessTime = entity.UpdatedAt ?? entity.CreatedAt;
                     file.LastWriteTime = entity.UpdatedAt ?? entity.CreatedAt;
                 }
                 catch { }
@@ -146,7 +147,7 @@ namespace Uhost.Core.Services.File
             return GetAll<TModel>(new QueryModel { Id = id }).FirstOrDefault();
         }
 
-        public IQueryable<TFileModel> GetByDynEntity<TFileModel>(int id, Type dynEntity, params Entity.Types[] types) where TFileModel : BaseModel<Entity>, new()
+        public IQueryable<TFileModel> GetByDynEntity<TFileModel>(int id, Type dynEntity, params Entity.FileTypes[] types) where TFileModel : BaseModel<Entity>, new()
         {
             var query = new QueryModel
             {
@@ -160,7 +161,7 @@ namespace Uhost.Core.Services.File
             return GetAll<TFileModel>(query);
         }
 
-        public IQueryable<TFileModel> GetByDynEntity<TFileModel>(IEnumerable<int> ids, Type dynEntity, params Entity.Types[] types) where TFileModel : BaseModel<Entity>, new()
+        public IQueryable<TFileModel> GetByDynEntity<TFileModel>(IEnumerable<int> ids, Type dynEntity, params Entity.FileTypes[] types) where TFileModel : BaseModel<Entity>, new()
         {
             var query = new QueryModel
             {
@@ -176,15 +177,15 @@ namespace Uhost.Core.Services.File
 
         public Entity Add(FileUploadModel model)
         {
-            return Add(model.File, model.TypeParsed ?? Entity.Types.Other, model.DynName, model.DynId);
+            return Add(model.File, model.TypeParsed, model.DynName, model.DynId);
         }
 
-        public Entity Add(IFormFile file, Entity.Types type = Entity.Types.Other, Type dynType = null, int? dynId = null)
+        public Entity Add(IFormFile file, Entity.FileTypes? type = null, Type dynType = null, int? dynId = null)
         {
             return Add(file, type, dynType?.Name, dynId);
         }
 
-        public Entity Add(IFormFile file, Entity.Types type = Entity.Types.Other, string dynName = null, int? dynId = null)
+        public Entity Add(IFormFile file, Entity.FileTypes? type = null, string dynName = null, int? dynId = null)
         {
             var temp = CreateTempFile();
 
@@ -231,12 +232,12 @@ namespace Uhost.Core.Services.File
             }
         }
 
-        public Entity Add(FileInfo file, string name = null, string mime = null, Entity.Types type = Entity.Types.Other, Type dynType = null, int? dynId = null)
+        public Entity Add(FileInfo file, string name = null, string mime = null, Entity.FileTypes? type = null, Type dynType = null, int? dynId = null)
         {
             return Add(file, name: name, mime: mime, type: type, dynName: dynType?.Name, dynId: dynId);
         }
 
-        public Entity Add(FileInfo file, string name = null, string mime = null, Entity.Types type = Entity.Types.Other, string dynName = null, int? dynId = null)
+        public Entity Add(FileInfo file, string name = null, string mime = null, Entity.FileTypes? type = null, string dynName = null, int? dynId = null)
         {
             using (var stream = file.OpenRead())
             {
@@ -244,7 +245,7 @@ namespace Uhost.Core.Services.File
             }
         }
 
-        public Entity Add(Stream data, string name, string mime = null, Entity.Types type = Entity.Types.Other, string dynName = null, int? dynId = null)
+        public Entity Add(Stream data, string name, string mime = null, Entity.FileTypes? type = null, string dynName = null, int? dynId = null)
         {
             var digest = data
                 .ComputeHash(HasherExtensions.EncryptionMethod.MD5)
@@ -257,7 +258,7 @@ namespace Uhost.Core.Services.File
                 DynName = dynName,
                 Mime = mime,
                 Size = (int)data.Length,
-                Type = type,
+                Type = type ?? Entity.FileTypes.Other,
                 UserId = TryGetUserId(out var userId) ? userId : null,
                 Digest = digest
             };
@@ -288,11 +289,7 @@ namespace Uhost.Core.Services.File
                 if (deleteFile)
                 {
                     var file = new FileInfo(entity.GetPath());
-
-                    if (file.Exists)
-                    {
-                        file.Delete();
-                    }
+                    file.TryDeleteIfExists();
                 }
 
                 _repo.SoftDelete(id);
