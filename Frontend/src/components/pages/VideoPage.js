@@ -12,6 +12,7 @@ export default function VideoPage() {
     const { setError } = useContext(StateContext);
     const [video, setVideo] = useState();
     const [loading, setLoading] = useState(true);
+    const [largeMode, setLargeMode] = useState(false);
 
     useEffect(() => {
         if (loading) {
@@ -41,7 +42,7 @@ export default function VideoPage() {
 
     return (
         <Container sx={{ maxWidth: '100% !important' }}>
-            <VideoContainer video={video} />
+            <VideoContainer video={video} largeMode={largeMode} setLargeMode={setLargeMode} />
         </Container>
     );
 }

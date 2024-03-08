@@ -79,7 +79,7 @@ export default function ProfileButton() {
                 setVisible={setConfirmLogout}
                 message='Вы действительно хотите выйти?'
             />
-            <PopupAuthForm visible={authFormVisible} setVisible={setAuthFormVisible} next={e => setAnchorEl(null)} />
+            <PopupAuthForm visible={authFormVisible} setVisible={setAuthFormVisible} next={onClose} />
         </div>
     );
 }

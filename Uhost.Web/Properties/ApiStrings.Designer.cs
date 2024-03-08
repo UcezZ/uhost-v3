@@ -151,6 +151,15 @@ namespace Uhost.Web.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Недопустимый тип файла, допустимые значения: {0}.
+        /// </summary>
+        internal static string File_Error_TypeFail {
+            get {
+                return ResourceManager.GetString("File_Error_TypeFail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Реакции к этому видео отключены.
         /// </summary>
         internal static string Reaction_Error_NotAllowed {

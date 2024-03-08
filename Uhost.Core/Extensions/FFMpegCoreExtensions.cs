@@ -251,16 +251,16 @@ namespace Uhost.Core.Extensions
         public static FFMpegArgumentOptions ApplyOptimalPreset(this FFMpegArgumentOptions options, IMediaAnalysis mediaInfo, FileTypes type, TimeSpan? maxDuration = null)
         {
             options = options
-                .WithHardwareAcceleration(CoreSettings.InputHardwareAcceleration)
-                .WithOutputHardwareAcceleration(CoreSettings.OutputHardwareAcceleration)
-                .WithVideoCodec(FFConfig.VideoCodec)
-                .WithPreset(CoreSettings.EncodingSpeed)
-                .WithTune("hq")
-                .WithFpsMode(FpsMode.Vfr)
-                .WithPixelFormat(PixelFormat.Nv12)
-                .WithQMin(28)
-                .WithQMax(35)
-                .WithoutMetadata();
+                 .WithHardwareAcceleration(CoreSettings.InputHardwareAcceleration)
+                 .WithOutputHardwareAcceleration(CoreSettings.OutputHardwareAcceleration)
+                 .WithVideoCodec(FFConfig.VideoCodec)
+                 .WithPreset(CoreSettings.EncodingSpeed)
+                 .WithTune("hq")
+                 .WithFpsMode(FpsMode.Vfr)
+                 .WithPixelFormat(PixelFormat.Nv12)
+                 .WithQMin(28)
+                 .WithQMax(35)
+                 .WithoutMetadata();
 
             switch (type)
             {

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -17,6 +18,8 @@ namespace Uhost.Core.Extensions
 {
     public static class CommonExtensions
     {
+        private static readonly FileExtensionContentTypeProvider _extensionProvider = new FileExtensionContentTypeProvider();
+
         /// <summary>
         /// Changes any property of <paramref name="obj"/> using lambda <paramref name="action"/>.
         /// </summary>
@@ -575,6 +578,18 @@ namespace Uhost.Core.Extensions
             {
                 destination[key] = source[key];
             }
+        }
+
+        /// <summary>
+        /// Получает MIME из имени файла
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public static string GetContentType(this string fileName)
+        {
+            return _extensionProvider.TryGetContentType(fileName, out var mime)
+                ? mime
+                : "application/octet-stream";
         }
     }
 }

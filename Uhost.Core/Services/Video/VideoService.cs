@@ -221,34 +221,38 @@ namespace Uhost.Core.Services.Video
         /// <returns></returns>
         private VideoViewModel FillViewModel(VideoViewModel model)
         {
-            if (model != null)
+            if (model == null)
             {
-                var files = _fileService
-                    .GetByDynEntity<FileShortViewModel>(model.Id, typeof(Entity))
-                    .ToList();
-
-                model.ThumbnailUrl = files
-                    .FirstOrDefault(e => e.DynId == model.Id && e.TypeParsed == FileTypes.VideoThumbnail)?
-                    .Url;
-                var videoFiles = files
-                    .Where(e => e.DynId == model.Id && _videoFileTypes.Contains(e.TypeParsed));
-                model.Resolutions = videoFiles
-                    .Select(e => e.Type.ParseDigits())
-                    .Where(e => e > 0)
-                    .OrderBy(e => e)
-                    .Select(e => $"{e}p");
-                model.UrlPaths = videoFiles.ToDictionary(e => e.Type, e => e.UrlPath);
-
-                if (videoFiles.Any())
-                {
-                    model.UrlPaths["Hls"] = Tools.UrlCombine(
-                        CoreSettings.HlsUrl,
-                        $",{videoFiles.Select(e => e.UrlPath).Join(",")},.urlset",
-                        "master.m3u8");
-                }
-
-                model.Urls = model.UrlPaths.ToDictionary(e => e.Key, e => Tools.UrlCombine(CoreSettings.MediaServerUrl, e.Value));
+                return null;
             }
+
+            var files = _fileService
+                .GetByDynEntity<FileShortViewModel>(model.Id, typeof(Entity))
+                .ToList();
+
+            model.ThumbnailUrl = files
+                .FirstOrDefault(e => e.DynId == model.Id && e.TypeParsed == FileTypes.VideoThumbnail)?
+                .Url;
+            var videoFiles = files
+                .Where(e => _videoFileTypes.Contains(e.TypeParsed))
+                .OrderBy(e => e.Type.ParseDigits())
+                .ToList();
+            model.Resolutions = videoFiles
+                .Select(e => e.Type.ParseDigits())
+                .Where(e => e > 0)
+                .Select(e => $"{e}p");
+            model.UrlPaths = videoFiles.ToDictionary(e => e.Type, e => e.UrlPath);
+
+            if (videoFiles.Any())
+            {
+                model.UrlPaths["Hls"] = Tools.UrlCombine(
+                    CoreSettings.HlsUrl,
+                    $",{videoFiles.Select(e => e.UrlPath).Join(",")},.urlset",
+                    "master.m3u8");
+            }
+
+            model.Urls = model.UrlPaths.ToDictionary(e => e.Key, e => Tools.UrlCombine(CoreSettings.MediaServerUrl, e.Value));
+            model.DownloadSizes = videoFiles.ToDictionary(e => e.Type, e => e.Size.ToHumanSize());
 
             return model;
         }
@@ -779,6 +783,58 @@ namespace Uhost.Core.Services.Video
             {
                 query.ShowHidden = false;
                 query.ShowPrivate = false;
+            }
+        }
+
+        /// <summary>
+        /// Получает ссылку на загрузку и имя файла
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="type"></param>
+        /// <param name="name"></param>
+        /// <param name="stream"></param>
+        /// <param name="lastModified"></param>
+        /// <returns></returns>
+        public bool TryGetDownload(string token, FileTypes type, out string name, out Stream stream, out DateTime lastModified)
+        {
+            name = default;
+            stream = default;
+            lastModified = default;
+
+            var query = new QueryModel
+            {
+                Token = token
+            };
+            OverrideByUserRestrictions(query);
+
+            var video = _repo.PrepareQuery(query)
+                .Select(e => new { e.Id, e.Name, LastModified = e.UpdatedAt ?? e.CreatedAt })
+                .FirstOrDefault();
+
+            if (video == null)
+            {
+                return false;
+            }
+
+            lastModified = video.LastModified;
+            name = $"{video.Name}.mp4";
+
+            var file = _fileService.GetByDynEntity<FileShortViewModel>(video.Id, typeof(Entity), type).FirstOrDefault();
+
+            if (file == null || !file.Exists)
+            {
+                return false;
+            }
+
+            try
+            {
+                stream = new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+                return true;
+            }
+            catch (Exception e)
+            {
+                SentrySdk.CaptureException(e);
+                return false;
             }
         }
     }

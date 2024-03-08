@@ -1,4 +1,4 @@
-import { Card, CardActions, CardMedia, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material';
+import { Card, CardActions, CardMedia, FormControl, InputLabel, MenuItem, Select, Typography, Box } from '@mui/material';
 import { useState, useRef, useEffect } from 'react';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
@@ -7,6 +7,7 @@ import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 import { IconButton, Slider } from '@mui/material';
 import Hls from 'hls.js';
 import Common from '../utils/Common';
+import DownloadButton from './items/DownloadButton';
 
 const resolutionAuto = 'auto';
 
@@ -74,10 +75,24 @@ const hls = Hls.isSupported() && new Hls({
     }
 });
 
-export default function VideoContainer({ video }) {
+export default function VideoContainer({ video, largeMode, setLargeMode }) {
     const [duration, setDuration] = useState(Common.parseTime(video?.duration));
     const storageKey = `video_${video?.token}`;
     const firstVideoUrl = video.urls[`video${video.resolutions.firstOrDefault()}`];
+    const sizes = video.resolutions
+        .map(e => {
+            return {
+                key: `video${e}`,
+                name: e
+            }
+        })
+        .filter(e => e.key in video?.downloadSizes)
+        .map(e => {
+            return {
+                ...e,
+                size: video?.downloadSizes[e.key]
+            }
+        })
 
     const [prevType, setPrevType] = useState();
     const [prevRes, setPrevRes] = useState();
@@ -198,6 +213,20 @@ export default function VideoContainer({ video }) {
         }
     }
 
+    function updateHlsLevel() {
+        var levelIndex = getResolutions().indexOf(playerRes);
+
+        if (levelIndex < 0) {
+            hls.currentLevel = -1;
+        } else {
+            hls.currentLevel = levelIndex - 1;
+        }
+    }
+
+    function toggleLargeMode() {
+        setLargeMode && setLargeMode(!largeMode);
+    }
+
     useEffect(() => {
         console.log(1);
         if (!videoRef?.current) {
@@ -213,6 +242,7 @@ export default function VideoContainer({ video }) {
             hls.loadSource(video.urls.hls);
             hls.attachMedia(videoRef.current);
             hls.on(Hls.Events.MANIFEST_PARSED, (ev, data) => {
+                updateHlsLevel();
                 if (videoRef.current.paused && wasPlaying) {
                     videoRef.current.play();
                 }
@@ -221,13 +251,7 @@ export default function VideoContainer({ video }) {
 
         // если смена разрешения на hls и hls поддерживается
         if (prevRes !== playerRes && playerType === typeHls && hls) {
-            var levelIndex = getResolutions().indexOf(playerRes);
-
-            if (levelIndex < 0) {
-                hls.currentLevel = -1;
-            } else {
-                hls.currentLevel = levelIndex - 1;
-            }
+            updateHlsLevel();
         }
 
         // если смена плеера или разрешения на mp4 или не поддерживается hls
@@ -279,6 +303,8 @@ export default function VideoContainer({ video }) {
                     style={{
                         width: '100%',
                         height: 'auto',
+                        minHeight: '300px',
+                        maxHeight: largeMode ? '800px' : '600px'
                     }}
                     poster={video.thumbnailUrl}
                     onTimeUpdate={onTimeUpdate}
@@ -329,30 +355,33 @@ export default function VideoContainer({ video }) {
                 </IconButton>
             </CardActions>
             <CardActions>
-                <FormControl sx={{ minWidth: 100 }}>
-                    <InputLabel htmlFor='playertype'>Player type</InputLabel>
-                    <Select
-                        id='playertype'
-                        label='Player type'
-                        value={playerType}
-                        onChange={onPlayerTypeChange}
-                    >
-                        {playerTypes.map((e, i) => <MenuItem value={e} key={i}>{e.toUpperCase()}</MenuItem>)}
-                    </Select>
-                </FormControl>
-                <FormControl sx={{ minWidth: 100 }}>
-                    <InputLabel htmlFor='playerres'>Resolution</InputLabel>
-                    <Select
-                        id='playerres'
-                        label='Resolution'
-                        value={getResolutions().any(e => e === playerRes) ? playerRes : getResolutions().firstOrDefault()}
-                        onChange={onResolutionChange}
-                    >
-                        {getResolutions().map((e, i) => <MenuItem value={e} key={i} >
-                            {e}{playerType === typeHls && hls.currentLevel + 1 === i ? ' \u2022' : ''}
-                        </MenuItem>)}
-                    </Select>
-                </FormControl>
+                <Box sx={{ display: 'flex', gap: '16px' }}>
+                    <FormControl sx={{ minWidth: 100 }}>
+                        <InputLabel htmlFor='playertype'>Player type</InputLabel>
+                        <Select
+                            id='playertype'
+                            label='Player type'
+                            value={playerType}
+                            onChange={onPlayerTypeChange}
+                        >
+                            {playerTypes.map((e, i) => <MenuItem value={e} key={i}>{e.toUpperCase()}</MenuItem>)}
+                        </Select>
+                    </FormControl>
+                    <FormControl sx={{ minWidth: 100 }}>
+                        <InputLabel htmlFor='playerres'>Resolution</InputLabel>
+                        <Select
+                            id='playerres'
+                            label='Resolution'
+                            value={getResolutions().any(e => e === playerRes) ? playerRes : getResolutions().firstOrDefault()}
+                            onChange={onResolutionChange}
+                        >
+                            {getResolutions().map((e, i) => <MenuItem value={e} key={i} >
+                                {e}{playerType === typeHls && hls.currentLevel + 1 === i ? ' \u2022' : ''}
+                            </MenuItem>)}
+                        </Select>
+                    </FormControl>
+                    <DownloadButton token={video?.token} sizes={sizes} />
+                </Box>
             </CardActions>
         </Card>
     );

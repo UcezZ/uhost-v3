@@ -88,4 +88,19 @@ export default class Common {
             ? `-${formatted}`
             : formatted;
     }
+
+    /**
+     * 
+     * @param {String} url 
+     */
+    static openLink(url) {
+        var link = document.createElement('a');
+        link.style.display = 'none';
+        link.setAttribute('href', url);
+        link.setAttribute('download', '');
+        link.setAttribute('target', '_blank');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
 }

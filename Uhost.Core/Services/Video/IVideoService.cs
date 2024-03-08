@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Uhost.Core.Models.Video;
 using Uhost.Core.Models.VideoConversionState;
@@ -22,5 +23,6 @@ namespace Uhost.Core.Services.Video
         IEnumerable<VideoShortViewModel> GetRandom(int count);
         Task<VideoViewModel> GetOne(string token);
         Task Convert(int id);
+        bool TryGetDownload(string token, Data.Entities.File.FileTypes type, out string name, out Stream stream, out DateTime lastModified);
     }
 }

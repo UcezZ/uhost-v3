@@ -18,4 +18,16 @@ export default function ApplyExtentions() {
             }
         }
     }
+
+    String.prototype.toPascalCase = function () {
+        if (this.length === 1) {
+            return this.toUpperCase();
+        }
+
+        if (this.length > 1) {
+            return `${this.substring(0, 1).toUpperCase()}${this.substring(1)}`;
+        }
+
+        return this;
+    }
 }

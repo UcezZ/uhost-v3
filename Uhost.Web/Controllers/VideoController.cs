@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Uhost.Core.Attributes.Validation;
 using Uhost.Core.Common;
+using Uhost.Core.Extensions;
 using Uhost.Core.Models.Video;
 using Uhost.Core.Services.Video;
 using Uhost.Web.Attributes;
@@ -12,6 +13,7 @@ using Uhost.Web.Attributes.Authorize;
 using Uhost.Web.Common;
 using Uhost.Web.Extensions;
 using Uhost.Web.Properties;
+using static Uhost.Core.Data.Entities.File;
 using static Uhost.Core.Data.Entities.Right;
 using Entity = Uhost.Core.Data.Entities.Video;
 using QueryModel = Uhost.Core.Models.Video.VideoQueryModel;
@@ -86,6 +88,45 @@ namespace Uhost.Web.Controllers
             Response.Cookies.Append("video_token", model.GetAccessToken(), cookieOptions);
 
             return ResponseHelper.Success(model);
+        }
+
+        /// <summary>
+        /// Скачать видео по токену
+        /// </summary>
+        /// <param name="token">Токен видео</param>
+        /// <param name="type">Тип файла</param>
+        /// <returns></returns>
+        [HttpGet("{token}/download/{type}"), AllowAnonymous]
+        public IActionResult Download(
+            [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Token), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Video_Error_NotFound))]
+            string token,
+            [EnumValidation(typeof(FileTypes), whitelist:new[]
+            {
+                nameof(FileTypes.Video240p),
+                nameof(FileTypes.Video360p),
+                nameof(FileTypes.Video480p),
+                nameof(FileTypes.Video720p),
+                nameof(FileTypes.Video1080p)
+            }, ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.File_Error_TypeFail))]
+            string type)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ResponseHelper.Error(ModelState.GetErrors());
+            }
+
+            if (_service.TryGetDownload(token, Enum.Parse<FileTypes>(type), out var name, out var stream, out var lastModified))
+            {
+                return new DisposableFileStreamResult(stream, name.GetContentType())
+                {
+                    FileDownloadName = name,
+                    LastModified = lastModified
+                };
+            }
+            else
+            {
+                return ResponseHelper.Error(ApiStrings.Video_Error_NotFound);
+            }
         }
 
         /// <summary>

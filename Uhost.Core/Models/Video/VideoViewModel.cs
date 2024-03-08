@@ -12,6 +12,11 @@ namespace Uhost.Core.Models.Video
         public IDictionary<string, string> Urls { get; set; }
 
         /// <summary>
+        /// Размеры видеофайлов для скачивания
+        /// </summary>
+        public IDictionary<string, string> DownloadSizes { get; set; }
+
+        /// <summary>
         /// Токен доступа для установки в куку
         /// </summary>
         internal string AccessToken { get; } = Guid.NewGuid().ToString();
