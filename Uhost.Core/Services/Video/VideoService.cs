@@ -562,9 +562,7 @@ namespace Uhost.Core.Services.Video
             var output = new FileInfo(Path.GetFullPath(Path.Combine(Path.GetFullPath("tmp"), $"temp_{Guid.NewGuid()}.mp4")));
             var mediaInfo = await FFProbe.AnalyseAsync(file.Path);
             var ffargs = FFMpegArguments
-                .FromFileInput(file.Path, true, e => e
-                    .WithHardwareAcceleration(CoreSettings.InputHardwareAcceleration)
-                    .WithOutputHardwareAcceleration(CoreSettings.OutputHardwareAcceleration))
+                .FromFileInput(file.Path, true, e => e.WithHardwareAcceleration(CoreSettings.InputHardwareAcceleration))
                 .OutputToFile(output.FullName, true, e => e.ApplyOptimalPreset(mediaInfo, (FileTypes)conversionState.Type));
 
             await DoConversion(ffargs, output, conversionState);

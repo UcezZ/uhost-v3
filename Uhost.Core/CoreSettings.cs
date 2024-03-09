@@ -70,12 +70,6 @@ namespace Uhost.Core
         public static HardwareAccelerationDevices InputHardwareAcceleration { get; private set; }
 
         /// <summary>
-        /// Устройство для аппаратного ускорения кодирования видео. Необязательный параметр. Значение по умолчанию: <c>Auto</c>, может принимать значения: <c>Auto</c>, <c>D3D11VA</c>, <c>DXVA2</c>, <c>QSV</c>, <c>CUVID</c>, <c>VDPAU</c>, <c>VAAPI</c>, <c>LibMFX</c>, <c>CUDA</c>
-        /// </summary>
-        [Unnecessary(HardwareAccelerationDevices.Auto)]
-        public static HardwareAccelerationDevices OutputHardwareAcceleration { get; private set; }
-
-        /// <summary>
         /// Скорость кодирования. Необязательный параметр. Значение по умолчанию: <c>Slow</c>, может принимать значения: <c>VerySlow</c>, <c>Slower</c>, <c>Slow</c>, <c>Medium</c>, <c>Fast</c>, <c>Faster</c>, <c>VeryFast</c>, <c>SuperFast</c>, <c>UltraFast</c>
         /// </summary>
         [Unnecessary(Speed.Slow)]
