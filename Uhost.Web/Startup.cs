@@ -124,7 +124,7 @@ namespace Uhost.Web
             services.Configure<FormOptions>(x =>
             {
                 x.ValueLengthLimit = int.MaxValue;
-                x.MultipartBodyLengthLimit = int.MaxValue; // In case of multipart
+                x.MultipartBodyLengthLimit = long.MaxValue; // In case of multipart
             });
         }
 
