@@ -14,7 +14,6 @@ namespace Uhost.Core.Extensions
             return type switch
             {
                 FileEntity.FileTypes.Video240p or
-                FileEntity.FileTypes.Video360p or
                 FileEntity.FileTypes.Video480p or
                 FileEntity.FileTypes.Video720p or
                 FileEntity.FileTypes.Video1080p => Tools.UrlCombine(CoreSettings.VideosUrl, tk[0..2], tk[2..4], tk[4..]),
@@ -30,7 +29,6 @@ namespace Uhost.Core.Extensions
             return type switch
             {
                 FileEntity.FileTypes.Video240p or
-                FileEntity.FileTypes.Video360p or
                 FileEntity.FileTypes.Video480p or
                 FileEntity.FileTypes.Video720p or
                 FileEntity.FileTypes.Video1080p => Tools.UrlCombine(CoreSettings.MediaServerUrl, CoreSettings.VideosUrl, tk[0..2], tk[2..4], tk[4..]),
@@ -46,7 +44,6 @@ namespace Uhost.Core.Extensions
             return type switch
             {
                 FileEntity.FileTypes.Video240p or
-                FileEntity.FileTypes.Video360p or
                 FileEntity.FileTypes.Video480p or
                 FileEntity.FileTypes.Video720p or
                 FileEntity.FileTypes.Video1080p => Path.GetFullPath(Path.Combine(CoreSettings.VideoStoragePath, tk[0..2], tk[2..4], tk[4..])),

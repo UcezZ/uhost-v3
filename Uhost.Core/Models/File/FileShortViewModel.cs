@@ -11,7 +11,7 @@ namespace Uhost.Core.Models.File
 
         public string Type { get; set; }
 
-        public int Size { get; set; }
+        public long Size { get; set; }
 
         public string Mime { get; set; }
 

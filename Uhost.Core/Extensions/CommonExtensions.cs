@@ -380,12 +380,16 @@ namespace Uhost.Core.Extensions
             return EnumTranslations.ResourceManager.GetString(key) ?? EnumTranslations.UndefinedFmt.Format(key);
         }
 
+        public static string ToHumanSize(this int size) => ToHumanSize((decimal)size);
+
+        public static string ToHumanSize(this long size) => ToHumanSize((decimal)size);
+
         /// <summary>
         /// Возвращает размер данных в понятном виде
         /// </summary>
         /// <param name="size">Размер данных</param>
         /// <returns></returns>
-        public static string ToHumanSize(this int size)
+        public static string ToHumanSize(this decimal size)
         {
             string sizeStr, unit;
             bool negate = size < 0;

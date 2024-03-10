@@ -22,7 +22,6 @@ namespace Uhost.Core.Data.Entities
             VideoThumbnail,
             VideoRaw,
             Video240p,
-            Video360p,
             Video480p,
             Video720p,
             Video1080p
@@ -33,7 +32,7 @@ namespace Uhost.Core.Data.Entities
         [Required, Column(TypeName = "text")]
         public string Name { get; set; }
 
-        public int Size { get; set; }
+        public long Size { get; set; }
 
         [Required, Column(TypeName = "text")]
         public string Mime { get; set; }

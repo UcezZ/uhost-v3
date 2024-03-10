@@ -103,7 +103,6 @@ namespace Uhost.Web.Controllers
             [EnumValidation(typeof(FileTypes), whitelist:new[]
             {
                 nameof(FileTypes.Video240p),
-                nameof(FileTypes.Video360p),
                 nameof(FileTypes.Video480p),
                 nameof(FileTypes.Video720p),
                 nameof(FileTypes.Video1080p)

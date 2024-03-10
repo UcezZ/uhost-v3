@@ -16,7 +16,7 @@ namespace Uhost.Core.Attributes.Validation
     public class FormFileValidationAttribute : ValidationAttribute
     {
         private const int _defaultMaxFileSize = 5242880;
-        private readonly int _maxFileSize;
+        private readonly long _maxFileSize;
         private readonly bool _allowNull;
         private readonly List<string> _mimes;
         private readonly List<string> _exts;
@@ -28,18 +28,18 @@ namespace Uhost.Core.Attributes.Validation
         /// <param name="mime">Список допустимых MIME</param>
         /// <param name="ext">Список допустимых расширений</param>
         /// <param name="allowNull">Разрешить пустое значение</param>
-        public FormFileValidationAttribute(int maxFileSize = _defaultMaxFileSize, string[] mime = null, string[] ext = null, bool allowNull = false)
+        public FormFileValidationAttribute(long maxFileSize = _defaultMaxFileSize, string[] mime = null, string[] ext = null, bool allowNull = false)
         {
             _mimes = new List<string>();
             _exts = new List<string>();
             _allowNull = allowNull;
             _maxFileSize = maxFileSize;
 
-            if (mime != null)
+            if (mime != null && mime.Any())
             {
                 _mimes.AddRange(mime.Select(e => e.ToLower()));
             }
-            if (ext != null)
+            if (ext != null && mime.Any())
             {
                 _exts.AddRange(ext.Select(e => e.ToLower()));
             }

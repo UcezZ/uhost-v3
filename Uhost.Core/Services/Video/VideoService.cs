@@ -48,7 +48,6 @@ namespace Uhost.Core.Services.Video
         {
             FileTypes.Video240p,
             FileTypes.Video480p,
-            FileTypes.Video360p,
             FileTypes.Video720p,
             FileTypes.Video1080p
         };
@@ -497,10 +496,6 @@ namespace Uhost.Core.Services.Video
 
                 EnqueueConversion(entity.Id, FileTypes.Video240p);
 
-                if (size.Height >= 360)
-                {
-                    EnqueueConversion(entity.Id, FileTypes.Video360p);
-                }
                 if (size.Height >= 480)
                 {
                     EnqueueConversion(entity.Id, FileTypes.Video480p);
@@ -639,10 +634,6 @@ namespace Uhost.Core.Services.Video
 
                 EnqueueConversion(conversionState.VideoId, FileTypes.Video240p);
 
-                if (mediaInfo.PrimaryVideoStream.Height >= 360)
-                {
-                    EnqueueConversion(conversionState.VideoId, FileTypes.Video360p);
-                }
                 if (mediaInfo.PrimaryVideoStream.Height >= 480)
                 {
                     EnqueueConversion(conversionState.VideoId, FileTypes.Video480p);

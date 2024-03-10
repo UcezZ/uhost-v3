@@ -11,7 +11,7 @@ namespace Uhost.Core.Models.File
         public Entity.FileTypes Type { get; set; }
         public string Name { get; set; }
         public int? UserId { get; set; }
-        public int Size { get; set; }
+        public long Size { get; set; }
         public string Mime { get; set; }
         public int? DynId { get; set; }
         public string DynName { get; set; }

@@ -257,7 +257,7 @@ namespace Uhost.Core.Services.File
                 DynId = dynId,
                 DynName = dynName,
                 Mime = mime,
-                Size = (int)data.Length,
+                Size = data.Length,
                 Type = type ?? Entity.FileTypes.Other,
                 UserId = TryGetUserId(out var userId) ? userId : null,
                 Digest = digest

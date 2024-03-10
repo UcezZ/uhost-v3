@@ -251,35 +251,25 @@ namespace Uhost.Core.Extensions
         public static FFMpegArgumentOptions ApplyOptimalPreset(this FFMpegArgumentOptions options, IMediaAnalysis mediaInfo, FileTypes type, TimeSpan? maxDuration = null)
         {
             options = options
-                 .WithVideoCodec(FFConfig.VideoCodec)
-                 .WithPreset(CoreSettings.EncodingSpeed)
-                 .WithTune("hq")
-                 .WithFpsMode(FpsMode.Vfr)
-                 .WithPixelFormat(PixelFormat.Nv12)
-                 .WithQMin(28)
-                 .WithQMax(35)
-                 .WithoutMetadata();
+                .WithVideoCodec(FFConfig.VideoCodec)
+                .WithPreset(CoreSettings.EncodingSpeed)
+                .WithTune("hq")
+                .WithFpsMode(FpsMode.Vfr)
+                .WithPixelFormat(PixelFormat.Nv12)
+                .WithQMin(28)
+                .WithQMax(35)
+                .WithoutMetadata()
+                .WithAudioCodec("aac");
 
             switch (type)
             {
                 case FileTypes.Video240p:
                     options = options
                         .WithAudioBitrate(48)
-                        .WithAudioCodec("aac")
                         .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitToMin(240)))
                         .WithVideoBitrate(240)
                         .WithMaxRate(384)
                         .WithMaxFramerate(18)
-                        .WithKeyFrames(30);
-                    break;
-                case FileTypes.Video360p:
-                    options = options
-                        .WithAudioBitrate(64)
-                        .WithAudioCodec("aac")
-                        .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitToMin(360)))
-                        .WithVideoBitrate(640)
-                        .WithMaxRate(1024)
-                        .WithMaxFramerate(24)
                         .WithKeyFrames(30);
                     break;
                 case FileTypes.Video480p:
@@ -287,9 +277,9 @@ namespace Uhost.Core.Extensions
                         .WithAudioBitrate(96)
                         .WithAudioCodec("aac")
                         .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitToMin(480)))
-                        .WithVideoBitrate(1024)
+                        .WithVideoBitrate(960)
                         .WithMaxRate(1536)
-                        .WithMaxFramerate(30)
+                        .WithMaxFramerate(24)
                         .WithKeyFrames(30);
                     break;
                 case FileTypes.Video720p:
