@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Uhost.Core.Models.Video;
-using Uhost.Core.Models.VideoConversionState;
+using Uhost.Core.Models.VideoProcessingState;
 using Entity = Uhost.Core.Data.Entities.Video;
 
 namespace Uhost.Core.Services.Video
@@ -15,7 +15,7 @@ namespace Uhost.Core.Services.Video
         void Delete(int id);
         void Delete(string token);
         object GetAllPaged(VideoQueryModel query);
-        Task<VideoConversionStateProgressModel> GetConversionProgressAsync(string token);
+        Task<VideoProcessingStateProgressModel> GetConversionProgressAsync(string token);
         VideoViewModel GetOne(int id);
         void Update(string token, VideoUpdateModel model);
         void OverrideByUserRestrictions(VideoQueryModel query);

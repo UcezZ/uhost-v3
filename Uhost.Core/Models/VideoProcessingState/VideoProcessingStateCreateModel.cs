@@ -1,17 +1,17 @@
 ﻿using Uhost.Core.Extensions;
 using static Uhost.Core.Data.Entities.File;
-using static Uhost.Core.Data.Entities.VideoConversionState;
-using Entity = Uhost.Core.Data.Entities.VideoConversionState;
+using static Uhost.Core.Data.Entities.VideoProcessingState;
+using Entity = Uhost.Core.Data.Entities.VideoProcessingState;
 
-namespace Uhost.Core.Models.VideoConversionState
+namespace Uhost.Core.Models.VideoProcessingState
 {
-    public class VideoConversionStateCreateModel : BaseModel<Entity>
+    public class VideoProcessingStateCreateModel : BaseModel<Entity>
     {
         public int VideoId { get; set; }
 
         public FileTypes? Type { get; set; }
 
-        public VideoConversionStates? State { get; set; }
+        public VideoProcessingStates? State { get; set; }
 
         public override Entity FillEntity(Entity entity)
         {
@@ -33,7 +33,7 @@ namespace Uhost.Core.Models.VideoConversionState
         {
             VideoId = entity.VideoId;
             Type = entity.Type.ParseEnum<FileTypes>();
-            State = entity.State.ParseEnum<VideoConversionStates>();
+            State = entity.State.ParseEnum<VideoProcessingStates>();
         }
     }
 }

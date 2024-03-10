@@ -2,7 +2,7 @@
 {
     public interface ISchedulerService
     {
-        void ScheduleVideoConvert(int conversionStateId);
-        void ScheduleVideoStreamFetch(int videoId, string url);
+        void ScheduleVideoConvert(int processingStateId);
+        void ScheduleVideoStreamFetch(int processingStateId, string url);
     }
 }

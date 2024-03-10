@@ -1,15 +1,15 @@
 ﻿
-using static Uhost.Core.Data.Entities.VideoConversionState;
+using static Uhost.Core.Data.Entities.VideoProcessingState;
 
-namespace Uhost.Core.Models.VideoConversionState
+namespace Uhost.Core.Models.VideoProcessingState
 {
-    public class VideoConversionStateQueryModel : PagedQueryModel
+    public class VideoProcessingStateQueryModel : PagedQueryModel
     {
         public int Id { get; set; }
 
         public int VideoId { get; set; }
 
-        public VideoConversionStates? State { get; set; }
+        public VideoProcessingStates? State { get; set; }
 
         public string Token { get; set; }
 

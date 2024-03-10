@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Uhost.Core.Data.Entities
 {
-    [Table("VideoConversionStates")]
-    public sealed class VideoConversionState : BaseDateTimedEntity
+    [Table("VideoProcessingStates")]
+    public sealed class VideoProcessingState : BaseDateTimedEntity
     {
-        public enum VideoConversionStates
+        public enum VideoProcessingStates
         {
             Pending,
             Processing,

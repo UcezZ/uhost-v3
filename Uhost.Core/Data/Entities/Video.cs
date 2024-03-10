@@ -42,6 +42,6 @@ namespace Uhost.Core.Data.Entities
         public ICollection<Comment> Comments { get; set; }
         public ICollection<VideoReaction> VideoReactions { get; set; }
         public ICollection<PlaylistEntry> PlaylistEntries { get; set; }
-        public ICollection<VideoConversionState> VideoConversionStates { get; set; }
+        public ICollection<VideoProcessingState> VideoProcessingStates { get; set; }
     }
 }

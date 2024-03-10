@@ -3,15 +3,15 @@ using Uhost.Core.Common;
 using Uhost.Core.Data;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models;
-using Uhost.Core.Models.VideoConversionState;
-using Entity = Uhost.Core.Data.Entities.VideoConversionState;
-using QueryModel = Uhost.Core.Models.VideoConversionState.VideoConversionStateQueryModel;
+using Uhost.Core.Models.VideoProcessingState;
+using Entity = Uhost.Core.Data.Entities.VideoProcessingState;
+using QueryModel = Uhost.Core.Models.VideoProcessingState.VideoProcessingStateQueryModel;
 
 namespace Uhost.Core.Repositories
 {
-    public class VideoConversionStateRepository : BaseRepository<Entity>
+    public class VideoProcessingStateRepository : BaseRepository<Entity>
     {
-        public VideoConversionStateRepository(PostgreSqlDbContext dbContext) : base(dbContext) { }
+        public VideoProcessingStateRepository(PostgreSqlDbContext dbContext) : base(dbContext) { }
 
         public IQueryable<Entity> PrepareQuery(QueryModel query)
         {
@@ -63,7 +63,7 @@ namespace Uhost.Core.Repositories
             var q = PrepareQuery(query);
 
             var hasAny = q.Any();
-            var allCompleted = q.All(e => e.State == nameof(Entity.VideoConversionStates.Completed));
+            var allCompleted = q.All(e => e.State == nameof(Entity.VideoProcessingStates.Completed));
 
             return hasAny && allCompleted;
         }
@@ -73,7 +73,7 @@ namespace Uhost.Core.Repositories
         /// </summary>
         /// <param name="id"></param>
         /// <param name="state"></param>
-        internal int UpdateState(int id, Entity.VideoConversionStates state)
+        internal int UpdateState(int id, Entity.VideoProcessingStates state)
         {
             if (FindEntity(id, out var entity))
             {
@@ -89,14 +89,14 @@ namespace Uhost.Core.Repositories
         /// </summary>
         /// <param name="token">Токен видео</param>
         /// <returns></returns>
-        internal VideoConversionStateProgressModel GetProgresses(string token)
+        internal VideoProcessingStateProgressModel GetProgresses(string token)
         {
             var query = new QueryModel
             {
                 Token = token
             };
 
-            return GetCollection<VideoConversionStateProgressModel>(PrepareQuery(query));
+            return GetCollection<VideoProcessingStateProgressModel>(PrepareQuery(query));
         }
     }
 }

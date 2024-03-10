@@ -16,7 +16,7 @@ using Uhost.Core.Data;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.File;
 using Uhost.Core.Models.Video;
-using Uhost.Core.Models.VideoConversionState;
+using Uhost.Core.Models.VideoProcessingState;
 using Uhost.Core.Repositories;
 using Uhost.Core.Services.Comment;
 using Uhost.Core.Services.File;
@@ -24,7 +24,7 @@ using Uhost.Core.Services.RedisSwitcher;
 using Uhost.Core.Services.Scheduler;
 using static Uhost.Core.Data.Entities.File;
 using static Uhost.Core.Data.Entities.Right;
-using static Uhost.Core.Data.Entities.VideoConversionState;
+using static Uhost.Core.Data.Entities.VideoProcessingState;
 using Entity = Uhost.Core.Data.Entities.Video;
 using FileEntity = Uhost.Core.Data.Entities.File;
 using QueryModel = Uhost.Core.Models.Video.VideoQueryModel;
@@ -34,7 +34,7 @@ namespace Uhost.Core.Services.Video
     public sealed class VideoService : BaseService, IVideoService
     {
         private readonly VideoRepository _repo;
-        private readonly VideoConversionStateRepository _convertionStates;
+        private readonly VideoProcessingStateRepository _convertionStates;
         private readonly LogWriter _logger;
         private readonly ISchedulerService _scheduler;
         private readonly IFileService _fileService;
@@ -63,7 +63,7 @@ namespace Uhost.Core.Services.Video
             IRedisSwitcherService redis) : base(factory, provider)
         {
             _repo = new VideoRepository(_dbContext);
-            _convertionStates = new VideoConversionStateRepository(_dbContext);
+            _convertionStates = new VideoProcessingStateRepository(_dbContext);
             _logger = provider.GetService<LogWriter>();
             _scheduler = scheduler;
             _fileService = fileService;
@@ -349,15 +349,15 @@ namespace Uhost.Core.Services.Video
         /// <param name="url"></param>
         private void EnqueueFetch(int videoId, string url)
         {
-            var model = new VideoConversionStateCreateModel
+            var model = new VideoProcessingStateCreateModel
             {
                 VideoId = videoId,
-                State = VideoConversionStates.Pending,
+                State = VideoProcessingStates.Pending,
                 Type = FileTypes.VideoRaw
             };
-            var conversionState = _convertionStates.Add(model);
+            var processingState = _convertionStates.Add(model);
 
-            _scheduler.ScheduleVideoStreamFetch(conversionState.Id, url);
+            _scheduler.ScheduleVideoStreamFetch(processingState.Id, url);
         }
 
         /// <summary>
@@ -426,15 +426,15 @@ namespace Uhost.Core.Services.Video
         /// <param name="type"></param>
         private void EnqueueConversion(int videoId, FileTypes type)
         {
-            var model = new VideoConversionStateCreateModel
+            var model = new VideoProcessingStateCreateModel
             {
                 VideoId = videoId,
                 Type = type,
-                State = VideoConversionStates.Pending
+                State = VideoProcessingStates.Pending
             };
-            var conversionState = _convertionStates.Add(model);
+            var processingState = _convertionStates.Add(model);
 
-            _scheduler.ScheduleVideoConvert(conversionState.Id);
+            _scheduler.ScheduleVideoConvert(processingState.Id);
         }
 
         /// <summary>
@@ -520,35 +520,35 @@ namespace Uhost.Core.Services.Video
         /// <summary>
         /// Задача конвертации загруженного файла видео
         /// </summary>
-        /// <param name="conversionStateId">ИД сущности статуса видео</param>
+        /// <param name="processingStateId">ИД сущности статуса видео</param>
         /// <returns></returns>
-        public async Task Convert(int conversionStateId)
+        public async Task Convert(int processingStateId)
         {
-            var conversionQuery = new VideoConversionStateQueryModel
+            var processingQuery = new VideoProcessingStateQueryModel
             {
-                Id = conversionStateId
+                Id = processingStateId
             };
-            var conversionState = _convertionStates.GetAll<VideoConversionStateViewModel>(conversionQuery)
+            var processingState = _convertionStates.GetAll<VideoProcessingStateViewModel>(processingQuery)
                 .FirstOrDefault();
 
-            if (!_videoFileTypes.Any(e => e == conversionState?.Type))
+            if (!_videoFileTypes.Any(e => e == processingState?.Type))
             {
                 var exception = new Exception("Wrong file type specified");
-                exception.Data["State"] = conversionState;
+                exception.Data["State"] = processingState;
                 SentrySdk.CaptureException(exception);
                 throw exception;
             }
 
             var file = _fileService
-                .GetByDynEntity<FileShortViewModel>(conversionState.VideoId, typeof(Entity), FileTypes.VideoRaw)
+                .GetByDynEntity<FileShortViewModel>(processingState.VideoId, typeof(Entity), FileTypes.VideoRaw)
                 .FirstOrDefault();
 
             if (file == null || !file.Exists)
             {
                 if (!file.Exists)
                 {
-                    _logger?.WriteLine($"File \"{file.Path}\" not found, convetring #{conversionState.VideoId}, {conversionState.Type}", LogWriter.Severity.Warn);
-                    SentrySdk.CaptureMessage($"File \"{file.Path}\" not found, convetring #{conversionState.VideoId}, {conversionState.Type}", SentryLevel.Warning);
+                    _logger?.WriteLine($"File \"{file.Path}\" not found, convetring #{processingState.VideoId}, {processingState.Type}", LogWriter.Severity.Warn);
+                    SentrySdk.CaptureMessage($"File \"{file.Path}\" not found, convetring #{processingState.VideoId}, {processingState.Type}", SentryLevel.Warning);
                 }
 
                 return;
@@ -558,37 +558,37 @@ namespace Uhost.Core.Services.Video
             var mediaInfo = await FFProbe.AnalyseAsync(file.Path);
             var ffargs = FFMpegArguments
                 .FromFileInput(file.Path, true, e => e.WithHardwareAcceleration(CoreSettings.InputHardwareAcceleration))
-                .OutputToFile(output.FullName, true, e => e.ApplyOptimalPreset(mediaInfo, (FileTypes)conversionState.Type));
+                .OutputToFile(output.FullName, true, e => e.ApplyOptimalPreset(mediaInfo, (FileTypes)processingState.Type));
 
-            await DoConversion(ffargs, output, conversionState);
+            await DoConversion(ffargs, output, processingState);
         }
 
         /// <summary>
         /// Задача конвертации видео из потока
         /// </summary>
-        /// <param name="conversionStateId">ИД сущности статуса видео</param>
+        /// <param name="processingStateId">ИД сущности статуса видео</param>
         /// <param name="url">URL потока</param>
         /// <returns></returns>
-        public async Task FetchStream(int conversionStateId, string url)
+        public async Task FetchStream(int processingStateId, string url)
         {
-            var conversionQuery = new VideoConversionStateQueryModel
+            var processingQuery = new VideoProcessingStateQueryModel
             {
-                Id = conversionStateId
+                Id = processingStateId
             };
-            var conversionState = _convertionStates.GetAll<VideoConversionStateViewModel>(conversionQuery)
+            var processingState = _convertionStates.GetAll<VideoProcessingStateViewModel>(processingQuery)
                 .FirstOrDefault();
 
-            if (conversionState?.Type != FileTypes.VideoRaw)
+            if (processingState?.Type != FileTypes.VideoRaw)
             {
                 var exception = new Exception("Wrong file type specified");
-                exception.Data["State"] = conversionState;
+                exception.Data["State"] = processingState;
                 SentrySdk.CaptureException(exception);
                 throw exception;
             }
 
             var output = new FileInfo(Path.GetFullPath(Path.Combine(Path.GetFullPath("tmp"), $"temp_{Guid.NewGuid()}.mp4")));
             Tools.MakePath(output.FullName);
-            (var token, var duration) = _repo.GetTokenAndDuration(conversionState.VideoId);
+            (var token, var duration) = _repo.GetTokenAndDuration(processingState.VideoId);
             var ffargs = FFMpegArguments
                 .FromUrlInput(new Uri(url))
                 .OutputToFile(output.FullName, true, e => e
@@ -596,7 +596,7 @@ namespace Uhost.Core.Services.Video
                     .WithAudioCodec("copy")
                     .WithMaxDuration(duration));
 
-            await _logger?.WriteLineAsync($"Fetching video #{conversionState.VideoId},{token} with arguments:\r\n{ffargs?.Arguments}", LogWriter.Severity.Info);
+            await _logger?.WriteLineAsync($"Fetching video #{processingState.VideoId},{token} with arguments:\r\n{ffargs?.Arguments}", LogWriter.Severity.Info);
             Exception ffException = null;
 
             try
@@ -607,7 +607,7 @@ namespace Uhost.Core.Services.Video
             }
             catch (Exception e)
             {
-                await _logger?.WriteLineAsync($"An error occured while fetching video #{conversionState.VideoId},{token} with arguments:\r\n{ffargs?.Arguments}", LogWriter.Severity.Warn);
+                await _logger?.WriteLineAsync($"An error occured while fetching video #{processingState.VideoId},{token} with arguments:\r\n{ffargs?.Arguments}", LogWriter.Severity.Warn);
                 e.Data[nameof(ffargs.Arguments)] = ffargs.Arguments;
                 SentrySdk.CaptureException(e);
                 ffException = e;
@@ -620,37 +620,37 @@ namespace Uhost.Core.Services.Video
                      name: "raw.mp4",
                      type: FileTypes.VideoRaw,
                      dynType: typeof(Entity),
-                     dynId: conversionState.VideoId);
+                     dynId: processingState.VideoId);
 
                 await OnFFProgressAsync(100, token, FileTypes.VideoRaw);
-                await _logger?.WriteLineAsync($"Fetching video #{conversionState.VideoId},{token} completed", LogWriter.Severity.Info);
+                await _logger?.WriteLineAsync($"Fetching video #{processingState.VideoId},{token} completed", LogWriter.Severity.Info);
 
                 var mediaInfo = await FFProbe.AnalyseAsync(file.GetPath());
 
                 if (mediaInfo.Duration.TotalSeconds > 0)
                 {
-                    _repo.UpdateDuration(conversionState.VideoId, mediaInfo.Duration);
+                    _repo.UpdateDuration(processingState.VideoId, mediaInfo.Duration);
                 }
 
-                EnqueueConversion(conversionState.VideoId, FileTypes.Video240p);
+                EnqueueConversion(processingState.VideoId, FileTypes.Video240p);
 
                 if (mediaInfo.PrimaryVideoStream.Height >= 480)
                 {
-                    EnqueueConversion(conversionState.VideoId, FileTypes.Video480p);
+                    EnqueueConversion(processingState.VideoId, FileTypes.Video480p);
                 }
                 if (mediaInfo.PrimaryVideoStream.Height >= 720)
                 {
-                    EnqueueConversion(conversionState.VideoId, FileTypes.Video720p);
+                    EnqueueConversion(processingState.VideoId, FileTypes.Video720p);
                 }
                 if (mediaInfo.PrimaryVideoStream.Height >= 1080)
                 {
-                    EnqueueConversion(conversionState.VideoId, FileTypes.Video1080p);
+                    EnqueueConversion(processingState.VideoId, FileTypes.Video1080p);
                 }
             }
             else
             {
                 var exception = new Exception("Failed to fetch video", ffException);
-                exception.Data["State"] = conversionState;
+                exception.Data["State"] = processingState;
                 exception.Data[nameof(ffargs.Arguments)] = ffargs?.Arguments;
                 SentrySdk.CaptureException(exception);
             }
@@ -663,21 +663,21 @@ namespace Uhost.Core.Services.Video
         /// </summary>
         /// <param name="ffargs"></param>
         /// <param name="output"></param>
-        /// <param name="conversionState"></param>
+        /// <param name="processingState"></param>
         /// <returns></returns>
-        private async Task DoConversion(FFMpegArgumentProcessor ffargs, FileInfo output, VideoConversionStateViewModel conversionState)
+        private async Task DoConversion(FFMpegArgumentProcessor ffargs, FileInfo output, VideoProcessingStateViewModel processingState)
         {
             Tools.MakePath(output.FullName);
-            (var token, var duration) = _repo.GetTokenAndDuration(conversionState.VideoId);
+            (var token, var duration) = _repo.GetTokenAndDuration(processingState.VideoId);
 
-            await _logger?.WriteLineAsync($"Processing video #{conversionState.VideoId},{token} ({conversionState.Type}) with arguments:\r\n{ffargs?.Arguments}", LogWriter.Severity.Info);
+            await _logger?.WriteLineAsync($"Processing video #{processingState.VideoId},{token} ({processingState.Type}) with arguments:\r\n{ffargs?.Arguments}", LogWriter.Severity.Info);
 
             try
             {
-                _convertionStates.UpdateState(conversionState.Id, VideoConversionStates.Processing);
+                _convertionStates.UpdateState(processingState.Id, VideoProcessingStates.Processing);
 
                 var result = await ffargs?
-                    .NotifyOnProgress(async e => await OnFFProgressAsync(e, token, conversionState.Type.Value), duration)
+                    .NotifyOnProgress(async e => await OnFFProgressAsync(e, token, processingState.Type.Value), duration)
                     .ProcessAsynchronously();
 
                 if (result == true && output.Length > 0)
@@ -685,28 +685,28 @@ namespace Uhost.Core.Services.Video
                     _fileService.Add(
                         output,
                         name: "video.mp4",
-                        type: conversionState.Type,
+                        type: processingState.Type,
                         dynType: typeof(Entity),
-                        dynId: conversionState.VideoId);
+                        dynId: processingState.VideoId);
                 }
                 else
                 {
                     var exception = new Exception("Failed to process video");
-                    exception.Data["State"] = conversionState;
+                    exception.Data["State"] = processingState;
                     exception.Data["Arguments"] = ffargs?.Arguments;
                     throw exception;
                 }
 
-                await OnFFProgressAsync(100, token, conversionState.Type.Value);
-                await _logger?.WriteLineAsync($"Processing video #{conversionState.VideoId},{token} ({conversionState.Type}) completed", LogWriter.Severity.Info);
-                _convertionStates.UpdateState(conversionState.Id, VideoConversionStates.Completed);
+                await OnFFProgressAsync(100, token, processingState.Type.Value);
+                await _logger?.WriteLineAsync($"Processing video #{processingState.VideoId},{token} ({processingState.Type}) completed", LogWriter.Severity.Info);
+                _convertionStates.UpdateState(processingState.Id, VideoProcessingStates.Completed);
             }
             catch (Exception e)
             {
-                e.Data["State"] = conversionState;
+                e.Data["State"] = processingState;
                 e.Data["Arguments"] = ffargs?.Arguments;
                 SentrySdk.CaptureException(e);
-                _convertionStates.UpdateState(conversionState.Id, VideoConversionStates.Failed);
+                _convertionStates.UpdateState(processingState.Id, VideoProcessingStates.Failed);
                 throw;
             }
             finally
@@ -728,7 +728,7 @@ namespace Uhost.Core.Services.Video
             {
                 var key = _redisProgressKeyMask.Format(token);
                 var value = await _redis.ExecuteAsync(async e => await e.StringGetAsync(key));
-                var model = !value.IsNullOrEmpty && value.TryCastTo<VideoConversionStateProgressOnlyModel>(out var casted) ? casted : new VideoConversionStateProgressOnlyModel();
+                var model = !value.IsNullOrEmpty && value.TryCastTo<VideoProcessingStateProgressOnlyModel>(out var casted) ? casted : new VideoProcessingStateProgressOnlyModel();
                 model.Progresses[type] = progress;
                 await _redis.ExecuteAsync(async e => await e.StringSetAsync(key, model.ToJson(), expiry: _redisProgressKeyTtl, flags: CommandFlags.FireAndForget));
             }
@@ -740,13 +740,13 @@ namespace Uhost.Core.Services.Video
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        public async Task<VideoConversionStateProgressModel> GetConversionProgressAsync(string token)
+        public async Task<VideoProcessingStateProgressModel> GetConversionProgressAsync(string token)
         {
             var model = _convertionStates.GetProgresses(token);
             var key = _redisProgressKeyMask.Format(token);
             var value = await _redis.ExecuteAsync(async e => await e.StringGetAsync(key));
 
-            if (!value.IsNullOrEmpty && value.TryCastTo<VideoConversionStateProgressOnlyModel>(out var casted))
+            if (!value.IsNullOrEmpty && value.TryCastTo<VideoProcessingStateProgressOnlyModel>(out var casted))
             {
                 model.LoadFrom(casted);
             }

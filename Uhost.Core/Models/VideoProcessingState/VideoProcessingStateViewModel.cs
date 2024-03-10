@@ -1,8 +1,8 @@
-﻿using Entity = Uhost.Core.Data.Entities.VideoConversionState;
+﻿using Entity = Uhost.Core.Data.Entities.VideoProcessingState;
 
-namespace Uhost.Core.Models.VideoConversionState
+namespace Uhost.Core.Models.VideoProcessingState
 {
-    public class VideoConversionStateViewModel : VideoConversionStateCreateModel
+    public class VideoProcessingStateViewModel : VideoProcessingStateCreateModel
     {
         public int Id { get; set; }
 

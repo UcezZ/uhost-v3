@@ -14,14 +14,14 @@ namespace Uhost.Core.Services.Scheduler
             _client = new BackgroundJobClient(jobStorage);
         }
 
-        public void ScheduleVideoConvert(int conversionStateId)
+        public void ScheduleVideoConvert(int processingStateId)
         {
-            _client.Enqueue<IVideoService>(e => e.Convert(conversionStateId), TaskQueues.Conversion);
+            _client.Enqueue<IVideoService>(e => e.Convert(processingStateId), TaskQueues.Conversion);
         }
 
-        public void ScheduleVideoStreamFetch(int conversionStateId, string url)
+        public void ScheduleVideoStreamFetch(int processingStateId, string url)
         {
-            _client.Enqueue<IVideoService>(e => e.FetchStream(conversionStateId, url), TaskQueues.Fetch);
+            _client.Enqueue<IVideoService>(e => e.FetchStream(processingStateId, url), TaskQueues.Fetch);
         }
     }
 }
