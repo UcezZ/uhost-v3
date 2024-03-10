@@ -39,7 +39,7 @@ namespace Uhost.Core.Attributes.Validation
             {
                 _mimes.AddRange(mime.Select(e => e.ToLower()));
             }
-            if (ext != null && mime.Any())
+            if (ext != null && ext.Any())
             {
                 _exts.AddRange(ext.Select(e => e.ToLower()));
             }

@@ -11,14 +11,9 @@ namespace Uhost.Core.Attributes
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class UnnecessaryAttribute : Attribute
     {
-        public UnnecessaryAttribute(object defaultValue = default)
-        {
-            DefaultValue = defaultValue;
-        }
-
         /// <summary>
         /// Значение поля по умолчанию
         /// </summary>
-        public object DefaultValue { get; }
+        public object DefaultValue { get; set; }
     }
 }

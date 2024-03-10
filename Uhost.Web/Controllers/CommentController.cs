@@ -13,6 +13,9 @@ using Entity = Uhost.Core.Data.Entities.Video;
 
 namespace Uhost.Web.Controllers
 {
+    /// <summary>
+    /// Комментарии
+    /// </summary>
     [Route("api/v2/comments")]
     public class CommentController : Controller
     {

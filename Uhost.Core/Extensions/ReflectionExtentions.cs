@@ -68,6 +68,13 @@ namespace Uhost.Core.Extensions
 
             if (instance is TAttribute targetAttribute)
             {
+                foreach (var arg in customAttributeData.NamedArguments)
+                {
+                    typeof(TAttribute)
+                        .GetProperty(arg.MemberName)?
+                        .SetValue(targetAttribute, arg.TypedValue.Value);
+                }
+
                 return targetAttribute;
             }
             else

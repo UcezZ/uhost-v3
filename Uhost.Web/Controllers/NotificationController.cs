@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace Uhost.Web.Controllers
 {
     /// <summary>
-    /// Уведомление
+    /// Уведомления
     /// </summary>
-    [Route("notifications"), Authorize]
+    [Route("api/v2/notifications"), Authorize]
     public class NotificationController : Controller
     {
         /// <summary>
@@ -44,6 +44,7 @@ namespace Uhost.Web.Controllers
         /// Пометить все уведомления прочитанными
         /// </summary>
         /// <returns></returns>
+        [HttpPost("mark-read-all")]
         public IActionResult MarkReadAll()
         {
             return Ok();

@@ -56,26 +56,16 @@ end";
 
         public async Task Invoke(HttpContext context)
         {
-            var targetDefn = _targets
+            var attribute = _targets
                 .FirstOrDefault(e => e.UrlRegex.IsMatch(context.Request.Path) && context.Request.Method.Equals(e.HttpMethod, StringComparison.InvariantCultureIgnoreCase))?
                 .ControllerMethod?
                 .CustomAttributes?
-                .FirstOrDefault(e => e.AttributeType == typeof(ThrottleAttribute));
+                .FirstOrDefault(e => e.AttributeType == typeof(ThrottleAttribute))?
+                .ToAttributeInstance<ThrottleAttribute>();
 
-            if (targetDefn != null && context?.Connection?.RemoteIpAddress != null)
+            if (attribute != null)
             {
-                var targetObj = targetDefn.Constructor.Invoke(Array.Empty<object>());
-
-                foreach (var arg in targetDefn.NamedArguments)
-                {
-                    targetDefn.AttributeType
-                        .GetProperty(arg.MemberName)?
-                        .SetValue(targetObj, arg.TypedValue.Value);
-                }
-
-                var target = targetObj as ThrottleAttribute;
-
-                if (await Check(context, target))
+                if (await Check(context, attribute))
                 {
                     await _next(context);
                 }
