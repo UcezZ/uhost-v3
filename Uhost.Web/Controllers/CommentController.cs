@@ -84,5 +84,16 @@ namespace Uhost.Web.Controllers
 
             return ResponseHelper.Success(_service.GetOne(entity.Id));
         }
+
+        /// <summary>
+        /// Удаление комментария к видео
+        /// </summary>
+        /// <param name="id">ИД комментария</param>
+        /// <returns></returns>
+        [HttpDelete("{id}")]
+        public IActionResult Delete(string id)
+        {
+            return Ok();
+        }
     }
 }

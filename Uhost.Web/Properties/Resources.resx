@@ -117,76 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Auth_Error_BlockFmt" xml:space="preserve">
-    <value>Пользователь {0} заблокирован {1} пользователем {2} по причине "{3}"</value>
-  </data>
-  <data name="Auth_Error_InvalidCredentials" xml:space="preserve">
-    <value>Неверный логин или пароль</value>
-  </data>
-  <data name="Auth_Error_Unauthorized" xml:space="preserve">
-    <value>Пользователь не авторизован</value>
-  </data>
-  <data name="Comment_Error_NotAllowed" xml:space="preserve">
-    <value>Комментирование этого видео отключено</value>
-  </data>
-  <data name="Comment_Error_NotFound" xml:space="preserve">
-    <value>Коммментарий не найден</value>
-  </data>
-  <data name="Common_Error_Common" xml:space="preserve">
-    <value>Неопознанная ошибка</value>
-  </data>
-  <data name="Common_Error_Invalid" xml:space="preserve">
-    <value>Некорректное значение</value>
-  </data>
-  <data name="Common_Error_TooManyRequests" xml:space="preserve">
-    <value>Слишком много запросов</value>
-  </data>
-  <data name="Common_Error_Unauthorized" xml:space="preserve">
-    <value>Пользователь не авторизован</value>
-  </data>
-  <data name="File_Error_NotFoundById" xml:space="preserve">
-    <value>Файл с таким ид. не найден</value>
-  </data>
-  <data name="File_Error_TypeFail" xml:space="preserve">
-    <value>Недопустимый тип файла, допустимые значения: {0}</value>
-  </data>
-  <data name="Reaction_Error_NotAllowed" xml:space="preserve">
-    <value>Реакции к этому видео отключены</value>
-  </data>
-  <data name="Register_EmailSent" xml:space="preserve">
-    <value>Письмо с кодом подтверждения успешно отправлено</value>
-  </data>
-  <data name="Register_Error_ConfirmFail" xml:space="preserve">
-    <value>Недействительный код подтверждения</value>
-  </data>
-  <data name="Register_Error_FailedToSend" xml:space="preserve">
-    <value>Не удалось отправить письмо</value>
-  </data>
-  <data name="Right_Error_NotFoundByIdFmt" xml:space="preserve">
-    <value>Право с ид. {0} не найдено</value>
-  </data>
-  <data name="Right_Error_ShouldHaveAll" xml:space="preserve">
-    <value>Пользователь должен иметь следующие права: {0}</value>
-  </data>
-  <data name="Right_Error_ShouldHaveAny" xml:space="preserve">
-    <value>Пользователь должен иметь хотя бы одно из следующих прав: {0}</value>
-  </data>
-  <data name="Role_Error_AlreadyExists" xml:space="preserve">
-    <value>Роль с таким именем уже существует</value>
-  </data>
-  <data name="Role_Error_NotFoundById" xml:space="preserve">
-    <value>Роль с даким ид. не найдена</value>
-  </data>
-  <data name="Role_Error_NotFoundByIdFmt" xml:space="preserve">
-    <value>Роль с ид. {0} не найдена</value>
-  </data>
-  <data name="User_Error_AlreadyExists" xml:space="preserve">
-    <value>Пользователь с таким логином или email уже существует</value>
-  </data>
-  <data name="User_Error_NotFoundById" xml:space="preserve">
-    <value>Пользователь с таким ид. не найден</value>
-  </data>
-  <data name="Video_Error_NotFound" xml:space="preserve">
-    <value>Видео не найдено</value>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="SwaggerStylesheet" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\swagger.css;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>

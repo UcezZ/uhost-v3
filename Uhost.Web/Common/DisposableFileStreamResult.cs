@@ -11,6 +11,8 @@ namespace Uhost.Web.Common
     {
         public DisposableFileStreamResult(Stream fileStream, string contentType) : base(fileStream, contentType) { }
 
+        public DisposableFileStreamResult(byte[] data, string contentType) : this(new MemoryStream(data), contentType) { }
+
         public override void ExecuteResult(ActionContext context)
         {
             using (FileStream)

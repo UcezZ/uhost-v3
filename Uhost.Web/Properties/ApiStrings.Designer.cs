@@ -250,15 +250,6 @@ namespace Uhost.Web.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на .opblock-summary-path,.swagger-ui .markdown code,.swagger-ui .parameter__type,.swagger-ui .renderedMarkdown code,code,pre,textarea.body-param__text{font-family:Consolas,&apos;Courier New&apos;,Courier,monospace!important}a{color:#8c8cfa}embed[type=&quot;application/pdf&quot;]{filter:invert(90%)}html{background:#1f1f1f!important;box-sizing:border-box;filter:contrast(100%) brightness(100%) saturate(100%);overflow-y:scroll}body{background:#1f1f1f;background-image:none!important}.swagger-ui input[disabled],.swagger-ui select[disab [остаток строки не уместился]&quot;;.
-        /// </summary>
-        internal static string SwaggerStylesheet {
-            get {
-                return ResourceManager.GetString("SwaggerStylesheet", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Ищет локализованную строку, похожую на Пользователь с таким логином или email уже существует.
         /// </summary>
         internal static string User_Error_AlreadyExists {

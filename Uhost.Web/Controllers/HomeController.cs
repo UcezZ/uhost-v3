@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Uhost.Web.Common;
 using Uhost.Web.Properties;
 
 namespace Uhost.Web.Controllers
@@ -10,8 +11,10 @@ namespace Uhost.Web.Controllers
     [AllowAnonymous, ApiExplorerSettings(IgnoreApi = true)]
     public class HomeController : Controller
     {
+        private static readonly byte[] _stylesheet = Resources.SwaggerStylesheet;
+
         /// <summary>
-        /// Ответ по умолчанию
+        /// Дашборд API
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -20,10 +23,14 @@ namespace Uhost.Web.Controllers
             return View("Index", WebSettings.HomePageConfig);
         }
 
+        /// <summary>
+        /// Стили swagger
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("swagger/style.css")]
         public IActionResult SwaggerStyles()
         {
-            return Content(ApiStrings.SwaggerStylesheet, "text/css");
+            return new DisposableFileStreamResult(_stylesheet, "text/css");
         }
     }
 }
