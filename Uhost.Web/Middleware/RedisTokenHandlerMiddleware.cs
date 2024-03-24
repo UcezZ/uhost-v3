@@ -122,7 +122,7 @@ namespace Uhost.Web.Middleware
 
             var elapsed = timer.Milliseconds;
 
-            if (LocalEnvironment.IsDev)
+            if (LocalEnvironment.IsDev && elapsed > 5)
             {
                 if (elapsed > 50)
                 {
