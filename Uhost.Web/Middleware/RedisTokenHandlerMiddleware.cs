@@ -31,11 +31,17 @@ namespace Uhost.Web.Middleware
             // маршруты
             _targets = Common.Tools.Routes
 
-                // у методов контроллеров или контроллеров которых есть атрибут
                 .Where(e =>
-                    e.ControllerMethod.CustomAttributes.Any(a => a.AttributeType == typeof(AuthorizeAttribute)) ||
+
+                    // у методов контроллеров которых есть атрибут
+                    e.ControllerMethod.CustomAttributes.Any(a => a.AttributeType.IsAssignableTo<AuthorizeAttribute>()) ||
+
+                    // или у контроллеров которых есть атрибут
                     e.ControllerMethod.DeclaringType?.CustomAttributes != null &&
-                    e.ControllerMethod.DeclaringType.CustomAttributes.Any(a => a.AttributeType == typeof(AuthorizeAttribute)))
+                    e.ControllerMethod.DeclaringType.CustomAttributes.Any(a => a.AttributeType.IsAssignableTo<AuthorizeAttribute>()) ||
+
+                    // или у методов контроллеров которых нет атрибута
+                    !e.ControllerMethod.CustomAttributes.Any(a => a.AttributeType.IsAssignableTo<AllowAnonymousAttribute>()))
 
                 // commit
                 .ToList();
@@ -52,12 +58,9 @@ namespace Uhost.Web.Middleware
 
         private static async Task ForbidAsync(HttpContext context)
         {
-            context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             context.Response.ContentType = ResponseHelper.СontentTypeJson;
-            await context.Response.WriteAsync(ResponseHelper.MakeErrorData(new[]
-            {
-                new { ErrorCode = HttpStatusCode.Unauthorized, ErrorStr = ApiStrings.Auth_Error_Unauthorized }
-            }).ToJson());
+            await context.Response.WriteAsync(ResponseHelper.MakeErrorData(ApiStrings.Auth_Error_Unauthorized).ToJson());
         }
 
         public async Task Invoke(HttpContext context)

@@ -177,6 +177,7 @@ namespace Uhost.Web
             app.UseHangfireDashboard("/hangfire", WebSettings.HangfireDashboardOptions);
 
             app.UseAuthentication();
+            app.UseMiddleware<RedisTokenHandlerMiddleware>();
             app.UseAuthorization();
 
             app.UseEndpoints(e => e.MapDefaultControllerRoute());
