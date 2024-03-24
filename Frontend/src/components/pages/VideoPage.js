@@ -5,7 +5,9 @@ import VideoEndpoint from '../../api/VideoEndpoint';
 import Common from '../../utils/Common';
 import StateContext from '../../utils/StateContext';
 import LoadingBox from '../LoadingBox';
-import VideoContainer from '../VideoContainer';
+import EditVideoForm from '../video/EditVideoForm';
+import VideoContainer from '../video/VideoContainer';
+import NotFoundPage from './NotFoundPage';
 
 export default function VideoPage() {
     const { token } = useParams();
@@ -14,22 +16,24 @@ export default function VideoPage() {
     const [loading, setLoading] = useState(true);
     const [largeMode, setLargeMode] = useState(false);
 
-    useEffect(() => {
+    async function onLoad() {
         if (loading) {
-            VideoEndpoint.getByToken(token)
+            await VideoEndpoint.getByToken(token)
                 .then(e => {
                     if (e?.data?.success && e?.data?.result) {
                         setVideo(e.data.result);
                     } else {
                         setError(Common.transformErrorData(e));
                     }
-
-                    setLoading(false);
                 }).catch(e => {
                     setError(Common.transformErrorData(e));
-                    setLoading(false);
                 });
+            setLoading(false);
         }
+    }
+
+    useEffect(() => {
+        onLoad();
     }, [loading]);
 
     if (loading) {
@@ -40,9 +44,15 @@ export default function VideoPage() {
         );
     }
 
+    if (video) {
+        return (
+            <Container sx={{ maxWidth: '100% !important' }}>
+                <VideoContainer video={video} setVideo={setVideo} largeMode={largeMode} setLargeMode={setLargeMode} />
+            </Container>
+        );
+    }
+
     return (
-        <Container sx={{ maxWidth: '100% !important' }}>
-            <VideoContainer video={video} largeMode={largeMode} setLargeMode={setLargeMode} />
-        </Container>
+        <NotFoundPage />
     );
 }

@@ -3,7 +3,7 @@ export default class Common {
 
     static transformErrorData(error) {
         if (error?.response?.data?.errors) {
-            if (error.response.data.errors instanceof String) {
+            if (error.response.data.errors.toString() === error.response.data.errors) {
                 return error.response.data.errors;
             } else if ('message' in error.response.data.errors && 'stackTrace' in error.response.data.errors) {
                 console.log(error.response.data.errors.stackTrace);
@@ -90,10 +90,10 @@ export default class Common {
     }
 
     /**
-     * 
-     * @param {String} url 
+     * Starts downloading of url in tew tab
+     * @param {String} url URL to download
      */
-    static openLink(url) {
+    static openDownloadUrl(url) {
         var link = document.createElement('a');
         link.style.display = 'none';
         link.setAttribute('href', url);
@@ -102,5 +102,19 @@ export default class Common {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    }
+
+    /**
+     * 
+     * @param {String} name 
+     */
+    static checkThemeName(name) {
+        var name = name?.toLowerCase();
+
+        if (name === 'light') {
+            return 'light';
+        }
+
+        return 'dark';
     }
 }

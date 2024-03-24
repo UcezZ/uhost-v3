@@ -10,7 +10,8 @@ code {
   font-size: 10pt;
 }
 
-li.MuiMenuItem-root>a {
+li.MuiMenuItem-root>a,
+ul.MuiList-root>a {
   text-decoration: inherit;
   color: inherit;
 }

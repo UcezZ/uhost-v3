@@ -1,4 +1,4 @@
-import AuthForm from "../forms/AuthForm";
+import AuthForm from "../auth/AuthForm";
 import Container from '@mui/material/Container';
 
 export default function AuthPage() {

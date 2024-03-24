@@ -51,7 +51,6 @@ services:
   adminer:
     image: adminer
     container_name: "${APP_NAME}-adminer"
-    restart: always
     ports:
       - "${FORWARD_HOST}:${FORWARD_ADMINER_PORT}:8080"
     depends_on:
@@ -66,7 +65,6 @@ services:
   redis-commander:
     container_name: "${APP_NAME}-redis-cmdr"
     image: rediscommander/redis-commander:latest
-    restart: always
     depends_on:
       - redis
     environment:
@@ -92,6 +90,7 @@ services:
       VIDEO_TOKEN_SALT: ${VIDEO_TOKEN_SALT}
     depends_on:
       - redis
+    restart: unless-stopped
     volumes:
       - ${EXTERNAL_DIR}/videos:/opt/static/videos:ro
       - ./nginx/nginx-dev.conf:/usr/local/nginx/conf/nginx.conf:ro

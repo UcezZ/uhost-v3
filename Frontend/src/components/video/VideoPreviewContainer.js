@@ -1,5 +1,5 @@
-import { Grid } from "@mui/material";
-import VideoPreview from "./items/VideoPreview";
+import { Grid } from '@mui/material';
+import VideoPreview from './VideoPreview';
 
 export default function VideoPreviewContainer({ videos }) {
     return (

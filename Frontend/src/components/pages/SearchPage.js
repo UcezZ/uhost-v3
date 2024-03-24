@@ -5,7 +5,7 @@ import LoadingBox from '../LoadingBox';
 import VideoEndpoint from '../../api/VideoEndpoint';
 import StateContext from '../../utils/StateContext';
 import MessageBox from '../MessageBox';
-import VideoPreviewContainer from '../VideoPreviewContainer';
+import VideoPreviewContainer from '../video/VideoPreviewContainer';
 import PagedResultNavigator from '../PagedResultNavigator';
 import Common from '../../utils/Common';
 

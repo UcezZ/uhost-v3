@@ -17,7 +17,6 @@ export default function PopupAuthForm({ visible, setVisible, next }) {
                 TransitionComponent={PopupTransition}
                 keepMounted
                 onClose={onClose}
-                aria-describedby="alert-dialog-slide-description"
             >
                 <DialogTitle>Авторизация</DialogTitle>
                 <DialogContent>

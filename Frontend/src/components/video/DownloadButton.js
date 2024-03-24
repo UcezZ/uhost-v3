@@ -1,4 +1,4 @@
-import { IconButton, Typography } from '@mui/material';
+import { Button, Typography } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -20,25 +20,29 @@ export default function DownloadButton({ token, sizes }) {
         setAnchorEl(null);
     };
     function onDownloadClick(link) {
-        Common.openLink(`${config.apiroot}/videos/${token}/download/${link.key.toPascalCase()}`);
+        Common.openDownloadUrl(`${config.apiroot}/videos/${token}/download/${link.key.toPascalCase()}`);
         onClose();
     }
 
     return (
         <div>
-            <IconButton
-                size="large"
-                color="inherit"
-                aria-label="profile"
-                id="download-button"
+            <Button
+                size='large'
+                color='inherit'
+                aria-label='profile'
+                id='download-button'
                 aria-controls={anchorEl ? undefined : 'download-menu'}
-                aria-haspopup="true"
+                aria-haspopup='true'
                 aria-expanded={anchorEl ? undefined : 'true'}
-                onClick={onClick}>
+                onClick={onClick}
+                sx={{ gap: 1 }}>
                 <FileDownloadIcon />
-            </IconButton>
+                <Typography variant='button'>
+                    Скачать...
+                </Typography>
+            </Button>
             <Menu
-                id="download-menu"
+                id='download-menu'
                 anchorEl={anchorEl}
                 open={!!anchorEl}
                 onClose={onClose}

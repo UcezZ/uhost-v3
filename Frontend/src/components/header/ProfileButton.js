@@ -8,7 +8,7 @@ import AuthEndpoint from '../../api/AuthEndpoint';
 import { Link } from 'react-router-dom';
 import config from '../../config.json';
 import StateContext from '../../utils/StateContext';
-import PopupAuthForm from '../forms/PopupAuthForm';
+import PopupAuthForm from '../auth/PopupAuthForm';
 
 export default function ProfileButton() {
     const [anchorEl, setAnchorEl] = useState(null);

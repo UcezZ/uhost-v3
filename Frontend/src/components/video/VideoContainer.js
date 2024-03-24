@@ -1,13 +1,16 @@
 import { Card, CardActions, CardMedia, FormControl, InputLabel, MenuItem, Select, Typography, Box } from '@mui/material';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useContext } from 'react';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 import { IconButton, Slider } from '@mui/material';
 import Hls from 'hls.js';
-import Common from '../utils/Common';
-import DownloadButton from './items/DownloadButton';
+import Common from '../../utils/Common';
+import DownloadButton from './DownloadButton';
+import StateContext from '../../utils/StateContext';
+import Rights from '../../utils/Rights';
+import EditVideoButton from './EditVideoButton';
 
 const resolutionAuto = 'auto';
 
@@ -75,7 +78,8 @@ const hls = Hls.isSupported() && new Hls({
     }
 });
 
-export default function VideoContainer({ video, largeMode, setLargeMode }) {
+export default function VideoContainer({ video, setVideo, largeMode, setLargeMode }) {
+    const { user } = useContext(StateContext);
     const [duration, setDuration] = useState(Common.parseTime(video?.duration));
     const storageKey = `video_${video?.token}`;
     const firstVideoUrl = video.urls[`video${video.resolutions.firstOrDefault()}`];
@@ -92,7 +96,7 @@ export default function VideoContainer({ video, largeMode, setLargeMode }) {
                 ...e,
                 size: video?.downloadSizes[e.key]
             }
-        })
+        });
 
     const [prevType, setPrevType] = useState();
     const [prevRes, setPrevRes] = useState();
@@ -104,6 +108,8 @@ export default function VideoContainer({ video, largeMode, setLargeMode }) {
     const [time, setTime] = useState(0);
     const [playerType, setPlayerType] = useState(loadPlayerType());
     const [playerRes, setPlayerRes] = useState(loadResolution());
+
+    const canEditVideo = user?.id && (video?.id && user.id === video.id || Rights.checkAnyRight(user, Rights.VideoGetAll));
 
     /**
      * 
@@ -357,7 +363,7 @@ export default function VideoContainer({ video, largeMode, setLargeMode }) {
             <CardActions>
                 <Box sx={{ display: 'flex', gap: '16px' }}>
                     <FormControl sx={{ minWidth: 100 }}>
-                        <InputLabel htmlFor='playertype'>Player type</InputLabel>
+                        <InputLabel htmlFor='playertype'>Плеер</InputLabel>
                         <Select
                             id='playertype'
                             label='Player type'
@@ -368,11 +374,11 @@ export default function VideoContainer({ video, largeMode, setLargeMode }) {
                         </Select>
                     </FormControl>
                     <FormControl sx={{ minWidth: 100 }}>
-                        <InputLabel htmlFor='playerres'>Resolution</InputLabel>
+                        <InputLabel htmlFor='playerres'>Разрешение</InputLabel>
                         <Select
                             id='playerres'
                             label='Resolution'
-                            value={getResolutions().any(e => e === playerRes) ? playerRes : getResolutions().firstOrDefault()}
+                            value={getResolutions().some(e => e === playerRes) ? playerRes : getResolutions().firstOrDefault()}
                             onChange={onResolutionChange}
                         >
                             {getResolutions().map((e, i) => <MenuItem value={e} key={i} >
@@ -381,6 +387,7 @@ export default function VideoContainer({ video, largeMode, setLargeMode }) {
                         </Select>
                     </FormControl>
                     <DownloadButton token={video?.token} sizes={sizes} />
+                    {canEditVideo && <EditVideoButton video={video} setVideo={setVideo} />}
                 </Box>
             </CardActions>
         </Card>

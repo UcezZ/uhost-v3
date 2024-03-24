@@ -16,5 +16,18 @@ export default {
             sortDirection: sortDir
         }
     }),
-    getByToken: (token) => api.get(`${config.apiroot}/videos/${token}`, { withCredentials: true, headers: { crossDomain: true } })
+    getByToken: (token) => api.get(`${config.apiroot}/videos/${token}`, {
+        withCredentials: true,
+        headers: {
+            crossDomain: true
+        }
+    }),
+    edit: (token, name, desc, isPrivate, isHidden, allowComments, allowReactions) => api.putForm(`${config.apiroot}/videos/${token}`, {
+        name: name ?? '',
+        description: desc ?? '',
+        isPrivate: isPrivate ?? false,
+        isHidden: isHidden ?? false,
+        allowComments: allowComments ?? false,
+        allowReactions: allowReactions ?? false
+    })
 };
