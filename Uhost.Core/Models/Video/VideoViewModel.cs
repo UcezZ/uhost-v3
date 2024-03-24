@@ -7,6 +7,16 @@ namespace Uhost.Core.Models.Video
     public class VideoViewModel : VideoShortViewModel
     {
         /// <summary>
+        /// Разрешить комментарии
+        /// </summary>
+        public bool AllowComments { get; set; }
+
+        /// <summary>
+        /// Разрешить реакции
+        /// </summary>
+        public bool AllowReactions { get; set; }
+
+        /// <summary>
         /// URL для отдачи клиенту
         /// </summary>
         public IDictionary<string, string> Urls { get; set; }
@@ -33,6 +43,8 @@ namespace Uhost.Core.Models.Video
             base.LoadFromEntity(entity);
 
             Description = entity.Description;
+            AllowComments = entity.AllowComments;
+            AllowReactions = entity.AllowReactions;
         }
 
         public string GetAccessToken() => AccessToken;
