@@ -168,12 +168,14 @@ namespace Uhost.Core.Services.Video
 
         private async Task CreateRedisKeys(VideoViewModel model)
         {
-            if (!TryGetUserIp(out var ip))
+            if (model == null)
             {
                 return;
             }
 
             model.CookieTtl = model.DurationObj.Add(TimeSpan.FromHours(1));
+
+            TryGetUserIp(out var ip);
 
             foreach (var url in model.UrlPaths.Values)
             {
@@ -200,7 +202,11 @@ namespace Uhost.Core.Services.Video
         /// <returns></returns>
         public async Task<VideoViewModel> GetOne(string token)
         {
-            var query = new QueryModel { Token = token };
+            var query = new QueryModel
+            {
+                Token = token,
+                ForceShowForUser = true
+            };
 
             OverrideByUserRestrictions(query);
 
@@ -770,11 +776,22 @@ namespace Uhost.Core.Services.Video
             {
                 query.ShowHidden &= rights.Contains(Rights.VideoGetAll) || query.UserId == userId;
                 query.ShowPrivate &= rights.Contains(Rights.VideoGetAll) || query.UserId == userId;
+
+                if (query.ForceShowForUser)
+                {
+                    query.ShowHiddenForUserId = userId;
+                    query.ShowPrivateForUserId = userId;
+                }
             }
             else
             {
                 query.ShowHidden = false;
                 query.ShowPrivate = false;
+            }
+
+            if (!string.IsNullOrEmpty(query.Token))
+            {
+                query.ShowHidden = true;
             }
         }
 

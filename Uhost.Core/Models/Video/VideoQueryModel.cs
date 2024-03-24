@@ -62,5 +62,17 @@ namespace Uhost.Core.Models.Video
         internal Entity.SortBy? SortByParsed => SortBy.ParseEnum<Entity.SortBy>();
 
         internal bool IncludeProcessingStates { get; set; }
+
+        /// <summary>
+        /// Показывать скрытые видео этого пользователя, если не показываются
+        /// </summary>
+        internal int ShowHiddenForUserId { get; set; }
+
+        /// <summary>
+        /// Показывать приватные видео этого пользователя, если не показываются
+        /// </summary>
+        internal int ShowPrivateForUserId { get; set; }
+
+        internal bool ForceShowForUser { get; set; }
     }
 }

@@ -45,11 +45,11 @@ namespace Uhost.Core.Repositories
             }
             if (!query.ShowHidden)
             {
-                q = q.Where(e => !e.IsHidden);
+                q = q.Where(e => !e.IsHidden || query.ShowHiddenForUserId > 0 && e.UserId == query.ShowHiddenForUserId);
             }
             if (!query.ShowPrivate)
             {
-                q = q.Where(e => !e.IsPrivate);
+                q = q.Where(e => !e.IsPrivate || query.ShowPrivateForUserId > 0 && e.UserId == query.ShowPrivateForUserId);
             }
             if (query.IncludeProcessingStates)
             {

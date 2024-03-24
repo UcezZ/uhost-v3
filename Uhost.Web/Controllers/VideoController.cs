@@ -76,6 +76,11 @@ namespace Uhost.Web.Controllers
 
             var model = await _service.GetOne(token);
 
+            if (model == null)
+            {
+                return ResponseHelper.Error(ApiStrings.Video_Error_NotFound);
+            }
+
             var cookieOptions = new CookieOptions
             {
                 IsEssential = true,
