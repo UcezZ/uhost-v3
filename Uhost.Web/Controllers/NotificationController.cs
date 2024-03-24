@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using Uhost.Web.Common;
 
 namespace Uhost.Web.Controllers
 {
@@ -16,7 +18,7 @@ namespace Uhost.Web.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok();
+            return ResponseHelper.Success(Enumerable.Empty<object>());
         }
 
         /// <summary>
@@ -27,7 +29,7 @@ namespace Uhost.Web.Controllers
         [HttpGet("{id}")]
         public IActionResult GetOne(string id)
         {
-            return Ok();
+            return ResponseHelper.Success();
         }
 
         /// <summary>
@@ -37,7 +39,7 @@ namespace Uhost.Web.Controllers
         [HttpGet("count")]
         public IActionResult GetCount()
         {
-            return Ok();
+            return ResponseHelper.Success(0);
         }
 
         /// <summary>
@@ -47,7 +49,7 @@ namespace Uhost.Web.Controllers
         [HttpPost("mark-read-all")]
         public IActionResult MarkReadAll()
         {
-            return Ok();
+            return ResponseHelper.Success();
         }
     }
 }

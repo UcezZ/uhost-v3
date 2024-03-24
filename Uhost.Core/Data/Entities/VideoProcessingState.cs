@@ -14,6 +14,14 @@ namespace Uhost.Core.Data.Entities
             Failed
         }
 
+        public enum SortBy
+        {
+            CreatedAt,
+            State,
+            VideoCreatedAt,
+            UserId
+        }
+
         public int VideoId { get; set; }
 
         [Required, Column(TypeName = "TEXT")]

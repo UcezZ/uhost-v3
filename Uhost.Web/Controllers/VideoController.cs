@@ -133,10 +133,28 @@ namespace Uhost.Web.Controllers
         /// </summary>
         /// <param name="token">Токен видео</param>
         /// <returns></returns>
-        [HttpGet("{token}/progress")]
+        [HttpGet("{token}/processing")]
         public async Task<IActionResult> Progress(string token)
         {
             return ResponseHelper.Success(await _service.GetConversionProgressAsync(token));
+        }
+
+        /// <summary>
+        /// Получение всех прогрессов видео
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        [HttpGet("processing-all")]
+        public IActionResult GetProgresses(QueryModel query)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ResponseHelper.Error(ModelState.GetErrors());
+            }
+
+            _service.OverrideByUserRestrictions(query);
+
+            return ResponseHelper.Success(_service.GetAllProcessingsPaged(query));
         }
 
         /// <summary>

@@ -74,7 +74,7 @@ ORDER BY
             try
             {
                 var childDisposables = GetType().GetTypeInfo()?.DeclaredFields
-                    .Where(e => !e.IsStatic && e.FieldType.IsAssignableTo(typeof(IDisposable)) && e.DeclaringType != typeof(BaseService))
+                    .Where(e => !e.IsStatic && e.FieldType.IsAssignableTo<IDisposable>() && e.DeclaringType != typeof(BaseService))
                     .Select(e => e.GetValue(this) as IDisposable)
                     .OfType<IDisposable>()
                     .ToList();

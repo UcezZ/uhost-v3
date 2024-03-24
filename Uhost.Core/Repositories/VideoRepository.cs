@@ -51,13 +51,18 @@ namespace Uhost.Core.Repositories
             {
                 q = q.Where(e => !e.IsPrivate);
             }
+            if (query.IncludeProcessingStates)
+            {
+                q = q.Include(e => e.VideoProcessingStates)
+                    .Where(e => e.VideoProcessingStates.Any(e => e.DeletedAt == null));
+            }
 
             if (!string.IsNullOrEmpty(query.Name))
             {
                 q = q.Where(e => PostgreSqlFunctions.TrgmAreSimilar(PostgreSqlFunctions.Debloat(e.Name), PostgreSqlFunctions.Debloat(query.Name))
                 || EF.Functions.Like(PostgreSqlFunctions.Debloat(e.Name), "%" + PostgreSqlFunctions.Debloat(query.Name) + "%"));
 
-                if (query.SortDirectParsed == BaseQueryModel.SortDirections.Desc)
+                if (query.IsDescending)
                 {
                     q = q.OrderBy(e => PostgreSqlFunctions.TrgmWordSimilarity(PostgreSqlFunctions.Debloat(e.Name), PostgreSqlFunctions.Debloat(query.Name)))
                         .ThenByDescending(e => e.Name)

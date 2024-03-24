@@ -19,6 +19,7 @@ namespace Uhost.Core.Services.File
         Entity Add(IFormFile file, Entity.FileTypes? type = null, Type dynType = null, int? dynId = null);
         Entity Add(FileInfo file, string name = null, string mime = null, Entity.FileTypes? type = null, Type dynType = null, int? dynId = null);
         void Delete(int id, bool deleteFile = false);
+        void DeleteByDynParams(int dynId, Type dynEntity, Entity.FileTypes type, bool deleteFile = false);
         IQueryable<TModel> GetAll<TModel>(QueryModel query) where TModel : BaseModel<Entity>, new();
         object GetAllPaged<TModel>(QueryModel query) where TModel : BaseModel<Entity>, new();
         IQueryable<TFileModel> GetByDynEntity<TFileModel>(IEnumerable<int> ids, Type dynEntity, params Entity.FileTypes[] types) where TFileModel : BaseModel<Entity>, new();

@@ -19,9 +19,7 @@ namespace Uhost.Core.Models
                     PerPage = pager.PerPage,
                     CurrentPage = pager.CurrentPage,
                     TotalPages = pager.TotalPages,
-                    Total = pager.Total,
-                    HasNextPage = pager.HasNextPage,
-                    HasPreviousPage = pager.HasPreviousPage,
+                    Total = pager.Total
                 },
                 Items = pager
             };

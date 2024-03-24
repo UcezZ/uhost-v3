@@ -25,6 +25,10 @@ namespace Uhost.Core.Repositories
             {
                 q = q.Where(e => e.VideoId == query.VideoId);
             }
+            if (query.UserId > 0)
+            {
+                q = q.Where(e => e.Video.UserId == query.UserId);
+            }
             if (query?.State != null)
             {
                 q = q.Where(e => e.State == query.State.ToString());
@@ -38,7 +42,17 @@ namespace Uhost.Core.Repositories
                 q = q.Where(e => e.DeletedAt == null);
             }
 
-            return q;
+            switch (query.SortByParsed)
+            {
+                case Entity.SortBy.VideoCreatedAt:
+                    query.SortBy = $"{nameof(Entity.Video)}.{nameof(Entity.Video.CreatedAt)}";
+                    break;
+                case Entity.SortBy.UserId:
+                    query.SortBy = $"{nameof(Entity.Video)}.{nameof(Entity.Video.UserId)}";
+                    break;
+            }
+
+            return q.OrderBy(query);
         }
 
         public IQueryable<TModel> GetAll<TModel>(QueryModel query = null) where TModel : BaseModel<Entity>, new()

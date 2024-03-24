@@ -38,12 +38,11 @@ namespace Uhost.Web.Controllers
 
             var stream = _service.GetGraylogCsvStream(model);
 
-            return new FileStreamResult(stream, "text/csv")
+            return new DisposableFileStreamResult(stream, "text/csv")
             {
                 FileDownloadName = $"graylog-{DateTime.Now.ToFileFmt()}.csv",
                 LastModified = DateTime.Now
             };
-
         }
     }
 }

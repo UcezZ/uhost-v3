@@ -22,7 +22,7 @@ namespace Uhost.Core.Common
         public static double Random() => throw new NotImplementedException();
 
         /// <summary>
-        /// Преобразуется в SQL-выражение <c>debloat(@input)</c>
+        /// Преобразуется в SQL-выражение <c>debloat(<paramref name="input"/>)</c>
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>

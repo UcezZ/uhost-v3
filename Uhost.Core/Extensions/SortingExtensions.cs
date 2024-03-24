@@ -65,7 +65,7 @@ namespace Uhost.Core.Extensions
                     // support to be sorted on child fields. 
                     var childProperties = propertyName.Split('.');
 
-                    property = typeof(TEntity).GetProperty(childProperties[0]);
+                    property = type.GetPropertyIgnoreCase(childProperties[0]);
 
                     if (property == null)
                     {
@@ -76,7 +76,7 @@ namespace Uhost.Core.Extensions
 
                     for (int i = 1; i < childProperties.Length; i++)
                     {
-                        property = property.PropertyType.GetProperty(childProperties[i]);
+                        property = property.PropertyType.GetPropertyIgnoreCase(childProperties[i]);
 
                         if (property == null)
                         {
@@ -88,7 +88,7 @@ namespace Uhost.Core.Extensions
                 }
                 else
                 {
-                    property = type.GetProperty(propertyName);
+                    property = type.GetPropertyIgnoreCase(propertyName);
 
                     if (property == null)
                     {

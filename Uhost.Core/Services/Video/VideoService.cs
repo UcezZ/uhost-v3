@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Uhost.Core.Common;
 using Uhost.Core.Data;
 using Uhost.Core.Extensions;
+using Uhost.Core.Models;
 using Uhost.Core.Models.File;
 using Uhost.Core.Models.Video;
 using Uhost.Core.Models.VideoProcessingState;
@@ -34,7 +35,7 @@ namespace Uhost.Core.Services.Video
     public sealed class VideoService : BaseService, IVideoService
     {
         private readonly VideoRepository _repo;
-        private readonly VideoProcessingStateRepository _convertionStates;
+        private readonly VideoProcessingStateRepository _processingStates;
         private readonly LogWriter _logger;
         private readonly ISchedulerService _scheduler;
         private readonly IFileService _fileService;
@@ -63,7 +64,7 @@ namespace Uhost.Core.Services.Video
             IRedisSwitcherService redis) : base(factory, provider)
         {
             _repo = new VideoRepository(_dbContext);
-            _convertionStates = new VideoProcessingStateRepository(_dbContext);
+            _processingStates = new VideoProcessingStateRepository(_dbContext);
             _logger = provider.GetService<LogWriter>();
             _scheduler = scheduler;
             _fileService = fileService;
@@ -76,7 +77,7 @@ namespace Uhost.Core.Services.Video
         /// </summary>
         /// <param name="query"></param>
         /// <returns></returns>
-        public object GetAllPaged(QueryModel query)
+        public PagerResultModel<VideoShortViewModel> GetAllPaged(QueryModel query)
         {
             var pager = _repo
                 .GetAll<VideoShortViewModel>(query)
@@ -355,7 +356,7 @@ namespace Uhost.Core.Services.Video
                 State = VideoProcessingStates.Pending,
                 Type = FileTypes.VideoRaw
             };
-            var processingState = _convertionStates.Add(model);
+            var processingState = _processingStates.Add(model);
 
             _scheduler.ScheduleVideoStreamFetch(processingState.Id, url);
         }
@@ -432,7 +433,7 @@ namespace Uhost.Core.Services.Video
                 Type = type,
                 State = VideoProcessingStates.Pending
             };
-            var processingState = _convertionStates.Add(model);
+            var processingState = _processingStates.Add(model);
 
             _scheduler.ScheduleVideoConvert(processingState.Id);
         }
@@ -528,7 +529,7 @@ namespace Uhost.Core.Services.Video
             {
                 Id = processingStateId
             };
-            var processingState = _convertionStates.GetAll<VideoProcessingStateViewModel>(processingQuery)
+            var processingState = _processingStates.GetAll<VideoProcessingStateViewModel>(processingQuery)
                 .FirstOrDefault();
 
             if (!_videoFileTypes.Any(e => e == processingState?.Type))
@@ -575,7 +576,7 @@ namespace Uhost.Core.Services.Video
             {
                 Id = processingStateId
             };
-            var processingState = _convertionStates.GetAll<VideoProcessingStateViewModel>(processingQuery)
+            var processingState = _processingStates.GetAll<VideoProcessingStateViewModel>(processingQuery)
                 .FirstOrDefault();
 
             if (processingState?.Type != FileTypes.VideoRaw)
@@ -674,7 +675,7 @@ namespace Uhost.Core.Services.Video
 
             try
             {
-                _convertionStates.UpdateState(processingState.Id, VideoProcessingStates.Processing);
+                _processingStates.UpdateState(processingState.Id, VideoProcessingStates.Processing);
 
                 var result = await ffargs?
                     .NotifyOnProgress(async e => await OnFFProgressAsync(e, token, processingState.Type.Value), duration)
@@ -699,19 +700,24 @@ namespace Uhost.Core.Services.Video
 
                 await OnFFProgressAsync(100, token, processingState.Type.Value);
                 await _logger?.WriteLineAsync($"Processing video #{processingState.VideoId},{token} ({processingState.Type}) completed", LogWriter.Severity.Info);
-                _convertionStates.UpdateState(processingState.Id, VideoProcessingStates.Completed);
+                _processingStates.UpdateState(processingState.Id, VideoProcessingStates.Completed);
             }
             catch (Exception e)
             {
                 e.Data["State"] = processingState;
                 e.Data["Arguments"] = ffargs?.Arguments;
                 SentrySdk.CaptureException(e);
-                _convertionStates.UpdateState(processingState.Id, VideoProcessingStates.Failed);
+                _processingStates.UpdateState(processingState.Id, VideoProcessingStates.Failed);
                 throw;
             }
             finally
             {
                 output.TryDeleteIfExists();
+            }
+
+            if (_processingStates.AreAllCompleted(processingState.VideoId))
+            {
+                _fileService.DeleteByDynParams(processingState.VideoId, typeof(Entity), FileTypes.VideoRaw, true);
             }
         }
 
@@ -742,7 +748,7 @@ namespace Uhost.Core.Services.Video
         /// <returns></returns>
         public async Task<VideoProcessingStateProgressModel> GetConversionProgressAsync(string token)
         {
-            var model = _convertionStates.GetProgresses(token);
+            var model = _processingStates.GetProgresses(token);
             var key = _redisProgressKeyMask.Format(token);
             var value = await _redis.ExecuteAsync(async e => await e.StringGetAsync(key));
 
@@ -822,6 +828,34 @@ namespace Uhost.Core.Services.Video
                 SentrySdk.CaptureException(e);
                 return false;
             }
+        }
+
+        public PagerResultModel<VideoShortProcessingModel> GetAllProcessingsPaged(QueryModel query)
+        {
+            // это ограничение нужно только здесь
+            if (TryGetUserRights(out var rights) && TryGetUserId(out var userId) && !rights.Contains(Rights.VideoGetAll))
+            {
+                query.UserId = userId;
+            }
+
+            query.IncludeProcessingStates = true;
+            var pager = _repo
+                .GetAll<VideoShortProcessingModel>(query)
+                .CreatePager(query);
+
+            if (pager.Any())
+            {
+                var files = _fileService
+                    .GetByDynEntity<FileShortViewModel>(pager.Select(e => e.Id), typeof(Entity), FileTypes.VideoThumbnail)
+                    .ToList();
+
+                foreach (var model in pager)
+                {
+                    model.ThumbnailUrl = files.FirstOrDefault(e => e.DynId == model.Id)?.Url ?? string.Empty;
+                }
+            }
+
+            return pager.Paginate();
         }
     }
 }

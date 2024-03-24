@@ -282,17 +282,62 @@ namespace Uhost.Core.Services.File
             }
         }
 
+        private void PhysicallyDelete(Entity entity)
+        {
+            var file = new FileInfo(entity.GetPath());
+            var result = file.TryDeleteIfExists();
+
+            _log.Add(Events.FileDeletedPhysically, new
+            {
+                entity.Id,
+                file.FullName,
+                file.Length,
+                file.Exists,
+                DeletionResult = result
+            });
+        }
+
         public void Delete(int id, bool deleteFile = false)
         {
             if (_repo.FindEntity(id, out var entity))
             {
                 if (deleteFile)
                 {
-                    var file = new FileInfo(entity.GetPath());
-                    file.TryDeleteIfExists();
+                    PhysicallyDelete(entity);
                 }
 
                 _repo.SoftDelete(id);
+                _log.Add(Events.FileDeleted, new
+                {
+                    entity.Id,
+                    entity.Name,
+                    entity.DynId,
+                    entity.DynName,
+                    Path = entity.GetPath(),
+                    entity.Size
+                });
+            }
+        }
+
+        public void DeleteByDynParams(int dynId, Type dynEntity, Entity.FileTypes type, bool deleteFile = false)
+        {
+            if (_repo.FindEntity(e => e.DynId == dynId && e.DynName == dynEntity.Name && e.Type == type.ToString(), out var entity))
+            {
+                if (deleteFile)
+                {
+                    PhysicallyDelete(entity);
+                }
+
+                _repo.SoftDelete(entity.Id);
+                _log.Add(Events.FileDeleted, new
+                {
+                    entity.Id,
+                    entity.Name,
+                    entity.DynId,
+                    entity.DynName,
+                    Path = entity.GetPath(),
+                    entity.Size
+                });
             }
         }
     }

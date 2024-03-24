@@ -9,8 +9,18 @@ namespace Uhost.Web.Common
     /// </summary>
     public class DisposableFileStreamResult : FileStreamResult
     {
+        /// <summary>
+        /// <inheritdoc cref="DisposableFileStreamResult"/>
+        /// </summary>
+        /// <param name="fileStream">Поток данных</param>
+        /// <param name="contentType">MIME</param>
         public DisposableFileStreamResult(Stream fileStream, string contentType) : base(fileStream, contentType) { }
 
+        /// <summary>
+        /// <inheritdoc cref="DisposableFileStreamResult"/>
+        /// </summary>
+        /// <param name="data">Данные</param>
+        /// <param name="contentType">MIME</param>
         public DisposableFileStreamResult(byte[] data, string contentType) : this(new MemoryStream(data), contentType) { }
 
         public override void ExecuteResult(ActionContext context)

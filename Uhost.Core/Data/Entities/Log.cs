@@ -21,6 +21,8 @@ namespace Uhost.Core.Data.Entities
             FileUploaded = 0x11,
             FileUploadFail = 0x12,
             FileStoreFail = 0x13,
+            FileDeleted = 0x14,
+            FileDeletedPhysically = 0x15,
 
             UserAuth = 0x21,
             UserAuthFail = 0x22,

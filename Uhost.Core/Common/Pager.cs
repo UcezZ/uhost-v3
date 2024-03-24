@@ -18,8 +18,6 @@ namespace Uhost.Core.Services
         public int PerPage { get; }
         public int TotalPages => (int)Math.Ceiling((double)Total / PerPage);
         public int Total { get; }
-        public bool HasPreviousPage => CurrentPage > 1;
-        public bool HasNextPage => CurrentPage < TotalPages;
 
         /// <summary>
         /// Конструктор

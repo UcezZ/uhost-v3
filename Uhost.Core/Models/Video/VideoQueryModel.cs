@@ -60,5 +60,7 @@ namespace Uhost.Core.Models.Video
         public override string SortBy { get; set; }
 
         internal Entity.SortBy? SortByParsed => SortBy.ParseEnum<Entity.SortBy>();
+
+        internal bool IncludeProcessingStates { get; set; }
     }
 }

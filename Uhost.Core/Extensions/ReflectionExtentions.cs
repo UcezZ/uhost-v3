@@ -7,15 +7,10 @@ namespace Uhost.Core.Extensions
 {
     public static class ReflectionExtentions
     {
-        public static PropertyInfo GetProperty(this Type type, string name)
+        public static PropertyInfo GetPropertyIgnoreCase(this Type type, string name)
         {
-            return type.GetProperties().FirstOrDefault(
-                item => string.Equals(
-                    item.Name,
-                    name,
-                    StringComparison.CurrentCultureIgnoreCase
-                )
-            );
+            return type.GetProperties()
+                .FirstOrDefault(e => e.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -41,7 +36,7 @@ namespace Uhost.Core.Extensions
         /// <returns></returns>
         public static bool IsAsync(this MethodInfo methodInfo)
         {
-            return typeof(Task).IsAssignableFrom(methodInfo.ReturnType) ||
+            return methodInfo.ReturnType.IsAssignableTo<Task>() ||
                   (methodInfo.ReturnType.IsGenericType && methodInfo.ReturnType.GetGenericTypeDefinition() == typeof(Task<>));
         }
 

@@ -105,7 +105,7 @@ namespace Uhost.Core.Common
             return Assembly
                 .GetAssembly(typeof(BaseEntity))
                 .GetTypes()
-                .Where(e => e.MemberType == MemberTypes.TypeInfo && typeof(BaseEntity).IsAssignableFrom(e) && !e.IsAbstract)
+                .Where(e => e.MemberType == MemberTypes.TypeInfo && e.IsAssignableTo<BaseEntity>() && !e.IsAbstract)
                 .OrderBy(e => e.Name);
         }
 

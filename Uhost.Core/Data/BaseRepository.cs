@@ -96,27 +96,29 @@ namespace Uhost.Core.Common
         /// Получение <typeparamref name="TEntity"/> по Id
         /// Нужно быть внимательным т.к связи не загружаются 
         /// </summary>
-        public bool FindEntity(int id, out TEntity item)
+        public bool FindEntity(Expression<Func<TEntity, bool>> selector, out TEntity item)
         {
-            item = DbSet.Find(id);
+            item = DbSetUpdateTransformations.Invoke(DbSet).FirstOrDefault(selector);
 
             return item != null;
+        }
+
+        /// <summary>
+        /// Получение <typeparamref name="TEntity"/> по Id
+        /// Нужно быть внимательным т.к связи не загружаются 
+        /// </summary>
+        public bool FindEntity(int id, out TEntity item)
+        {
+            return FindEntity(e => e.Id == id, out item);
         }
 
         /// <summary>
         /// Получение коллекции <typeparamref name="TEntity"/> по коллекции Id
         /// Нужно быть внимательным т.к связи не загружаются 
         /// </summary>
-        public bool FindEntity(IEnumerable<int> ids, out IEnumerable<TEntity> items)
+        public bool FindEntities(IEnumerable<int> ids, out IEnumerable<TEntity> items)
         {
-            using (var trx = _dbContext.Database.BeginTransaction())
-            {
-                items = ids
-                    .Distinct()
-                    .Select(e => DbSet.Find(e))
-                    .Where(e => e != null);
-                trx.Commit();
-            }
+            items = DbSetUpdateTransformations.Invoke(DbSet).Where(e => ids.Contains(e.Id)).ToList();
 
             return items != null && items.Any();
         }
@@ -372,7 +374,7 @@ namespace Uhost.Core.Common
         /// <param name="ids">Коллекция ИД сущностей</param>
         public int SoftDeleteAll(IEnumerable<int> ids)
         {
-            if (!typeof(TEntity).IsAssignableFrom(typeof(BaseDateTimedEntity)))
+            if (!typeof(TEntity).IsAssignableFrom<BaseDateTimedEntity>())
             {
                 return 0;
             }
