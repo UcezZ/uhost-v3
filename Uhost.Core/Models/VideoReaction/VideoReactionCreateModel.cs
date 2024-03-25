@@ -5,7 +5,7 @@ using VideoEntity = Uhost.Core.Data.Entities.Video;
 
 namespace Uhost.Core.Models.VideoReaction
 {
-    public class VideoReactionCreateModel : BaseModel<Entity>
+    public class VideoReactionCreateModel : IEntityFillable<Entity>
     {
         internal int UserId { get; set; }
 
@@ -21,7 +21,7 @@ namespace Uhost.Core.Models.VideoReaction
         [EnumValidation(typeof(Entity.Reactions))]
         public string Value { get; set; }
 
-        public override Entity FillEntity(Entity entity)
+        public virtual Entity FillEntity(Entity entity)
         {
             entity.UserId = UserId;
             entity.VideoId = VideoId;

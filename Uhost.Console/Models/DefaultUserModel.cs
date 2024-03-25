@@ -8,7 +8,7 @@ using UserRoleEntity = Uhost.Core.Data.Entities.UserRole;
 
 namespace Uhost.Console.Models
 {
-    public class DefaultUserModel : BaseModel<Entity>
+    public class DefaultUserModel : IEntityFillable<Entity>
     {
         public int Id { get; set; }
         public string Login { get; set; }
@@ -18,7 +18,7 @@ namespace Uhost.Console.Models
         public string Password { get; set; }
         public IEnumerable<int> RoleIds { get; set; }
 
-        public override Entity FillEntity(Entity entity)
+        public virtual Entity FillEntity(Entity entity)
         {
             entity.Id = Id;
             entity.Login = Login;

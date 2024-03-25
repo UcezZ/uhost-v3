@@ -7,7 +7,7 @@ using Entity = Uhost.Core.Data.Entities.User;
 
 namespace Uhost.Core.Models.User
 {
-    public class UserAccessModel : BaseModel<Entity>
+    public class UserAccessModel : IEntityLoadable<Entity>
     {
         public int Id { get; set; }
 
@@ -18,7 +18,7 @@ namespace Uhost.Core.Models.User
         [JsonIgnore]
         public IEnumerable<Rights> Rights => Roles.SelectMany(e => e.RightsCasted).Distinct();
 
-        public override void LoadFromEntity(Entity entity)
+        public virtual void LoadFromEntity(Entity entity)
         {
             Id = entity.Id;
             Login = entity.Login;

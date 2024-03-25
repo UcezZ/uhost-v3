@@ -7,7 +7,7 @@ using RoleRightEntity = Uhost.Core.Data.Entities.RoleRight;
 
 namespace Uhost.Core.Models.Role
 {
-    public class RoleCreateModel : BaseModel<Entity>
+    public class RoleCreateModel : IEntityLoadable<Entity>, IEntityFillable<Entity>
     {
         /// <summary>
         /// Наименование роли
@@ -20,7 +20,7 @@ namespace Uhost.Core.Models.Role
         /// </summary>
         public IEnumerable<int> RightIds { get; set; }
 
-        public override Entity FillEntity(Entity entity)
+        public virtual Entity FillEntity(Entity entity)
         {
             entity.Name = Name?.TrimAll() ?? string.Empty;
 
@@ -34,7 +34,7 @@ namespace Uhost.Core.Models.Role
             return entity;
         }
 
-        public override void LoadFromEntity(Entity entity)
+        public virtual void LoadFromEntity(Entity entity)
         {
             Name = entity.Name;
             RightIds = entity.RoleRights?.Select(e => e.RightId);

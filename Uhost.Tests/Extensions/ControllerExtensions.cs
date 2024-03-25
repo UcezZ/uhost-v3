@@ -61,7 +61,7 @@ namespace Uhost.Tests.Extensions
 
         /// <inheritdoc cref="ValidateModel{TModel, TEntity}(IServiceProvider, TModel, out ICollection{ValidationResult})"/>
         public static bool ValidateModel<TModel, TEntity>(this IServiceProvider provider, TModel model)
-            where TModel : BaseModel<TEntity>
+            where TModel : IEntityFillable<TEntity>
             where TEntity : BaseEntity, new() =>
             provider.ValidateModel<TModel, TEntity>(model, out _);
 
@@ -75,7 +75,7 @@ namespace Uhost.Tests.Extensions
         /// <param name="errors">Коллекция ошибок валидации</param>
         /// <returns>Валидность модели</returns>
         public static bool ValidateModel<TModel, TEntity>(this IServiceProvider provider, TModel model, out ICollection<ValidationResult> errors)
-            where TModel : BaseModel<TEntity>
+            where TModel : IEntityFillable<TEntity>
             where TEntity : BaseEntity, new()
         {
             errors = new List<ValidationResult>();

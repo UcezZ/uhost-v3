@@ -7,7 +7,7 @@ using UserEntity = Uhost.Core.Data.Entities.User;
 
 namespace Uhost.Core.Models.Video
 {
-    public class VideoShortViewModel : BaseModel<Entity>
+    public class VideoShortViewModel : IEntityLoadable<Entity>
     {
         internal int Id { get; set; }
 
@@ -35,7 +35,7 @@ namespace Uhost.Core.Models.Video
 
         internal TimeSpan DurationObj { get; set; }
 
-        public override void LoadFromEntity(Entity entity)
+        public virtual void LoadFromEntity(Entity entity)
         {
             Id = entity.Id;
             Name = entity.Name;

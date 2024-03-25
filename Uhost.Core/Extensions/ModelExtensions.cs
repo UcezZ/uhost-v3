@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Uhost.Core.Data;
 using Uhost.Core.Models;
 
 namespace Uhost.Core.Extensions
@@ -14,7 +15,7 @@ namespace Uhost.Core.Extensions
         /// <param name="entity">Сущность</param>
         /// <returns></returns>
         public static TModel ToModel<TEntity, TModel>(this TEntity entity)
-            where TEntity : class, new()
+            where TEntity : BaseEntity, new()
             where TModel : IEntityLoadable<TEntity>, new()
         {
             var model = new TModel();
@@ -31,7 +32,7 @@ namespace Uhost.Core.Extensions
         /// <param name="entities">Коллекция сущностей</param>
         /// <returns></returns>
         public static IEnumerable<TModel> ToModelCollection<TEntity, TModel>(this IEnumerable<TEntity> entities)
-            where TEntity : class, new()
+            where TEntity : BaseEntity, new()
             where TModel : IEntityLoadable<TEntity>, new()
         {
             return entities.Select(e => e.ToModel<TEntity, TModel>());
@@ -45,10 +46,25 @@ namespace Uhost.Core.Extensions
         /// <param name="entities">Коллекция сущностей</param>
         /// <returns></returns>
         public static IQueryable<TModel> ToModelCollection<TEntity, TModel>(this IQueryable<TEntity> entities)
-            where TEntity : class, new()
+            where TEntity : BaseEntity, new()
             where TModel : IEntityLoadable<TEntity>, new()
         {
             return entities.Select(e => e.ToModel<TEntity, TModel>());
+        }
+
+        /// <summary>
+        /// Преобразует модель в сущность <typeparamref name="TEntity"/>
+        /// </summary>
+        /// <typeparam name="TEntity">Сущность</typeparam>
+        /// <param name="model">Модель</param>
+        /// <returns></returns>
+        public static TEntity ToEntity<TEntity>(this IEntityFillable<TEntity> model)
+            where TEntity : BaseEntity, new()
+        {
+            var entity = new TEntity();
+            model.FillEntity(entity);
+
+            return entity;
         }
     }
 }

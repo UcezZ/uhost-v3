@@ -4,7 +4,7 @@ using Entity = Uhost.Core.Data.Entities.User;
 
 namespace Uhost.Core.Models.User
 {
-    public class UserPasswordUpdateModel : BaseModel<Entity>
+    public class UserPasswordUpdateModel : IEntityFillable<Entity>
     {
         /// <summary>
         /// Новый пароль
@@ -18,10 +18,8 @@ namespace Uhost.Core.Models.User
         [StringLengthValidation(minLength: 6, maxLength: 64, allowEmpty: false, trim: false), FieldEqualsValidation(nameof(Password))]
         public string PasswordConfirm { get; set; }
 
-        public override Entity FillEntity(Entity entity)
+        public virtual Entity FillEntity(Entity entity)
         {
-            base.FillEntity(entity);
-
             entity.Password = (Password + CoreSettings.PasswordSalt).ComputeHash(HasherExtensions.EncryptionMethod.SHA256);
 
             return entity;

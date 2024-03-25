@@ -7,13 +7,13 @@ using RoleRightEntity = Uhost.Core.Data.Entities.RoleRight;
 
 namespace Uhost.Console.Models
 {
-    public class DefaultRoleModel : BaseModel<Entity>
+    public class DefaultRoleModel : IEntityFillable<Entity>
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public IEnumerable<int> RightIds { get; set; }
 
-        public override Entity FillEntity(Entity entity)
+        public virtual Entity FillEntity(Entity entity)
         {
             entity.Id = Id;
             entity.Name = Name;

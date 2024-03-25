@@ -14,10 +14,13 @@ using Uhost.Core.Models;
 
 namespace Uhost.Core.Common
 {
-    public abstract class BaseRepository<TEntity> : IDisposable, IAsyncDisposable where TEntity : BaseEntity, new()
+    public abstract class BaseRepository<TEntity> : IDisposable, IAsyncDisposable
+        where TEntity : BaseEntity, new()
     {
         private DbSet<TEntity> _objectSet;
         protected readonly DbContext _dbContext;
+
+        public static string TableName => Tools.GetEntityTableName<TEntity>();
 
         protected virtual Func<IQueryable<TEntity>, IQueryable<TEntity>> DbSetUpdateTransformations => e => e;
 
@@ -32,7 +35,7 @@ namespace Uhost.Core.Common
         /// Получение всех <typeparamref name="TEntity"/>
         /// Нужно быть внимательным т.к связи не загружаются - использовать EntityFramework, в не System.Data.Entity когда в репо задействуются .Include() и .ThenInclude()
         /// </summary>
-        public virtual IQueryable<TModel> Get<TModel>(IQueryable<TEntity> query = null) where TModel : BaseModel<TEntity>, new()
+        public virtual IQueryable<TModel> Get<TModel>(IQueryable<TEntity> query = null) where TModel : IEntityLoadable<TEntity>, new()
         {
             query ??= DbSet;
 
@@ -77,7 +80,8 @@ namespace Uhost.Core.Common
         /// <param name="sql">SQL запрос</param>
         /// <param name="predicate">Дополнительные условия, например Include</param>
         /// <returns></returns>
-        public IQueryable<TModel> GetFromSql<TModel>(string sql, Func<IQueryable<TEntity>, IQueryable<TEntity>> predicate = null) where TModel : BaseModel<TEntity>, new()
+        public IQueryable<TModel> GetFromSql<TModel>(string sql, Func<IQueryable<TEntity>, IQueryable<TEntity>> predicate = null)
+            where TModel : IEntityLoadable<TEntity>, new()
         {
             return GetEntitiesFromSql(sql, predicate).ToModelCollection<TEntity, TModel>();
         }
@@ -129,7 +133,7 @@ namespace Uhost.Core.Common
         /// <param name="id"></param>
         /// <param name="model"></param>
         /// <returns></returns>
-        public bool FindOneViewModel<TModel>(int id, out TModel model) where TModel : BaseModel<TEntity>, new()
+        public bool FindOneViewModel<TModel>(int id, out TModel model) where TModel : IEntityLoadable<TEntity>, new()
         {
             if (FindEntity(id, out TEntity entity))
             {
@@ -137,7 +141,7 @@ namespace Uhost.Core.Common
                 return true;
             }
 
-            model = null;
+            model = default;
             return false;
         }
 
@@ -221,7 +225,7 @@ namespace Uhost.Core.Common
         /// <param name="save">Сохранить изменения. По умолчанию true, установить в false в составе транзакции</param>
         public virtual void SoftDelete(int id, bool save = true)
         {
-            if (FindEntity(id, out var entity) && entity is BaseDateTimedEntity dtEntity)
+            if (typeof(TEntity).IsAssignableTo<BaseDateTimedEntity>() && FindEntity(id, out var entity) && entity is BaseDateTimedEntity dtEntity)
             {
                 dtEntity.DeletedAt = DateTime.Now;
 
@@ -238,7 +242,7 @@ namespace Uhost.Core.Common
         /// <param name="model">Модель</param>
         /// <param name="setTimeField">Установка CreatedAt</param>
         /// <returns></returns>
-        public TEntity Add<TModel>(TModel model, bool setTimeField = true) where TModel : BaseModel<TEntity>, new()
+        public TEntity Add<TModel>(TModel model, bool setTimeField = true) where TModel : IEntityFillable<TEntity>
         {
             var entity = model.ToEntity();
 
@@ -259,7 +263,8 @@ namespace Uhost.Core.Common
         /// <param name="model">Модель</param>
         /// <param name="setTimeField">Установка CreatedAt</param>
         /// <returns></returns>
-        public async Task<TEntity> AddAsync<TModel>(TModel model, bool setTimeField = true) where TModel : BaseModel<TEntity>, new()
+        public async Task<TEntity> AddAsync<TModel>(TModel model, bool setTimeField = true)
+            where TModel : IEntityFillable<TEntity>
         {
             var entity = model.ToEntity();
 
@@ -281,7 +286,8 @@ namespace Uhost.Core.Common
         /// <param name="model">Модель с данными</param>
         /// <param name="save">Сохранять изменения. По умолчанию true, установить false в составе транзакции</param>
         /// <param name="setTimeField">Установка UpdatedAt</param>
-        public void Update<TModel>(int id, TModel model, bool save = true, bool setTimeField = true) where TModel : BaseModel<TEntity>, new()
+        public void Update<TModel>(int id, TModel model, bool save = true, bool setTimeField = true)
+            where TModel : IEntityFillable<TEntity>
         {
             Update(e => e.Id == id, model, save, setTimeField);
         }
@@ -293,7 +299,8 @@ namespace Uhost.Core.Common
         /// <param name="model">Модель с данными</param>
         /// <param name="save">Сохранять изменения. По умолчанию true, установить false в составе транзакции</param>
         /// <param name="setTimeField">Установка UpdatedAt</param>
-        public void Update<TModel>(Func<TEntity, bool> predicate, TModel model, bool save = true, bool setTimeField = true) where TModel : BaseModel<TEntity>, new()
+        public void Update<TModel>(Expression<Func<TEntity, bool>> predicate, TModel model, bool save = true, bool setTimeField = true)
+            where TModel : IEntityFillable<TEntity>
         {
             var entity = DbSetUpdateTransformations.Invoke(DbSet).FirstOrDefault(predicate);
 
@@ -318,7 +325,8 @@ namespace Uhost.Core.Common
         /// <summary>
         /// Добавление коллекции <typeparamref name="TModel"/>
         /// </summary>
-        public int AddAll<TModel>(IEnumerable<TModel> models) where TModel : BaseModel<TEntity>, new()
+        public int AddAll<TModel>(IEnumerable<TModel> models)
+            where TModel : IEntityFillable<TEntity>
         {
             if (models == null || !models.Any())
             {
@@ -333,7 +341,8 @@ namespace Uhost.Core.Common
         /// <summary>
         /// Добавление коллекции <typeparamref name="TModel"/>
         /// </summary>
-        public int AddAll<TModel>(IEnumerable<TModel> models, out IEnumerable<int> idsAffected) where TModel : BaseModel<TEntity>, new()
+        public int AddAll<TModel>(IEnumerable<TModel> models, out IEnumerable<int> idsAffected)
+            where TModel : IEntityFillable<TEntity>
         {
             if (models == null || !models.Any())
             {
@@ -359,7 +368,7 @@ namespace Uhost.Core.Common
         /// Удалить из БД сразу несколько сущностей типа <typeparamref name="TEntity"/> по запросу <paramref name="selector"/>
         /// </summary>
         /// <param name="selector"></param>
-        public int HardDeleteAll(Func<TEntity, bool> selector = null)
+        public int HardDeleteAll(Expression<Func<TEntity, bool>> selector = null)
         {
             selector ??= e => true;
             var entities = DbSet.Where(selector).ToList();
@@ -403,11 +412,12 @@ namespace Uhost.Core.Common
         /// Полностьб обновим Таблицу
         /// </summary>
         /// <param name="models"></param>
-        public void ReplaceTable<TModel>(IEnumerable<TModel> models) where TModel : BaseModel<TEntity>, new()
+        public void ReplaceTable<TModel>(IEnumerable<TModel> models)
+            where TModel : IEntityFillable<TEntity>
         {
             using (var trx = _dbContext.Database.BeginTransaction())
             {
-                _dbContext.Database.ExecuteSqlRaw($"TRUNCATE \"{Tools.GetEntityTableName(typeof(TEntity))}\"");
+                _dbContext.Database.ExecuteSqlRaw($"TRUNCATE \"{TableName}\"");
                 DbSet.AddRange(models.Select(i => i.ToEntity()).ToList());
                 Save();
                 trx.Commit();
@@ -420,7 +430,7 @@ namespace Uhost.Core.Common
         /// <param name="action">Действие</param>
         /// <param name="selector">Фильтр Where. Если не указан - действие выполняется над всеми сущностями</param>
         /// <returns></returns>
-        public int Perform(Action<TEntity> action, Func<TEntity, bool> selector = null)
+        public int Perform(Action<TEntity> action, Expression<Func<TEntity, bool>> selector = null)
         {
             selector ??= e => true;
             var entities = DbSet.Where(selector).ToList();
@@ -434,11 +444,12 @@ namespace Uhost.Core.Common
         }
 
         /// <inheritdoc cref="StrictAddOrUpdate{TModel}(TModel, Func{IQueryable{TEntity}, IQueryable{TEntity}}, string[])"/>
-        public int StrictAddOrUpdate<TModel>(TModel model, params string[] uniquePropNames) where TModel : BaseModel<TEntity>, new() =>
+        public int StrictAddOrUpdate<TModel>(TModel model, params string[] uniquePropNames)
+            where TModel : IEntityFillable<TEntity> =>
             StrictAddOrUpdate(model, e => e, uniquePropNames);
 
         /// <summary>
-        /// Добавляет или обноаляет сущность со строгим соответствием ИД с возможностью указать уникальные поля
+        /// Добавляет или обновляет сущность со строгим соответствием ИД с возможностью указать уникальные поля
         /// </summary>
         /// <remarks>
         /// Связи могут не подгрузиться, нужно дописать выражение вида <c>dbset => dbset.Include(e => e.Property)</c>
@@ -447,7 +458,8 @@ namespace Uhost.Core.Common
         /// <param name="model">Модель данных</param>
         /// <param name="includes">Вызовы .Include() для подтягивания связей</param>
         /// <param name="uniquePropNames">Имена уникальных полей</param>
-        public int StrictAddOrUpdate<TModel>(TModel model, Func<IQueryable<TEntity>, IQueryable<TEntity>> includes, params string[] uniquePropNames) where TModel : BaseModel<TEntity>, new()
+        public int StrictAddOrUpdate<TModel>(TModel model, Func<IQueryable<TEntity>, IQueryable<TEntity>> includes, params string[] uniquePropNames)
+            where TModel : IEntityFillable<TEntity>
         {
             var idProp = typeof(TModel).GetProperty("Id");
 
@@ -530,7 +542,8 @@ WHERE ""Id"" <> {id} AND ({uniquePropNames.Select(e => $"\"{e}\" = @{e}").Join("
         /// <param name="save">Сохранить изменения (false в составе транзакции)</param>
         /// <param name="updateTimeField">Обновить метку времени</param>
         /// <returns></returns>
-        public TEntity AddOrUpdate<TModel>(TModel model, Func<TEntity, bool> selector, bool save = true, bool updateTimeField = true) where TModel : BaseModel<TEntity>, new()
+        public TEntity AddOrUpdate<TModel>(TModel model, Expression<Func<TEntity, bool>> selector, bool save = true, bool updateTimeField = true)
+            where TModel : IEntityFillable<TEntity>
         {
             var entity = DbSet.FirstOrDefault(selector) ?? new TEntity();
             model.FillEntity(entity);

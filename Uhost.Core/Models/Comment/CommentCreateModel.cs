@@ -3,7 +3,7 @@ using Entity = Uhost.Core.Data.Entities.Comment;
 
 namespace Uhost.Core.Models.Comment
 {
-    public class CommentCreateModel : BaseModel<Entity>
+    public class CommentCreateModel : IEntityLoadable<Entity>, IEntityFillable<Entity>
     {
         internal int UserId { get; set; }
 
@@ -15,7 +15,7 @@ namespace Uhost.Core.Models.Comment
         [StringLengthValidation(minLength: 3, maxLength: 512, allowEmpty: false)]
         public string Text { get; set; }
 
-        public override Entity FillEntity(Entity entity)
+        public virtual Entity FillEntity(Entity entity)
         {
             entity.UserId = UserId;
             entity.VideoId = VideoId;
@@ -24,7 +24,7 @@ namespace Uhost.Core.Models.Comment
             return entity;
         }
 
-        public override void LoadFromEntity(Entity entity)
+        public virtual void LoadFromEntity(Entity entity)
         {
             UserId = entity.UserId;
             VideoId = entity.VideoId;

@@ -130,24 +130,28 @@ namespace Uhost.Core.Services.File
             }
         }
 
-        public IQueryable<TModel> GetAll<TModel>(QueryModel query) where TModel : BaseModel<Entity>, new()
+        public IQueryable<TModel> GetAll<TModel>(QueryModel query)
+            where TModel : IEntityLoadable<Entity>, new()
         {
             return _repo.GetAll<TModel>(query);
         }
 
-        public object GetAllPaged<TModel>(QueryModel query) where TModel : BaseModel<Entity>, new()
+        public object GetAllPaged<TModel>(QueryModel query)
+            where TModel : IEntityLoadable<Entity>, new()
         {
             var pager = GetAll<TModel>(query).CreatePager(query);
 
             return pager.Paginate();
         }
 
-        public TModel GetOne<TModel>(int id) where TModel : BaseModel<Entity>, new()
+        public TModel GetOne<TModel>(int id)
+            where TModel : IEntityLoadable<Entity>, new()
         {
             return GetAll<TModel>(new QueryModel { Id = id }).FirstOrDefault();
         }
 
-        public IQueryable<TFileModel> GetByDynEntity<TFileModel>(int id, Type dynEntity, params Entity.FileTypes[] types) where TFileModel : BaseModel<Entity>, new()
+        public IQueryable<TFileModel> GetByDynEntity<TFileModel>(int id, Type dynEntity, params Entity.FileTypes[] types)
+            where TFileModel : IEntityLoadable<Entity>, new()
         {
             var query = new QueryModel
             {
@@ -161,7 +165,8 @@ namespace Uhost.Core.Services.File
             return GetAll<TFileModel>(query);
         }
 
-        public IQueryable<TFileModel> GetByDynEntity<TFileModel>(IEnumerable<int> ids, Type dynEntity, params Entity.FileTypes[] types) where TFileModel : BaseModel<Entity>, new()
+        public IQueryable<TFileModel> GetByDynEntity<TFileModel>(IEnumerable<int> ids, Type dynEntity, params Entity.FileTypes[] types)
+            where TFileModel : IEntityLoadable<Entity>, new()
         {
             var query = new QueryModel
             {

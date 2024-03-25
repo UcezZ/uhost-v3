@@ -32,7 +32,6 @@ namespace Uhost.Web.Middleware
             _targets = Common.Tools.Routes
 
                 .Where(e =>
-
                     // у методов контроллеров которых есть атрибут
                     e.ControllerMethod.CustomAttributes.Any(a => a.AttributeType.IsAssignableTo<AuthorizeAttribute>()) ||
 
@@ -40,8 +39,10 @@ namespace Uhost.Web.Middleware
                     e.ControllerMethod.DeclaringType?.CustomAttributes != null &&
                     e.ControllerMethod.DeclaringType.CustomAttributes.Any(a => a.AttributeType.IsAssignableTo<AuthorizeAttribute>()) ||
 
-                    // или у методов контроллеров которых нет атрибута
-                    !e.ControllerMethod.CustomAttributes.Any(a => a.AttributeType.IsAssignableTo<AllowAnonymousAttribute>()))
+                    // или у контроллеров и методов контроллеров которых нет атрибута
+                    !e.ControllerMethod.CustomAttributes.Any(a => a.AttributeType.IsAssignableTo<AllowAnonymousAttribute>()) &&
+                    e.ControllerMethod.DeclaringType?.CustomAttributes != null &&
+                    !e.ControllerMethod.DeclaringType.CustomAttributes.Any(a => a.AttributeType.IsAssignableTo<AllowAnonymousAttribute>()))
 
                 // commit
                 .ToList();

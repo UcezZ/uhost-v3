@@ -4,7 +4,7 @@ using Entity = Uhost.Core.Data.Entities.Video;
 
 namespace Uhost.Core.Models.Video
 {
-    public class VideoShortProcessingModel : BaseModel<Entity>
+    public class VideoShortProcessingModel : IEntityLoadable<Entity>
     {
         internal int Id { get; set; }
 
@@ -16,7 +16,7 @@ namespace Uhost.Core.Models.Video
 
         public string State { get; set; }
 
-        public override void LoadFromEntity(Entity entity)
+        public virtual void LoadFromEntity(Entity entity)
         {
             Id = entity.Id;
             Name = entity.Name;

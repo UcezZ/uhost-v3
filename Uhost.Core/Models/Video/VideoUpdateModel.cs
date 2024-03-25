@@ -3,7 +3,7 @@ using Entity = Uhost.Core.Data.Entities.Video;
 
 namespace Uhost.Core.Models.Video
 {
-    public class VideoUpdateModel : BaseModel<Entity>
+    public class VideoUpdateModel : IEntityFillable<Entity>
     {
         /// <summary>
         /// Наименование видео
@@ -25,7 +25,7 @@ namespace Uhost.Core.Models.Video
 
         public bool AllowReactions { get; set; }
 
-        public override Entity FillEntity(Entity entity)
+        public virtual Entity FillEntity(Entity entity)
         {
             entity.Name = Name ?? string.Empty;
             entity.Description = Description ?? string.Empty;

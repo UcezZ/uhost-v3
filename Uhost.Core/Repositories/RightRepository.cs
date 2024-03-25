@@ -28,7 +28,8 @@ namespace Uhost.Core.Repositories
             return q.OrderBy(e => e.Id);
         }
 
-        public IQueryable<TModel> GetAll<TModel>(QueryModel query = null) where TModel : BaseModel<Entity>, new()
+        public IQueryable<TModel> GetAll<TModel>(QueryModel query = null)
+            where TModel : IEntityLoadable<Entity>, new()
         {
             query ??= new QueryModel();
             var q = PrepareQuery(query);

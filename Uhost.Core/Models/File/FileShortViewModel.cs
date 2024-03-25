@@ -3,7 +3,7 @@ using Entity = Uhost.Core.Data.Entities.File;
 
 namespace Uhost.Core.Models.File
 {
-    public class FileShortViewModel : BaseModel<Entity>
+    public class FileShortViewModel : IEntityLoadable<Entity>
     {
         public int Id { get; set; }
 
@@ -42,7 +42,7 @@ namespace Uhost.Core.Models.File
 
         internal Entity.FileTypes TypeParsed => Type.ParseEnum<Entity.FileTypes>() ?? Entity.FileTypes.Other;
 
-        public override void LoadFromEntity(Entity entity)
+        public virtual void LoadFromEntity(Entity entity)
         {
             Id = entity.Id;
             Name = entity.Name;

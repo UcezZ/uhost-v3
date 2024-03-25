@@ -6,7 +6,7 @@ namespace Uhost.Core.Models.File
     /// <summary>
     /// Модель для внутреннего использования, не для API
     /// </summary>
-    public class FileCreateModel : BaseModel<Entity>
+    public class FileCreateModel : IEntityFillable<Entity>
     {
         public Entity.FileTypes Type { get; set; }
         public string Name { get; set; }
@@ -17,7 +17,7 @@ namespace Uhost.Core.Models.File
         public string DynName { get; set; }
         public string Digest { get; set; }
 
-        public override Entity FillEntity(Entity entity)
+        public virtual Entity FillEntity(Entity entity)
         {
             entity.Type = Type.ToString();
             entity.Name = Name ?? string.Empty;

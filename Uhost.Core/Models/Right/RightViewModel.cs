@@ -4,7 +4,7 @@ using Entity = Uhost.Core.Data.Entities.Right;
 
 namespace Uhost.Core.Models.Right
 {
-    public class RightViewModel : BaseModel<Entity>
+    public class RightViewModel : IEntityLoadable<Entity>, IEntityFillable<Entity>
     {
         public int Id { get; set; }
 
@@ -13,13 +13,13 @@ namespace Uhost.Core.Models.Right
         [JsonIgnore]
         public Rights RightCasted => (Rights)Id;
 
-        public override void LoadFromEntity(Entity entity)
+        public virtual void LoadFromEntity(Entity entity)
         {
             Id = entity.Id;
             Name = entity.Name;
         }
 
-        public override Entity FillEntity(Entity entity)
+        public virtual Entity FillEntity(Entity entity)
         {
             entity.Id = Id;
             entity.Name = Name;

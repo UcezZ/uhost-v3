@@ -4,7 +4,7 @@ using Entity = Uhost.Core.Data.Entities.User;
 
 namespace Uhost.Core.Models.User
 {
-    public class UserBaseModel : BaseModel<Entity>
+    public class UserBaseModel : IEntityLoadable<Entity>, IEntityFillable<Entity>
     {
         /// <summary>
         /// Имя пользователя
@@ -30,7 +30,7 @@ namespace Uhost.Core.Models.User
         [EnumValidation(typeof(Entity.Themes), nameof(Entity.Themes.Dark), ErrorMessageResourceType = typeof(CoreStrings), ErrorMessageResourceName = nameof(CoreStrings.User_Error_ThemeFail))]
         public string Theme { get; set; }
 
-        public override Entity FillEntity(Entity entity)
+        public virtual Entity FillEntity(Entity entity)
         {
             entity.Name = Name?.Trim() ?? string.Empty;
             entity.Desctiption = Description?.Trim() ?? string.Empty;
@@ -40,7 +40,7 @@ namespace Uhost.Core.Models.User
             return entity;
         }
 
-        public override void LoadFromEntity(Entity entity)
+        public virtual void LoadFromEntity(Entity entity)
         {
             Name = entity.Name;
             Description = entity.Desctiption;

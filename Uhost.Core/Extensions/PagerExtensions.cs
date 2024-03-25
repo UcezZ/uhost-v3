@@ -15,7 +15,6 @@ namespace Uhost.Core.Extensions
         /// <param name="query">Модель запроса</param>
         /// <returns></returns>
         public static Pager<TModel> CreatePager<TModel, TQueryModel>(this IQueryable<TModel> modelsQueryable, TQueryModel query)
-            where TModel : class
             where TQueryModel : PagedQueryModel
         {
             return new Pager<TModel>(modelsQueryable, query);

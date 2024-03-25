@@ -5,7 +5,7 @@ using Entity = Uhost.Core.Data.Entities.VideoProcessingState;
 
 namespace Uhost.Core.Models.VideoProcessingState
 {
-    public class VideoProcessingStateCreateModel : BaseModel<Entity>
+    public class VideoProcessingStateCreateModel : IEntityFillable<Entity>, IEntityLoadable<Entity>
     {
         public int VideoId { get; set; }
 
@@ -13,7 +13,7 @@ namespace Uhost.Core.Models.VideoProcessingState
 
         public VideoProcessingStates? State { get; set; }
 
-        public override Entity FillEntity(Entity entity)
+        public virtual Entity FillEntity(Entity entity)
         {
             entity.VideoId = VideoId;
 
@@ -29,7 +29,7 @@ namespace Uhost.Core.Models.VideoProcessingState
             return entity;
         }
 
-        public override void LoadFromEntity(Entity entity)
+        public virtual void LoadFromEntity(Entity entity)
         {
             VideoId = entity.VideoId;
             Type = entity.Type.ParseEnum<FileTypes>();
