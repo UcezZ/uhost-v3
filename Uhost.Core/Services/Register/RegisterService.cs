@@ -11,6 +11,7 @@ using Uhost.Core.Properties;
 using Uhost.Core.Services.Email;
 using Uhost.Core.Services.Razor;
 using Uhost.Core.Services.RedisSwitcher;
+using Uhost.Core.Services.Scheduler;
 using Uhost.Core.Services.User;
 
 namespace Uhost.Core.Services.Register
@@ -18,22 +19,30 @@ namespace Uhost.Core.Services.Register
     /// <summary>
     /// Регистрация
     /// </summary>
-    public sealed class RegisterService : IRegisterService
+    public sealed class RegisterService : BaseService, IRegisterService
     {
         private readonly IRedisSwitcherService _redis;
         private readonly IUserService _users;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IEmailService _email;
         private readonly IRazorService _razor;
+        private readonly ISchedulerService _schedule;
         private static readonly TimeSpan _redisKeyTtl = TimeSpan.FromMinutes(30);
 
-        public RegisterService(IServiceProvider provider, IRedisSwitcherService redis, IEmailService email, IUserService users, IRazorService razor)
+        public RegisterService(
+            IServiceProvider provider,
+            IRedisSwitcherService redis,
+            IEmailService email,
+            IUserService users,
+            IRazorService razor,
+            ISchedulerService schedule) : base(provider)
         {
             _contextAccessor = provider.GetService<IHttpContextAccessor>();
             _redis = redis;
             _email = email;
             _users = users;
             _razor = razor;
+            _schedule = schedule;
         }
 
         private static string GetRedisKey(string code, IPAddress ip)
@@ -52,11 +61,35 @@ namespace Uhost.Core.Services.Register
         }
 
         /// <summary>
+        /// Отправка письма с подтверждением регистрации
+        /// </summary>
+        /// <param name="key">Ключ Redis</param>
+        /// <returns></returns>
+        public async Task SendRegistrationEmail(string key)
+        {
+            var value = await _redis.ExecuteAsync(async e => await e.StringGetAsync(key));
+
+            if (!value.TryCastTo<RegistrationRazorDataModel>(out var dataModel))
+            {
+                var exception = new ApplicationException($"Failed to cast registration model");
+                exception.Data["Key"] = key;
+                exception.Data["Value"] = value;
+
+                SentrySdk.CaptureException(exception);
+
+                throw exception;
+            }
+
+            var html = await _razor.RenderToStringAsync(RazorService.Templates.Registration, dataModel);
+            _email.Send(CoreSettings.SmtpConfig.Sender, dataModel.Model.Email, dataModel.Title, html, true);
+        }
+
+        /// <summary>
         /// Первый этап - запрос на регистрацию
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public async Task<bool> RequestRegistrationAsync(UserRegisterModel model)
+        public async Task RequestRegistrationAsync(UserRegisterModel model)
         {
             var code = new Random().Next(999999).ToString().PadLeft(6);
             var key = GetRedisKey(code, _contextAccessor?.HttpContext?.ResolveClientIp());
@@ -66,21 +99,10 @@ namespace Uhost.Core.Services.Register
                 Code = code,
                 Model = model
             };
-            try
-            {
-                var html = await _razor.RenderToStringAsync(RazorService.Templates.Registration, dataModel);
-                _email.Send(CoreSettings.SmtpConfig.Sender, model.Email, dataModel.Title, html, true);
-                await _redis.ExecuteAsync(async e => await e.StringSetAsync(key, model.ToJson(), _redisKeyTtl));
 
-                return true;
-            }
-            catch (Exception e)
-            {
-                e.Data[nameof(model)] = model;
-                SentrySdk.CaptureException(e);
+            await _redis.ExecuteAsync(async e => await e.StringSetAsync(key, dataModel.ToJson(), _redisKeyTtl));
 
-                return false;
-            }
+            _schedule.ScheduleRegistrationEmailSend(key);
         }
 
         /// <summary>
@@ -108,12 +130,6 @@ namespace Uhost.Core.Services.Register
             }
 
             return null;
-        }
-
-        public void Dispose()
-        {
-            _users.Dispose();
-            _email.Dispose();
         }
     }
 }

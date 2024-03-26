@@ -7,7 +7,8 @@ namespace Uhost.Core.Services.Register
     public interface IRegisterService : IDisposable
     {
         Task<UserViewModel> ConfirmRegistration(string code);
-        Task<bool> RequestRegistrationAsync(UserRegisterModel model);
+        Task RequestRegistrationAsync(UserRegisterModel model);
+        Task SendRegistrationEmail(string key);
         bool UserExists(UserRegisterModel model);
     }
 }

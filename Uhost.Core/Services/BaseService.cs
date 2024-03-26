@@ -31,10 +31,14 @@ ORDER BY
         protected readonly PostgreSqlDbContext _dbContext;
         protected readonly IHttpContextAccessor _httpContextAccessor;
 
-        public BaseService(IDbContextFactory<PostgreSqlDbContext> factory, IServiceProvider provider)
+        protected BaseService(IServiceProvider provider)
+        {
+            _httpContextAccessor = provider.GetService<IHttpContextAccessor>();
+        }
+
+        protected BaseService(IDbContextFactory<PostgreSqlDbContext> factory, IServiceProvider provider) : this(provider)
         {
             _dbContext = factory.CreateDbContext();
-            _httpContextAccessor = provider.GetService<IHttpContextAccessor>();
         }
 
         protected bool TryGetUserId(out int userId)
@@ -69,7 +73,7 @@ ORDER BY
 
         public void Dispose()
         {
-            _dbContext.Dispose();
+            _dbContext?.Dispose();
 
             try
             {
@@ -81,7 +85,7 @@ ORDER BY
 
                 if (childDisposables != null && childDisposables.Any())
                 {
-                    childDisposables.ForEach(e => e.Dispose());
+                    childDisposables.Dispose();
                 }
             }
             catch (Exception e)

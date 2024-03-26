@@ -4,5 +4,6 @@
     {
         void ScheduleVideoConvert(int processingStateId);
         void ScheduleVideoStreamFetch(int processingStateId, string url);
+        void ScheduleRegistrationEmailSend(string key);
     }
 }

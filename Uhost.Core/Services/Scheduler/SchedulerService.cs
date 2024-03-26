@@ -1,6 +1,7 @@
 ﻿using Hangfire;
 using Uhost.Core.Common;
 using Uhost.Core.Extensions;
+using Uhost.Core.Services.Register;
 using Uhost.Core.Services.Video;
 
 namespace Uhost.Core.Services.Scheduler
@@ -12,6 +13,11 @@ namespace Uhost.Core.Services.Scheduler
         public SchedulerService(JobStorage jobStorage)
         {
             _client = new BackgroundJobClient(jobStorage);
+        }
+
+        public void ScheduleRegistrationEmailSend(string key)
+        {
+            _client.Enqueue<IRegisterService>(e => e.SendRegistrationEmail(key), TaskQueues.Distribution);
         }
 
         public void ScheduleVideoConvert(int processingStateId)

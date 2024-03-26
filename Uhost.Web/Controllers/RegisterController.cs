@@ -29,7 +29,7 @@ namespace Uhost.Web.Controllers
         /// </summary>
         /// <param name="model">Модель данных</param>
         [HttpPost, Throttle(Count = 5, SpanSeconds = 60)]
-        public async Task<IActionResult> RequestRegistration(UserRegisterModel model)
+        public async Task<IActionResult> RequestRegistration([FromForm] UserRegisterModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -40,14 +40,9 @@ namespace Uhost.Web.Controllers
                 return ResponseHelper.ErrorMessage(nameof(model.Name), ApiStrings.User_Error_AlreadyExists);
             }
 
-            if (await _service.RequestRegistrationAsync(model))
-            {
-                return ResponseHelper.Success(ApiStrings.Register_EmailSent);
-            }
-            else
-            {
-                return ResponseHelper.Error(ApiStrings.Register_Error_FailedToSend);
-            }
+            await _service.RequestRegistrationAsync(model);
+
+            return ResponseHelper.Success(ApiStrings.Register_EmailSent);
         }
 
         /// <summary>

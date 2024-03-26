@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Uhost.Console.Attributes;
 using Uhost.Console.Properties;
 using Uhost.Core.Common;
 using Uhost.Core.Extensions;
@@ -62,6 +63,9 @@ namespace Uhost.Console.Commands
 
             // не выполняем провалившиеся задания
             GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 0 });
+
+            // добавляем Sentry
+            GlobalJobFilters.Filters.Add(new SentryJobFilterAttribute());
 
             var options = new BackgroundJobServerOptions
             {

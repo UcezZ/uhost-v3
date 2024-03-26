@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using Uhost.Console.Commands;
 using Uhost.Console.Common;
+using Uhost.Core;
 using Uhost.Core.Extensions;
 using Uhost.Core.Services.Log;
 using static System.Console;
@@ -35,24 +36,27 @@ namespace Uhost.Console
                 .Where(e => typeof(BaseCommand).IsAssignableFrom(e) && e.IsClass && !e.IsAbstract)
                 .ToArray();
 
-            try
+            using (SentrySdk.Init(CoreSettings.SentryConfig.Configure))
             {
-                Parser.Default
-                    .ParseArguments(args, commands)
-                    .WithParsed<BaseCommand>(c => c.UseServiceProvider(provider).ValidateAndRun());
-
-                return 0;
-            }
-            catch (Exception e)
-            {
-                SentrySdk.CaptureException(e);
-
-                using (var svc = provider.GetRequiredService<ILogService>())
+                try
                 {
-                    svc.Add(Events.ConsoleCommandError, new { Args = args, Exception = e?.ToDetailedDataObject() }, true);
-                }
+                    Parser.Default
+                        .ParseArguments(args, commands)
+                        .WithParsed<BaseCommand>(c => c.UseServiceProvider(provider).ValidateAndRun());
 
-                return 1;
+                    return 0;
+                }
+                catch (Exception e)
+                {
+                    SentrySdk.CaptureException(e);
+
+                    using (var svc = provider.GetRequiredService<ILogService>())
+                    {
+                        svc.Add(Events.ConsoleCommandError, new { Args = args, Exception = e?.ToDetailedDataObject() }, true);
+                    }
+
+                    return 1;
+                }
             }
         }
     }
