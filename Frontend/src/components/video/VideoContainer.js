@@ -262,8 +262,9 @@ export default function VideoContainer({ video, setVideo, largeMode, setLargeMod
 
         // если смена плеера или разрешения на mp4 или не поддерживается hls
         if (doUpdate && (playerType === typeMp4 || playerType === typeHls && !hls)) {
-            hls?.stopLoad();
-            hls?.detachMedia();
+            hls?.stopLoad && hls.stopLoad();
+            hls?.detachMedia && hls.detachMedia();
+
             var url = firstVideoUrl;
             var key = `video${playerRes}`;
 
