@@ -47,7 +47,7 @@ export default function MenuDrawer() {
                 </Link>
                 <Divider />
                 <Link
-                    to={`${config.webroot}`}
+                    to={`${config.webroot}/profile`}
                     onClick={closeDrawer}>
                     <ListItem sx={{ ...listItemSx }}>
                         <ListItemButton sx={{ ...listItemButtonSx }}>
@@ -59,7 +59,7 @@ export default function MenuDrawer() {
                     </ListItem>
                 </Link>
                 <Link
-                    to={`${config.webroot}/profile`}
+                    to={`${config.webroot}/videos`}
                     onClick={closeDrawer}>
                     <ListItem sx={{ ...listItemSx }}>
                         <ListItemButton sx={{ ...listItemButtonSx }}>

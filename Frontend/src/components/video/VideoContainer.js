@@ -10,7 +10,8 @@ import Common from '../../utils/Common';
 import DownloadButton from './DownloadButton';
 import StateContext from '../../utils/StateContext';
 import Rights from '../../utils/Rights';
-import EditVideoButton from './EditVideoButton';
+import EditVideoDialogButton from './EditVideoDialogButton';
+import DeleteVideoDialogButton from './DeleteVideoDialogButton';
 
 const resolutionAuto = 'auto';
 
@@ -234,7 +235,6 @@ export default function VideoContainer({ video, setVideo, largeMode, setLargeMod
     }
 
     useEffect(() => {
-        console.log(1);
         if (!videoRef?.current) {
             return;
         }
@@ -387,7 +387,8 @@ export default function VideoContainer({ video, setVideo, largeMode, setLargeMod
                         </Select>
                     </FormControl>
                     <DownloadButton token={video?.token} sizes={sizes} />
-                    {canEditVideo && <EditVideoButton video={video} setVideo={setVideo} />}
+                    {canEditVideo && <EditVideoDialogButton video={video} setVideo={setVideo} />}
+                    {canEditVideo && <DeleteVideoDialogButton video={video} setVideo={setVideo} />}
                 </Box>
             </CardActions>
         </Card>

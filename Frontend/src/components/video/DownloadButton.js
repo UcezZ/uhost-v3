@@ -34,6 +34,7 @@ export default function DownloadButton({ token, sizes }) {
                 aria-controls={anchorEl ? undefined : 'download-menu'}
                 aria-haspopup='true'
                 aria-expanded={anchorEl ? undefined : 'true'}
+                variant='contained'
                 onClick={onClick}
                 sx={{ gap: 1 }}>
                 <FileDownloadIcon />

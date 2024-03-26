@@ -117,4 +117,40 @@ export default class Common {
 
         return 'dark';
     }
+
+    /**
+     * 
+     * @param {Number} size 
+     * @returns 
+     */
+    static sizeToHuman(size) {
+        let sizeStr, unit;
+        let negate = size < 0;
+
+        if (negate) {
+            size = -size;
+        }
+
+        if (size < (1 << 10)) {
+            sizeStr = size.toString();
+            unit = "B";
+        } else if (size < (1 << 20)) {
+            sizeStr = (size / (1 << 10)).toFixed(2);
+            unit = "KiB";
+        } else if (size < (1 << 30)) {
+            sizeStr = (size / (1 << 20)).toFixed(2);
+            unit = "MiB";
+        } else {
+            sizeStr = (size / (1 << 30)).toFixed(2);
+            unit = "GiB";
+        }
+
+        if (sizeStr.length > 4) {
+            sizeStr = sizeStr.slice(0, 4).replace(/[,\.]$/, "");
+        }
+
+        return negate
+            ? `-${sizeStr} ${unit}`
+            : `${sizeStr} ${unit}`;
+    }
 }

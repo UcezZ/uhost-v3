@@ -7,7 +7,7 @@ import PopupTransition from '../../ui/PopupTransition';
 import EditVideoForm from './EditVideoForm';
 import EditIcon from '@mui/icons-material/Edit';
 
-export default function EditVideoButton({ video, setVideo }) {
+export default function EditVideoDialogButton({ video, setVideo }) {
     const [visible, setVisible] = useState(false);
 
     function onClick(event) {
@@ -22,6 +22,7 @@ export default function EditVideoButton({ video, setVideo }) {
             <Button
                 size='large'
                 color='inherit'
+                variant='contained'
                 onClick={onClick}
                 sx={{ gap: 1 }}>
                 <EditIcon />

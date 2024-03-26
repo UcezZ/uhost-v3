@@ -29,5 +29,28 @@ export default {
         isHidden: isHidden ?? false,
         allowComments: allowComments ?? false,
         allowReactions: allowReactions ?? false
-    })
+    }),
+    addFile: (file, name, desc, isPrivate, isHidden, allowComments, allowReactions, onProgress) => api.postForm(`${config.apiroot}/videos`, {
+        file: file,
+        name: name ?? '',
+        description: desc ?? '',
+        isPrivate: isPrivate ?? false,
+        isHidden: isHidden ?? false,
+        allowComments: allowComments ?? false,
+        allowReactions: allowReactions ?? false
+    }, {
+        onUploadProgress: onProgress,
+        onDownloadProgress: onProgress
+    }),
+    addUrl: (url, maxDuration, name, desc, isPrivate, isHidden, allowComments, allowReactions) => api.postForm(`${config.apiroot}/videos/url`, {
+        url: url,
+        maxDuration: maxDuration ?? '04:00:00.000',
+        name: name ?? '',
+        description: desc ?? '',
+        isPrivate: isPrivate ?? false,
+        isHidden: isHidden ?? false,
+        allowComments: allowComments ?? false,
+        allowReactions: allowReactions ?? false
+    }),
+    delete: (token) => api.delete(`${config.apiroot}/videos/${token}`)
 };

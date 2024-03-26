@@ -3,22 +3,13 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
-import AuthEndpoint from '../../api/AuthEndpoint';
 import StateContext from '../../utils/StateContext';
 import { CircularProgress } from '@mui/material';
 import Common from '../../utils/Common';
 import VideoEndpoint from '../../api/VideoEndpoint';
-
-const noSelectSx = {
-    userSelect: false,
-    msUserSelect: false,
-    MozUserSelect: false,
-    msTouchSelect: false,
-    WebkitUserSelect: false
-};
+import Valitation from '../../utils/Validation';
+import Styles from '../../ui/Styles';
 
 export default function EditVideoForm({ video, setVideo, next }) {
     const { setError } = useContext(StateContext);
@@ -48,12 +39,8 @@ export default function EditVideoForm({ video, setVideo, next }) {
         next && next(event);
     }
 
-    function isNameError() {
-        return name?.length < 3 || name?.length > 64;
-    }
-
-    function isDescError() {
-        return desc && desc.length > 512;
+    function isValid() {
+        return Valitation.Video.name(name) && Valitation.Video.desc(desc);
     }
 
     return (
@@ -70,7 +57,7 @@ export default function EditVideoForm({ video, setVideo, next }) {
                     required
                     fullWidth
                     label='Наименование'
-                    error={isNameError()}
+                    error={!Valitation.Video.name(name)}
                     disabled={loading}
                     value={name}
                     onChange={e => setName(e.target.value)}
@@ -80,7 +67,7 @@ export default function EditVideoForm({ video, setVideo, next }) {
                     margin='normal'
                     fullWidth
                     label='Описание'
-                    error={isDescError()}
+                    error={!Valitation.Video.desc(desc)}
                     disabled={loading}
                     value={desc}
                     onChange={e => setDesc(e.target.value)}
@@ -89,30 +76,36 @@ export default function EditVideoForm({ video, setVideo, next }) {
                     multiline
                 />
                 <FormControlLabel
-                    control={<Checkbox color='primary' checked={isPrivate} onClick={e => setIsPrivate(!isPrivate)} />}
+                    control={<Checkbox color='primary' checked={isPrivate} onClick={e => {
+                        setIsPrivate(!isPrivate);
+                        if (!isPrivate) {
+                            setIsHidden(true);
+                        }
+                    }} />}
                     label='Скрыть из общего доступа'
-                    sx={noSelectSx}
+                    style={Styles.noSelectSx}
                 />
                 <FormControlLabel
-                    control={<Checkbox color='primary' checked={isHidden} onClick={e => setIsHidden(!isHidden)} />}
+                    control={<Checkbox color='primary' disabled={isPrivate} checked={isHidden} onClick={e => setIsHidden(!isHidden)} />}
                     label='Скрыть из результатов поиска'
-                    sx={noSelectSx}
+                    sx={Styles.noSelectSx}
                 />
                 <FormControlLabel
                     control={<Checkbox color='primary' checked={allowComments} onClick={e => setAllowComments(!allowComments)} />}
                     label='Разрешить комментарии'
-                    sx={noSelectSx}
+                    sx={Styles.noSelectSx}
                 />
                 <FormControlLabel
                     control={<Checkbox color='primary' checked={allowReactions} onClick={e => setAllowReactions(!allowReactions)} />}
                     label='Разрешить реакции'
-                    sx={noSelectSx}
+                    sx={Styles.noSelectSx}
                 />
                 <Box sx={{
                     display: 'flex',
                     flexDirection: 'row',
                     alignItems: 'center',
-                    gap: 2
+                    gap: 2,
+                    ...Styles.noSelectSx
                 }}>
                     <Button
                         fullWidth
@@ -127,7 +120,7 @@ export default function EditVideoForm({ video, setVideo, next }) {
                         type='submit'
                         fullWidth
                         variant='contained'
-                        disabled={loading}
+                        disabled={loading || !isValid()}
                         sx={{ mt: 3, mb: 2, p: 1, minHeight: '40px' }}
                     >
                         {loading ? <CircularProgress size={20} /> : 'Применить'}

@@ -20,6 +20,16 @@ export default function applyExtentions() {
 
         return this;
     }
+
+    String.prototype.trimAll = function () {
+        if (!this.length) {
+            return this;
+        }
+
+        var value = this.replace(/\s+/g, ' ');
+
+        return value.trim();
+    }
 }
 
 applyExtentions();

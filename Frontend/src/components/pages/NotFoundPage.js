@@ -33,7 +33,7 @@ export default function NotFoundPage() {
                     </Typography>
                 </CardContent>
                 <CardContent>
-                    <Link to={config.webroot}>
+                    <Link to={`${config.webroot}/`}>
                         <Button
                             fullWidth
                             variant='contained'
