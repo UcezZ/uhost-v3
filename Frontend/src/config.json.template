@@ -1,4 +1,7 @@
 {
     "apiroot": "http://localhost:5000/api/v2",
-    "webroot": ""
+    "webroot": "",
+    "sentryConfig": {
+        "dsn": "https://key@sentry.host.domain/1"
+    }
 }

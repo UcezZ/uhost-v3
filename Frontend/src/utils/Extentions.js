@@ -1,4 +1,4 @@
-export default function ApplyExtentions() {
+export default function applyExtentions() {
     Array.prototype.firstOrDefault = function (predicate) {
         predicate ??= e => true;
 
@@ -21,3 +21,5 @@ export default function ApplyExtentions() {
         return this;
     }
 }
+
+applyExtentions();

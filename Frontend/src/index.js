@@ -1,9 +1,11 @@
+import 'core-js';
+import './utils/Extentions';
+import './index.css';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import 'core-js';
-import './index.css';
-import ApplyExtentions from './utils/Extentions';
+import { init } from '@sentry/browser';
+import config from './config.json';
 
+init(config.sentryConfig);
 const root = ReactDOM.createRoot(document.getElementById('root'));
-ApplyExtentions();
 root.render(<App />);
