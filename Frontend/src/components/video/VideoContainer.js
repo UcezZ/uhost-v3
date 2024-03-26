@@ -13,14 +13,14 @@ import Rights from '../../utils/Rights';
 import EditVideoDialogButton from './EditVideoDialogButton';
 import DeleteVideoDialogButton from './DeleteVideoDialogButton';
 
-const resolutionAuto = 'auto';
+const RES_AUTO = 'auto';
 
-const typeHls = 'hls';
-const typeMp4 = 'mp4';
+const PLAYER_TYPE_HLS = 'hls';
+const PLAYER_TYPE_MP4 = 'mp4';
 
-const playerTypes = [
-    Hls.isSupported() && typeHls,
-    typeMp4
+const PLAYER_TYPES = [
+    Hls.isSupported() ? PLAYER_TYPE_HLS : null,
+    PLAYER_TYPE_MP4
 ].filter(e => e);
 
 /**
@@ -30,10 +30,10 @@ const playerTypes = [
 function loadPlayerType() {
     var type = localStorage.getItem('player_type');
 
-    if (playerTypes.includes(type)) {
+    if (PLAYER_TYPES.includes(type)) {
         return type;
     } else {
-        return typeHls;
+        return PLAYER_TYPE_HLS;
     }
 }
 
@@ -42,7 +42,7 @@ function loadPlayerType() {
  * @param {String} type 
  */
 function savePlayerType(type) {
-    if (playerTypes.includes(type)) {
+    if (PLAYER_TYPES.includes(type)) {
         localStorage.setItem('player_type', type);
     }
 }
@@ -118,7 +118,7 @@ export default function VideoContainer({ video, setVideo, largeMode, setLargeMod
      */
     function getResolutions() {
         return [
-            playerType === playerTypes[0] && resolutionAuto,
+            playerType === PLAYER_TYPES[0] && RES_AUTO,
             ...video?.resolutions
         ].filter(e => e);
     }
@@ -244,7 +244,7 @@ export default function VideoContainer({ video, setVideo, largeMode, setLargeMod
         var doUpdate = playerType !== prevType || prevRes !== playerRes;
 
         // если смена плеера на hls и hls поддерживается
-        if (playerType !== prevType && playerType === typeHls && hls) {
+        if (playerType !== prevType && playerType === PLAYER_TYPE_HLS && hls) {
             hls.loadSource(video.urls.hls);
             hls.attachMedia(videoRef.current);
             hls.on(Hls.Events.MANIFEST_PARSED, (ev, data) => {
@@ -256,12 +256,12 @@ export default function VideoContainer({ video, setVideo, largeMode, setLargeMod
         }
 
         // если смена разрешения на hls и hls поддерживается
-        if (prevRes !== playerRes && playerType === typeHls && hls) {
+        if (prevRes !== playerRes && playerType === PLAYER_TYPE_HLS && hls) {
             updateHlsLevel();
         }
 
         // если смена плеера или разрешения на mp4 или не поддерживается hls
-        if (doUpdate && (playerType === typeMp4 || playerType === typeHls && !hls)) {
+        if (doUpdate && (playerType === PLAYER_TYPE_MP4 || playerType === PLAYER_TYPE_HLS && !hls)) {
             hls?.stopLoad && hls.stopLoad();
             hls?.detachMedia && hls.detachMedia();
 
@@ -371,7 +371,7 @@ export default function VideoContainer({ video, setVideo, largeMode, setLargeMod
                             value={playerType}
                             onChange={onPlayerTypeChange}
                         >
-                            {playerTypes.map((e, i) => <MenuItem value={e} key={i}>{e.toUpperCase()}</MenuItem>)}
+                            {PLAYER_TYPES.map((e, i) => <MenuItem value={e} key={i}>{e.toUpperCase()}</MenuItem>)}
                         </Select>
                     </FormControl>
                     <FormControl sx={{ minWidth: 100 }}>
@@ -383,7 +383,7 @@ export default function VideoContainer({ video, setVideo, largeMode, setLargeMod
                             onChange={onResolutionChange}
                         >
                             {getResolutions().map((e, i) => <MenuItem value={e} key={i} >
-                                {e}{playerType === typeHls && hls.currentLevel + 1 === i ? ' \u2022' : ''}
+                                {e}{playerType === PLAYER_TYPE_HLS && hls.currentLevel + 1 === i ? ' \u2022' : ''}
                             </MenuItem>)}
                         </Select>
                     </FormControl>
