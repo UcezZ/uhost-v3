@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Uhost.Core.Common;
 using Uhost.Core.Data;
 using Uhost.Core.Extensions;
@@ -74,10 +75,10 @@ namespace Uhost.Core.Repositories
                 VideoId = videoId
             };
 
-            var q = PrepareQuery(query);
+            var states = PrepareQuery(query).Select(e => e.State).ToList();
 
-            var hasAny = q.Any();
-            var allCompleted = q.All(e => e.State == nameof(Entity.VideoProcessingStates.Completed));
+            var hasAny = states.Any();
+            var allCompleted = states.All(e => e == nameof(Entity.VideoProcessingStates.Completed));
 
             return hasAny && allCompleted;
         }
@@ -91,6 +92,7 @@ namespace Uhost.Core.Repositories
         {
             if (FindEntity(id, out var entity))
             {
+                entity.UpdatedAt = DateTime.Now;
                 entity.State = state.ToString();
                 return Save();
             }

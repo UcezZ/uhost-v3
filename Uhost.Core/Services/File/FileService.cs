@@ -290,14 +290,20 @@ namespace Uhost.Core.Services.File
         private void PhysicallyDelete(Entity entity)
         {
             var file = new FileInfo(entity.GetPath());
+            var fileData = new
+            {
+                file.FullName,
+                file.Length,
+                file.Exists
+            };
             var result = file.TryDeleteIfExists();
 
             _log.Add(Events.FileDeletedPhysically, new
             {
                 entity.Id,
-                file.FullName,
-                file.Length,
-                file.Exists,
+                fileData.FullName,
+                fileData.Length,
+                fileData.Exists,
                 DeletionResult = result
             });
         }

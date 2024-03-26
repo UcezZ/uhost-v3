@@ -18,6 +18,7 @@ namespace Uhost.Core.Extensions
         private const string _pgEscapeChars = "_%()";
         private const char _pgEscapeChar = '\\';
         private static readonly Regex _digitRegex = new Regex(@"\d{1,}");
+        private static readonly Regex _whiteSpacesReplaceRegex = new Regex(@"\s+");
 
         /// <summary>
         /// Валидация строки Email-адреса
@@ -57,10 +58,9 @@ namespace Uhost.Core.Extensions
         /// <returns></returns>
         public static string TrimAll(this string text)
         {
-            return text
-                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                .Select(e => e.Trim())
-                .Join(" ");
+            text = _whiteSpacesReplaceRegex.Replace(text, " ");
+
+            return text.Trim();
         }
 
         /// <summary>

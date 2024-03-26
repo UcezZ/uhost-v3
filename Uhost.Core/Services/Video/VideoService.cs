@@ -568,6 +568,11 @@ namespace Uhost.Core.Services.Video
                 .OutputToFile(output.FullName, true, e => e.ApplyOptimalPreset(mediaInfo, (FileTypes)processingState.Type));
 
             await DoConversion(ffargs, output, processingState);
+
+            if (_processingStates.AreAllCompleted(processingState.VideoId))
+            {
+                _fileService.DeleteByDynParams(processingState.VideoId, typeof(Entity), FileTypes.VideoRaw, true);
+            }
         }
 
         /// <summary>
@@ -719,11 +724,6 @@ namespace Uhost.Core.Services.Video
             finally
             {
                 output.TryDeleteIfExists();
-            }
-
-            if (_processingStates.AreAllCompleted(processingState.VideoId))
-            {
-                _fileService.DeleteByDynParams(processingState.VideoId, typeof(Entity), FileTypes.VideoRaw, true);
             }
         }
 

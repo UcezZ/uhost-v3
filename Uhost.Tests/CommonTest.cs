@@ -51,5 +51,16 @@ namespace Uhost.Tests
 
             await ffargs.ProcessAsynchronously(true);
         }
+
+        [Fact]
+        public void ExtensionsToMime()
+        {
+            var exts = new[] { "3g2", "3gp2", "3gp", "3gpp", "asf", "asr", "asx", "avi", "dvr", "flv", "ivf", "lsf", "lsx", "m1v", "m2ts", "m4v", "mov", "movie", "mp2", "mp4", "mp4v", "mpa", "mpe", "mpeg", "mpg", "mpv2", "nsc", "ogg", "ogv", "qt", "ts", "tts", "webm", "wm", "wmp", "wmv", "wmx", "wtv", "wvx" };
+            var mimes = exts
+                .Select(e => $".{e}".GetContentType())
+                .Distinct()
+                .OrderBy(e => e)
+                .Join(", ");
+        }
     }
 }

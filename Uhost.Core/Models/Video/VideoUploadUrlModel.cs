@@ -20,7 +20,7 @@ namespace Uhost.Core.Models.Video
         /// <summary>
         /// Ссылка на видео
         /// </summary>
-        [RegExpValidation(@"^(ftps?|https?|rtsp):\/\/\S*$", ErrorMessageResourceType = typeof(CoreStrings), ErrorMessageResourceName = nameof(CoreStrings.Common_Error_Invalid))]
+        [RegExpValidation(@"^(ftps?|https?|rtsp|rtmp|udp):\/\/\S+$", ErrorMessageResourceType = typeof(CoreStrings), ErrorMessageResourceName = nameof(CoreStrings.Common_Error_Invalid))]
         public string Url { get; set; }
 
         public override Entity FillEntity(Entity entity)
