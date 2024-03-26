@@ -578,6 +578,11 @@ namespace Uhost.Core.Extensions
         /// <param name="destination"></param>
         public static void CopyTo(this IConfiguration source, IConfiguration destination)
         {
+            if (destination == null)
+            {
+                return;
+            }
+
             foreach (var key in source.GetAllKeys())
             {
                 destination[key] = source[key];

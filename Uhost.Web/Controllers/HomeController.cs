@@ -5,6 +5,7 @@ using Uhost.Web.Properties;
 
 namespace Uhost.Web.Controllers
 {
+#if DEBUG
     /// <summary>
     /// Контроллер по умолчанию
     /// </summary>
@@ -33,4 +34,5 @@ namespace Uhost.Web.Controllers
             return new DisposableFileStreamResult(_stylesheet, "text/css");
         }
     }
+#endif
 }

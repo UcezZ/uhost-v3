@@ -17,11 +17,13 @@ namespace Uhost.Web
         /// </summary>
         public static JwtConfig Jwt { get; private set; }
 
+#if DEBUG
         /// <summary>
         /// Настройки дашборда разработчика
         /// </summary>
         [Unnecessary]
         public static HomePageConfig HomePageConfig { get; private set; }
+#endif
 
         /// <summary>
         /// Параметры дашборта HF
