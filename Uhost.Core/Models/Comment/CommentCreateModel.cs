@@ -1,4 +1,5 @@
 ﻿using Uhost.Core.Attributes.Validation;
+using Uhost.Core.Extensions;
 using Entity = Uhost.Core.Data.Entities.Comment;
 
 namespace Uhost.Core.Models.Comment
@@ -19,7 +20,7 @@ namespace Uhost.Core.Models.Comment
         {
             entity.UserId = UserId;
             entity.VideoId = VideoId;
-            entity.Text = Text ?? string.Empty;
+            entity.Text = Text?.FilterWebMultilineString() ?? string.Empty;
 
             return entity;
         }

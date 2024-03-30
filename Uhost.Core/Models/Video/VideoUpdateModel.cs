@@ -1,4 +1,5 @@
 ﻿using Uhost.Core.Attributes.Validation;
+using Uhost.Core.Extensions;
 using Entity = Uhost.Core.Data.Entities.Video;
 
 namespace Uhost.Core.Models.Video
@@ -28,7 +29,7 @@ namespace Uhost.Core.Models.Video
         public virtual Entity FillEntity(Entity entity)
         {
             entity.Name = Name ?? string.Empty;
-            entity.Description = Description ?? string.Empty;
+            entity.Description = Description?.FilterWebMultilineString() ?? string.Empty;
             entity.IsPrivate = IsPrivate;
             entity.IsHidden = IsHidden;
             entity.AllowComments = AllowComments;

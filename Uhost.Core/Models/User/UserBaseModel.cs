@@ -1,4 +1,5 @@
 ﻿using Uhost.Core.Attributes.Validation;
+using Uhost.Core.Extensions;
 using Uhost.Core.Properties;
 using Entity = Uhost.Core.Data.Entities.User;
 
@@ -33,7 +34,7 @@ namespace Uhost.Core.Models.User
         public virtual Entity FillEntity(Entity entity)
         {
             entity.Name = Name?.Trim() ?? string.Empty;
-            entity.Desctiption = Description?.Trim() ?? string.Empty;
+            entity.Desctiption = Description?.FilterWebMultilineString() ?? string.Empty;
             entity.Login = Login.Trim();
             entity.Theme = Theme.Trim();
 

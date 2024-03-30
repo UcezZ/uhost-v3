@@ -19,6 +19,7 @@ namespace Uhost.Core.Extensions
         private const char _pgEscapeChar = '\\';
         private static readonly Regex _digitRegex = new Regex(@"\d{1,}");
         private static readonly Regex _whiteSpacesReplaceRegex = new Regex(@"\s+");
+        private static readonly Regex _lineBreakFilterRegex = new Regex(@"(\r?\n){2,}");
 
         /// <summary>
         /// Валидация строки Email-адреса
@@ -292,6 +293,22 @@ namespace Uhost.Core.Extensions
             }
 
             return 0;
+        }
+
+        public static string ToLfLinebreak(this string input)
+        {
+            return input?.Replace("\r", string.Empty);
+        }
+
+        public static string FilterWebMultilineString(this string input)
+        {
+            var filtered = input
+                .ToLfLinebreak()
+                .Split('\n')
+                .Select(TrimAll)
+                .Join("\n");
+
+            return _lineBreakFilterRegex.Replace(filtered, "\n\n");
         }
     }
 }
