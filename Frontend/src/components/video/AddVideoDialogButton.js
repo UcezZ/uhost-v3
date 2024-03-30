@@ -9,12 +9,15 @@ import AddVideoForm from './AddVideoForm';
 
 export default function AddVideoDialogButton() {
     const [visible, setVisible] = useState(false);
+    const [canClose, setCanClose] = useState(true);
 
     function onClick() {
         setVisible(true);
     };
     function onClose() {
-        setVisible(false);
+        if (canClose) {
+            setVisible(false);
+        }
     };
 
     return (
@@ -26,7 +29,7 @@ export default function AddVideoDialogButton() {
                 sx={{ gap: 1 }}>
                 <AddIcon />
                 <Typography variant='button'>
-                    Добавить видео...
+                    Добавить видео
                 </Typography>
             </Button>
             <Dialog
@@ -34,13 +37,12 @@ export default function AddVideoDialogButton() {
                 TransitionComponent={PopupTransition}
                 keepMounted
                 onClose={onClose}
-            >
+                fullWidth>
                 <DialogTitle>Добавление видео</DialogTitle>
-                <DialogContent>
-                    <AddVideoForm next={onClose} cancel={onClose} />
+                <DialogContent >
+                    <AddVideoForm next={onClose} setCanClose={setCanClose} />
                 </DialogContent>
             </Dialog>
         </div>
     );
-
 }

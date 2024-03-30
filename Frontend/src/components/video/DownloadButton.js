@@ -1,4 +1,4 @@
-import { Button, Typography } from '@mui/material';
+import { Button, Typography, useMediaQuery } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -12,6 +12,7 @@ export default function DownloadButton({ token, sizes }) {
     }
 
     const [anchorEl, setAnchorEl] = useState(null);
+    const isNarrowScreen = useMediaQuery('(max-width:600px)');
 
     function onClick(event) {
         setAnchorEl(event.currentTarget);
@@ -38,9 +39,7 @@ export default function DownloadButton({ token, sizes }) {
                 onClick={onClick}
                 sx={{ gap: 1 }}>
                 <FileDownloadIcon />
-                <Typography variant='button'>
-                    Скачать...
-                </Typography>
+                {!isNarrowScreen && <Typography variant='button'>Скачать</Typography>}
             </Button>
             <Menu
                 id='download-menu'

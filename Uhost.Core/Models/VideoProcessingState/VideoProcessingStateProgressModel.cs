@@ -14,6 +14,7 @@ namespace Uhost.Core.Models.VideoProcessingState
         public void LoadFromEntityCollection(IQueryable<Entity> entities)
         {
             States = entities.AsEnumerable()
+                .OrderBy(e => e.Type.ParseDigits())
                 .Select(e => new { Type = e.Type.ParseEnum<FileTypes>(), State = e.State.ParseEnum<VideoProcessingStates>() })
                 .Where(e => e.Type != null && e.State != null)
                 .ToDictionary(e => e.Type.Value, e => e.State.Value.ToString());

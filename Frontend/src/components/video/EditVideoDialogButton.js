@@ -1,4 +1,4 @@
-import { Button, Typography } from '@mui/material';
+import { Button, Typography, useMediaQuery } from '@mui/material';
 import { useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
@@ -9,6 +9,7 @@ import EditIcon from '@mui/icons-material/Edit';
 
 export default function EditVideoDialogButton({ video, setVideo }) {
     const [visible, setVisible] = useState(false);
+    const isNarrowScreen = useMediaQuery('(max-width:600px)');
 
     function onClick(event) {
         setVisible(true);
@@ -26,9 +27,7 @@ export default function EditVideoDialogButton({ video, setVideo }) {
                 onClick={onClick}
                 sx={{ gap: 1 }}>
                 <EditIcon />
-                <Typography variant='button'>
-                    Редактировать...
-                </Typography>
+                {!isNarrowScreen && <Typography variant='button'>Редактировать</Typography>}
             </Button>
             <Dialog
                 open={visible ?? false}

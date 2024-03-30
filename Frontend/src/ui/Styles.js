@@ -6,6 +6,11 @@ const Styles = {
         msTouchSelect: 'none',
         WebkitUserSelect: 'none',
         cursor: 'default'
+    },
+    code: {
+        fontFamily: 'Consolas, monospace',
+        fontSize: '10pt',
+        fontWeight: 400
     }
 };
 

@@ -1,4 +1,4 @@
-import { Button, Typography } from '@mui/material';
+import { Button, Typography, useMediaQuery } from '@mui/material';
 import { useState, useContext } from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
 import YesNoDialog from '../YesNoDialog';
@@ -9,6 +9,7 @@ import { red } from '@mui/material/colors';
 export default function DeleteVideoDialogButton({ video, setVideo }) {
     const { setError } = useContext(StateContext);
     const [visible, setVisible] = useState(false);
+    const isNarrowScreen = useMediaQuery('(max-width:600px)');
 
     async function onYes() {
         await VideoEndpoint.delete(video.token)
@@ -37,9 +38,7 @@ export default function DeleteVideoDialogButton({ video, setVideo }) {
                 color='primary'
                 sx={{ gap: 1 }}>
                 <DeleteIcon />
-                <Typography variant='button'>
-                    Удалить
-                </Typography>
+                {!isNarrowScreen && <Typography variant='button'>Удалить</Typography>}
             </Button>
             <YesNoDialog
                 visible={visible}

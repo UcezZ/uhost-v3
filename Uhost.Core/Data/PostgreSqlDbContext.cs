@@ -198,6 +198,10 @@ namespace Uhost.Core.Data
                 .Property(e => e.Theme)
                 .HasDefaultValue(string.Empty);
 
+            builder.Entity<User>()
+                .Property(e => e.Locale)
+                .HasDefaultValue(string.Empty);
+
             // видео
             builder.Entity<Video>()
                 .Property(e => e.CreatedAt)

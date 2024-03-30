@@ -3,54 +3,31 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import AuthEndpoint from '../../api/AuthEndpoint';
 import StateContext from '../../utils/StateContext';
 import { CircularProgress } from '@mui/material';
 import Common from '../../utils/Common';
+import Validation from '../../utils/Validation';
+import Styles from '../../ui/Styles';
 
 export default function AuthForm({ next, slim }) {
     const { setError, setUser } = useContext(StateContext);
     const [loading, setLoading] = useState(false);
-    const [loginError, setLoginError] = useState(false);
-    const [passwordError, setPasswordError] = useState(false);
-
-    var remember = false;
+    const [login, setLogin] = useState('');
+    const [password, setPassword] = useState('');
+    const [remember, setRemember] = useState(false);
 
     if (!next) {
         next = () => setLoading(false);
     }
 
-    /**
-     * 
-     * @param {FormData} data 
-     */
-    function validate(data) {
-        var login = data.get('login').length < 3;
-        if (login) {
-            setLoginError(true);
-        }
-        var password = data.get('password').length < 3;
-        if (password) {
-            setPasswordError(true);
-        }
-
-        return !login && !password;
-    }
-
     async function onSubmit(event) {
         event?.preventDefault && event.preventDefault();
-        var data = new FormData(event.target);
-
-        if (!validate(data)) {
-            return;
-        }
 
         setLoading(true);
 
-        await AuthEndpoint.login(data)
+        await AuthEndpoint.login(login, password)
             .then(e => {
                 if (e?.data?.success && e?.data?.result?.token) {
                     if (remember) {
@@ -60,35 +37,19 @@ export default function AuthForm({ next, slim }) {
                     }
 
                     next && next();
-                    setLoading(false);
                     setUser(e?.data?.result?.user);
                 }
                 else {
                     showError(JSON.stringify(e.data));
                 }
             })
-            .catch(e => { showError(Common.transformErrorData(e)) });
-    }
+            .catch(e => setError(Common.transformErrorData(e)));
 
-    function showError(e) {
         setLoading(false);
-        setError(e);
     }
 
-    async function onRememberClick(event) {
-        remember = event.target.value;
-    }
-
-    function onLoginChanged(e) {
-        if (loginError) {
-            setLoginError();
-        }
-    }
-
-    function onPasswordChanged(e) {
-        if (passwordError) {
-            setPasswordError();
-        }
+    function isValid() {
+        return Validation.Auth.login(login) && Validation.Auth.password(password);
     }
 
     return (
@@ -109,10 +70,10 @@ export default function AuthForm({ next, slim }) {
                     label="Логин"
                     name="login"
                     autoComplete="login"
-                    error={loginError}
+                    error={!Validation.Auth.login(login)}
                     disabled={loading}
                     autoFocus
-                    onChange={onLoginChanged}
+                    onChange={e => setLogin(e.target.value)}
                 />
                 <TextField
                     margin="normal"
@@ -122,21 +83,22 @@ export default function AuthForm({ next, slim }) {
                     label="Пароль"
                     type="password"
                     id="password"
-                    error={passwordError}
+                    error={!Validation.Auth.password(password)}
                     disabled={loading}
                     autoComplete="current-password"
-                    onChange={onPasswordChanged}
+                    onChange={e => setPassword(e.target.value)}
                 />
                 <FormControlLabel
-                    control={<Checkbox value="remember" color="primary" />}
+                    control={<Checkbox value="remember" color="primary" onChange={e => setRemember(e.target.value)} />}
                     label="Запомнить"
-                    onClick={onRememberClick}
+                    onClick={e => setRemember(e.target.value)}
+                    sx={Styles.noSelectSx}
                 />
                 <Button
                     type="submit"
                     fullWidth
                     variant="contained"
-                    disabled={loading}
+                    disabled={loading || !isValid()}
                     sx={{ mt: 3, mb: 2, p: 1, minHeight: '40px' }}
                 >
                     {loading ? <CircularProgress size={20} /> : 'Войти'}

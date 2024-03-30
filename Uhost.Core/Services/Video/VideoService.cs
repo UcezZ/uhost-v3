@@ -155,7 +155,11 @@ namespace Uhost.Core.Services.Video
         /// <returns></returns>
         public VideoViewModel GetOne(int id)
         {
-            var query = new QueryModel { Id = id };
+            var query = new QueryModel
+            {
+                Id = id,
+                ForceShowForUser = true
+            };
 
             OverrideByUserRestrictions(query);
 
@@ -535,7 +539,8 @@ namespace Uhost.Core.Services.Video
             {
                 Id = processingStateId
             };
-            var processingState = _processingStates.GetAll<VideoProcessingStateViewModel>(processingQuery)
+            var processingState = _processingStates
+                .GetAll<VideoProcessingStateViewModel>(processingQuery)
                 .FirstOrDefault();
 
             if (!_videoFileTypes.Any(e => e == processingState?.Type))

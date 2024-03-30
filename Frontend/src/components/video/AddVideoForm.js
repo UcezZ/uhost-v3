@@ -8,7 +8,7 @@ import StateContext from '../../utils/StateContext';
 import { CircularProgress, Divider, IconButton, LinearProgress, Tab, Tabs, Typography } from '@mui/material';
 import Common from '../../utils/Common';
 import VideoEndpoint from '../../api/VideoEndpoint';
-import Valitation from '../../utils/Validation';
+import Validation from '../../utils/Validation';
 import Styles from '../../ui/Styles';
 import TabPanel from '../TabPanel';
 import VideoFileIcon from '@mui/icons-material/VideoFile';
@@ -27,16 +27,17 @@ export default function AddVideoForm({ next, setCanClose }) {
     const [allowComments, setAllowComments] = useState(true);
     const [allowReactions, setAllowReactions] = useState(true);
     const [source, setSource] = useState(0);
-    const [uploadProgress, setUploadProgress] = useState();
+    const [uploadProgress, setUploadProgress] = useState(null);
     const [videoFile, setVideoFile] = useState(null);
     const [videoUrl, setVideoUrl] = useState('');
-    const [video, setVideo] = useState();
+    const [video, setVideo] = useState(null);
     const [maxDuration, setMaxDuration] = useState('01:00:00');
 
     async function onSubmit(event) {
         event?.preventDefault && event.preventDefault();
 
         setLoading(true);
+        setCanClose && setCanClose(false);
 
         var promise;
 
@@ -63,6 +64,7 @@ export default function AddVideoForm({ next, setCanClose }) {
             .catch(e => setError(Common.transformErrorData(e)));
 
         setLoading(false);
+        setCanClose && setCanClose(true);
     }
 
     function onFileSelected(e) {
@@ -82,15 +84,20 @@ export default function AddVideoForm({ next, setCanClose }) {
     }
 
     function isValid() {
-        return Valitation.Video.name(name) && Valitation.Video.desc(desc) &&
+        return Validation.Video.name(name) && Validation.Video.desc(desc) &&
             (
                 source === 0 && videoFile ||
-                source === 1 && Valitation.Video.url(videoUrl) && Valitation.Video.maxDuration(maxDuration)
+                source === 1 && Validation.Video.url(videoUrl) && Validation.Video.maxDuration(maxDuration)
             );
     }
 
-    function nextAndReset() {
+    async function nextAndReset() {
         next && next();
+        await Common.sleep(1000);
+        reset();
+    }
+
+    function reset() {
         setLoading();
         setName('');
         setDesc('');
@@ -119,7 +126,8 @@ export default function AddVideoForm({ next, setCanClose }) {
             >
                 <VideoPreview entity={video} />
                 <Typography>Видео успешно загружено</Typography>
-                <Typography variant='caption'>Дождитель окончания обработки видео</Typography>
+                {source === 1 && <Typography variant='caption'>Трансляция будет записана, а затем начнёт обрабатываться</Typography>}
+                <Typography variant='caption'>Дождитеcь окончания обработки видео</Typography>
                 <Button
                     color='success'
                     variant='contained'
@@ -133,13 +141,17 @@ export default function AddVideoForm({ next, setCanClose }) {
 
     // если загружается файл
     if (loading && source === 0) {
+        const progress = isNaN(uploadProgress?.progress) ? 0 : uploadProgress?.progress * 100 ?? 0;
+        const rate = isNaN(uploadProgress?.rate) ? 0 : uploadProgress?.rate ?? 0;
+        const loaded = isNaN(uploadProgress?.loaded) ? 0 : uploadProgress?.loaded ?? 0;
+        const total = isNaN(uploadProgress?.total) ? 0 : uploadProgress?.total ?? 0;
+
         return (
             <Box
                 sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                    alignItems: 'center',
-                    minWidth: '32em'
+                    alignItems: 'center'
                 }}
             >
                 <Typography>Идёт загрузка файла</Typography>
@@ -156,12 +168,10 @@ export default function AddVideoForm({ next, setCanClose }) {
                             borderRadius: 16
                         }}
                         variant='determinate'
-                        value={uploadProgress?.progress * 100 ?? 0} />
-                    <Typography variant="body2" color="text.secondary">{`${Math.round(
-                        uploadProgress?.progress * 100 ?? 0,
-                    )}%`}</Typography>
+                        value={progress} />
+                    <Typography variant="body2" color="text.secondary">{Math.round(progress)}%</Typography>
                 </Box>
-                <Typography>{Common.sizeToHuman(uploadProgress?.rate ?? 0)}/s, {Common.sizeToHuman(uploadProgress?.loaded ?? 0)} / {Common.sizeToHuman(uploadProgress?.total ?? 0)}</Typography>
+                <Typography>{Common.sizeToHuman(rate ?? 0)}/s, {Common.sizeToHuman(loaded)} / {Common.sizeToHuman(total)}</Typography>
             </Box>
         );
     }
@@ -180,7 +190,7 @@ export default function AddVideoForm({ next, setCanClose }) {
                     required
                     fullWidth
                     label='Наименование'
-                    error={!Valitation.Video.name(name)}
+                    error={!Validation.Video.name(name)}
                     disabled={loading}
                     value={name}
                     onChange={e => setName(e.target.value)}
@@ -190,7 +200,7 @@ export default function AddVideoForm({ next, setCanClose }) {
                     margin='normal'
                     fullWidth
                     label='Описание'
-                    error={!Valitation.Video.desc(desc)}
+                    error={!Validation.Video.desc(desc)}
                     disabled={loading}
                     value={desc}
                     onChange={e => setDesc(e.target.value)}
@@ -291,7 +301,7 @@ export default function AddVideoForm({ next, setCanClose }) {
                             fullWidth
                             label='Ссылка на видео или трансляцию'
                             defaultValue={Common.sizeToHuman(videoFile?.size)}
-                            error={!Valitation.Video.url(videoUrl)}
+                            error={!Validation.Video.url(videoUrl)}
                             variant='outlined'
                             value={videoUrl}
                             onChange={e => setVideoUrl(e.target.value)}
@@ -301,7 +311,7 @@ export default function AddVideoForm({ next, setCanClose }) {
                             required
                             label='Максимальная длительность, если это трансляция'
                             defaultValue={Common.sizeToHuman(videoFile?.size)}
-                            error={!Valitation.Video.maxDuration(maxDuration)}
+                            error={!Validation.Video.maxDuration(maxDuration)}
                             variant='outlined'
                             value={maxDuration}
                             onChange={e => setMaxDuration(e.target.value)}

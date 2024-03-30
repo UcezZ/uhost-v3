@@ -14,6 +14,12 @@ namespace Uhost.Core.Data.Entities
             Dark
         }
 
+        public enum Locales
+        {
+            Ru,
+            En
+        }
+
         public enum SortBy
         {
             Id,
@@ -21,28 +27,31 @@ namespace Uhost.Core.Data.Entities
             LastVisitAt
         }
 
-        [Required, Column(TypeName = "text")]
+        [Required, Column(TypeName = "VARCHAR")]
         public string Name { get; set; }
 
-        [Required, Column(TypeName = "text")]
+        [Required, Column(TypeName = "VARCHAR")]
         public string Desctiption { get; set; }
 
-        [Required, Column(TypeName = "text")]
+        [Required, Column(TypeName = "VARCHAR")]
         public string Login { get; set; }
 
-        [Required, Column(TypeName = "text")]
+        [Required, Column(TypeName = "VARCHAR")]
         public string Email { get; set; }
 
-        [Required, Column(TypeName = "text")]
+        [Required, Column(TypeName = "TEXT")]
         public string Password { get; set; }
 
-        [Required, Column(TypeName = "varchar(8)")]
+        [Required, Column(TypeName = "VARCHAR(8)")]
         public string Theme { get; set; }
 
-        [Column(TypeName = "timestamp")]
+        [Required, Column(TypeName = "VARCHAR(8)")]
+        public string Locale { get; set; }
+
+        [Column(TypeName = "TIMESTAMP")]
         public DateTime? LastVisitAt { get; set; }
 
-        [Column(TypeName = "timestamp")]
+        [Column(TypeName = "TIMESTAMP")]
         public DateTime? BlockedAt { get; set; }
 
         public int? BlockedByUserId { get; set; }

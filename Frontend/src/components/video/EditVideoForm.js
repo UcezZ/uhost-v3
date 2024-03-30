@@ -8,7 +8,7 @@ import StateContext from '../../utils/StateContext';
 import { CircularProgress } from '@mui/material';
 import Common from '../../utils/Common';
 import VideoEndpoint from '../../api/VideoEndpoint';
-import Valitation from '../../utils/Validation';
+import Validation from '../../utils/Validation';
 import Styles from '../../ui/Styles';
 
 export default function EditVideoForm({ video, setVideo, next }) {
@@ -29,6 +29,12 @@ export default function EditVideoForm({ video, setVideo, next }) {
             .then(e => {
                 if (e?.data?.success && e?.data?.result) {
                     setVideo(e.data.result);
+                    e.data.result?.name && setName(e.data.result.name);
+                    e.data.result?.description && setDesc(e.data.result.description);
+                    e.data.result?.isPrivate && setIsPrivate(e.data.result.isPrivate);
+                    e.data.result?.isHidden && setIsHidden(e.data.result.isHidden);
+                    e.data.result?.allowComments && setAllowComments(e.data.result.allowComments);
+                    e.data.result?.allowReactions && setAllowReactions(e.data.result.allowReactions);
                 } else {
                     setError(Common.transformErrorData(e));
                 }
@@ -40,7 +46,7 @@ export default function EditVideoForm({ video, setVideo, next }) {
     }
 
     function isValid() {
-        return Valitation.Video.name(name) && Valitation.Video.desc(desc);
+        return Validation.Video.name(name) && Validation.Video.desc(desc);
     }
 
     return (
@@ -57,7 +63,7 @@ export default function EditVideoForm({ video, setVideo, next }) {
                     required
                     fullWidth
                     label='Наименование'
-                    error={!Valitation.Video.name(name)}
+                    error={!Validation.Video.name(name)}
                     disabled={loading}
                     value={name}
                     onChange={e => setName(e.target.value)}
@@ -67,7 +73,7 @@ export default function EditVideoForm({ video, setVideo, next }) {
                     margin='normal'
                     fullWidth
                     label='Описание'
-                    error={!Valitation.Video.desc(desc)}
+                    error={!Validation.Video.desc(desc)}
                     disabled={loading}
                     value={desc}
                     onChange={e => setDesc(e.target.value)}

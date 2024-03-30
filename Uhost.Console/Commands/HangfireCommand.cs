@@ -39,11 +39,20 @@ namespace Uhost.Console.Commands
 
         protected override bool Validate()
         {
-            var qFailed = Queues.Except(_queues);
+            var queues = Queues.ToList();
 
-            if (qFailed.Any())
+            if (queues.Count == 1 && queues[0].Equals("all", StringComparison.InvariantCultureIgnoreCase))
             {
-                AddValidationError(ConsoleStrings.Hangfire_Error_QueueFail.Format(qFailed.Join(", "), _queues.Join(", ")));
+                Queues = _queues;
+            }
+            else
+            {
+                var qFailed = Queues.Except(_queues);
+
+                if (qFailed.Any())
+                {
+                    AddValidationError(ConsoleStrings.Hangfire_Error_QueueFail.Format(qFailed.Join(", "), _queues.Join(", ")));
+                }
             }
             if (Threads < 1)
             {

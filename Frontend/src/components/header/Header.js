@@ -1,11 +1,11 @@
 import { Toolbar, IconButton, AppBar } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import ProfileButton from './ProfileButton';
+import ProfileButton from '../profile/ProfileButton';
 import { useContext } from 'react';
 import StateContext from '../../utils/StateContext';
 import { useLocation, Link } from 'react-router-dom';
 import config from '../../config.json';
-import NotificationsButton from './NotificationsButton';
+import NotificationsButton from '../notifications/NotificationsButton';
 import CloseIcon from '@mui/icons-material/Close';
 import HomeIcon from '@mui/icons-material/Home';
 

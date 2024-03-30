@@ -8,13 +8,13 @@ namespace Uhost.Core.Data
     /// </summary>
     public abstract class BaseDateTimedEntity : BaseEntity
     {
-        [Column(TypeName = "timestamp")]
+        [Column(TypeName = "TIMESTAMP")]
         public DateTime CreatedAt { get; set; }
 
-        [Column(TypeName = "timestamp")]
+        [Column(TypeName = "TIMESTAMP")]
         public DateTime? UpdatedAt { get; set; }
 
-        [Column(TypeName = "timestamp")]
+        [Column(TypeName = "TIMESTAMP")]
         public DateTime? DeletedAt { get; set; }
     }
 }

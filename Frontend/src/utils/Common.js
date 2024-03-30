@@ -1,3 +1,13 @@
+const COLOR_EMPTY = { r: 0, g: 0, b: 0, a: 0 };
+
+const LOCALE_RU = 'ru';
+const LOCALE_EN = 'en';
+
+const LOCALES = [
+    LOCALE_RU,
+    LOCALE_EN
+];
+
 export default class Common {
     static tokenKey = 'accessToken';
 
@@ -152,5 +162,120 @@ export default class Common {
         return negate
             ? `-${sizeStr} ${unit}`
             : `${sizeStr} ${unit}`;
+    }
+
+    /**
+     * 
+     * @param {Number} ms 
+     * @returns 
+     */
+    static async sleep(ms) {
+        return new Promise(
+            resolve => setTimeout(resolve, ms)
+        );
+    }
+
+    /**
+     * 
+     * @param {String} colorHex 
+     * @returns {{r: Number, g: Number, b: Number, a: Number}}
+     */
+    static parseColor(colorHex) {
+        var colorRegexResult = /[0-9a-fA-F]+/.exec(colorHex);
+
+        if (!colorRegexResult?.length) {
+            return COLOR_EMPTY;
+        }
+
+        var color = colorRegexResult[0];
+
+        switch (color.length) {
+            case 3:
+                var [r, g, b] = Array.from(color).map(e => parseInt(`${e}${e}`, 16));
+                return { r, g, b, a: 0 };
+            case 4:
+                var [r, g, b, a] = Array.from(color).map(e => parseInt(`${e}${e}`, 16));
+                return { r, g, b, a };
+            case 6:
+                var [r, g, b] = Array.from(color.matchAll('[0-9a-fA-F]{2}')).flat().map(e => parseInt(e, 16));
+                return { r, g, b, a: 0 };
+            case 8:
+                var [r, g, b, a] = Array.from(color.matchAll('[0-9a-fA-F]{2}')).flat().map(e => parseInt(e, 16));
+                return { r, g, b, a };
+            default:
+                return COLOR_EMPTY;
+        }
+    }
+
+    /**
+     * 
+     * @param {Number} r 
+     * @param {Number} g 
+     * @param {Number} b 
+     * @param {Number} a 
+     * @returns {String}
+     */
+    static makeColor(r, g, b, a) {
+        r = (r ?? 0) % 256;
+        g = (g ?? 0) % 256;
+        b = (b ?? 0) % 256;
+        a = (a ?? 0) % 256;
+
+        return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}${a > 0 ? a.toString(16).padStart(2, '0') : ''}`;
+    }
+
+    /**
+     * 
+     * @param  {...String} colors 
+     * @returns {String}
+     */
+    static combineColors(...colors) {
+        var parsed = colors.map(e => this.parseColor(e));
+
+        console.log(parsed);
+
+        return this.makeColor(
+            parsed.map(e => e.r).reduce((acc, current) => acc + current, 0),
+            parsed.map(e => e.g).reduce((acc, current) => acc + current, 0),
+            parsed.map(e => e.b).reduce((acc, current) => acc + current, 0),
+            parsed.map(e => e.a).reduce((acc, current) => acc + current, 0)
+        )
+    }
+
+    /**
+     * 
+     * @returns {String}
+     */
+    static getBrowserLocale() {
+        return navigator?.languages?.length
+            ? navigator.languages.firstOrDefault(e => e?.length)
+                .split('-')
+                .firstOrDefault()?.toLowerCase()
+            : navigator.language.split('-')
+                .firstOrDefault()?.toLowerCase();
+    }
+
+    /**
+     * 
+     * @param {String} locale 
+     * @returns {String} Supported locale only
+     */
+    static filterLocale(locale) {
+        locale = locale?.toLowerCase();
+
+        if (LOCALES.includes(locale)) {
+            return locale;
+        } else {
+            return LOCALE_EN;
+        }
+    }
+
+    /**
+     * 
+     * @param {{locale: String}} user 
+     * @returns 
+     */
+    static getLocale(user = null) {
+        return this.filterLocale(user?.locale ?? this.getBrowserLocale());
     }
 }

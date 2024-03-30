@@ -3,6 +3,8 @@ import { red } from '@mui/material/colors';
 import { Box } from '@mui/system';
 import { Link } from 'react-router-dom';
 import config from '../../config.json';
+import BrokenImageIcon from '@mui/icons-material/BrokenImage';
+import Image from '../Image';
 
 export default function VideoPreview({ entity }) {
     var login = entity?.user?.login ?? 'N/A';
@@ -18,7 +20,7 @@ export default function VideoPreview({ entity }) {
                     avatar={
                         <Avatar sx={{ bgcolor: red[500] }} aria-label='recipe'>
                             {
-                                entity.avatarUrl
+                                entity?.avatarUrl?.length > 0
                                     ? <img src={entity.avatarUrl} alt={avaText} />
                                     : avaText
                             }
@@ -29,12 +31,11 @@ export default function VideoPreview({ entity }) {
                 />
             </Link>
             <Link style={{ textDecoration: 'inherit', color: 'inherit', position: 'relative' }} to={`${config.webroot}/video/${alias}`}>
-                <CardMedia
-                    component='img'
-                    height='180'
-                    image={entity?.thumbnailUrl}
-                    alt={title}
-                />
+                <CardMedia>
+                    <Image
+                        src={entity?.thumbnailUrl}
+                        height={180} />
+                </CardMedia>
                 <Typography variant='caption' sx={{
                     position: 'absolute',
                     bottom: 0,
@@ -50,10 +51,16 @@ export default function VideoPreview({ entity }) {
                 </Typography>
             </Link>
             <CardContent sx={{ flex: 1 }}>
-                <Typography variant='h6' component='div'>
+                <Typography
+                    variant='h6'
+                    component='div'
+                    sx={{
+                        fontSize: 16,
+                        fontWeight: 700
+                    }}
+                    noWrap>
                     {entity?.name ?? 'N/A'}
                 </Typography>
-                {entity?.desctiption?.length && <Typography variant='body2' color='text.secondary'>{entity.desctiption}</Typography>}
                 {
                     entity?.resolutions?.length > 0 &&
                     <Box sx={{ marginTop: '8px' }}>

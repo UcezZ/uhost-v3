@@ -8,7 +8,7 @@ export default function MessageBox({ text }) {
                 flexDirection: 'column',
                 justifyContent: 'start',
                 alignItems: 'center',
-                height: '100vh',
+                height: '100%',
             }}
         >
             <span style={{ marginTop: '16px' }}>{text}</span>

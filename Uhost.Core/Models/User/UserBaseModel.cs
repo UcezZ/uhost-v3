@@ -28,8 +28,11 @@ namespace Uhost.Core.Models.User
         /// <summary>
         /// Тема оформления
         /// </summary>
-        [EnumValidation(typeof(Entity.Themes), nameof(Entity.Themes.Dark), ErrorMessageResourceType = typeof(CoreStrings), ErrorMessageResourceName = nameof(CoreStrings.User_Error_ThemeFail))]
+        [EnumValidation(typeof(Entity.Themes), ErrorMessageResourceType = typeof(CoreStrings), ErrorMessageResourceName = nameof(CoreStrings.User_Error_ThemeFail))]
         public string Theme { get; set; }
+
+        [EnumValidation(typeof(Entity.Locales), ErrorMessageResourceType = typeof(CoreStrings), ErrorMessageResourceName = nameof(CoreStrings.User_Error_LocaleFail))]
+        public string Locale { get; set; }
 
         public virtual Entity FillEntity(Entity entity)
         {

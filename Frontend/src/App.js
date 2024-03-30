@@ -17,6 +17,7 @@ import VideosPage from './components/pages/VideosPage';
 import NotFoundPage from './components/pages/NotFoundPage';
 import CssBaseline from '@mui/material/CssBaseline';
 import MenuDrawer from './components/header/MenuDrawer';
+import VideoProcessingPage from './components/pages/VideoProcessingPage';
 
 export default function App() {
     const [error, setError] = useState(null);
@@ -102,6 +103,8 @@ export default function App() {
                             <Route path={`${config.webroot}/login`} element={<AuthPage />} />
                             <Route path={`${config.webroot}/video/:token`} element={<VideoPage />} />
                             <Route path={`${config.webroot}/videos`} element={<VideosPage />} />
+                            {user?.id > 0 && <Route path={`${config.webroot}/video-processing`} element={<VideoProcessingPage />} />}
+                            {user?.id > 0 && <Route path={`${config.webroot}/video-processing/:token`} element={<VideoProcessingPage />} />}
                             <Route path='*' element={<NotFoundPage />} />
                         </Routes>
                     </BrowserRouter>
