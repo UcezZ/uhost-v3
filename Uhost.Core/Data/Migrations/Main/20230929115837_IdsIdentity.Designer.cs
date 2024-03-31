@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using System;
 
-namespace Uhost.Core.Data.Migrations
+namespace Uhost.Core.Data.Migrations.Main
 {
     [DbContext(typeof(PostgreSqlDbContext))]
-    [Migration("20230924125400_Init")]
-    partial class Init
+    [Migration("20230929115837_IdsIdentity")]
+    partial class IdsIdentity
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -22,7 +22,9 @@ namespace Uhost.Core.Data.Migrations
             modelBuilder.Entity("Uhost.Core.Data.Entities.File", b =>
                 {
                     b.Property<int>("Id")
-                        .HasColumnType("integer");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -89,7 +91,9 @@ namespace Uhost.Core.Data.Migrations
             modelBuilder.Entity("Uhost.Core.Data.Entities.Right", b =>
                 {
                     b.Property<int>("Id")
-                        .HasColumnType("integer");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -108,7 +112,9 @@ namespace Uhost.Core.Data.Migrations
             modelBuilder.Entity("Uhost.Core.Data.Entities.Role", b =>
                 {
                     b.Property<int>("Id")
-                        .HasColumnType("integer");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -150,7 +156,9 @@ namespace Uhost.Core.Data.Migrations
             modelBuilder.Entity("Uhost.Core.Data.Entities.User", b =>
                 {
                     b.Property<int>("Id")
-                        .HasColumnType("integer");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -161,6 +169,12 @@ namespace Uhost.Core.Data.Migrations
                         .HasColumnType("timestamp");
 
                     b.Property<string>("Desctiption")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("");
+
+                    b.Property<string>("Email")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("text")
@@ -198,6 +212,9 @@ namespace Uhost.Core.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.HasIndex("Login")
                         .IsUnique();
 
@@ -222,7 +239,9 @@ namespace Uhost.Core.Data.Migrations
             modelBuilder.Entity("Uhost.Core.Data.Entities.Video", b =>
                 {
                     b.Property<int>("Id")
-                        .HasColumnType("integer");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -288,7 +307,7 @@ namespace Uhost.Core.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Uhost.Core.Data.Entities.Role", "Roles")
+                    b.HasOne("Uhost.Core.Data.Entities.Role", "Role")
                         .WithMany("RoleRights")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -296,12 +315,12 @@ namespace Uhost.Core.Data.Migrations
 
                     b.Navigation("Right");
 
-                    b.Navigation("Roles");
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("Uhost.Core.Data.Entities.UserRole", b =>
                 {
-                    b.HasOne("Uhost.Core.Data.Entities.Role", "Roles")
+                    b.HasOne("Uhost.Core.Data.Entities.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -313,7 +332,7 @@ namespace Uhost.Core.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Roles");
+                    b.Navigation("Role");
 
                     b.Navigation("User");
                 });

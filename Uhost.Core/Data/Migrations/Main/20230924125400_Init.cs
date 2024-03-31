@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 using System;
 
-namespace Uhost.Core.Data.Migrations
+namespace Uhost.Core.Data.Migrations.Main
 {
     public partial class Init : Migration
     {

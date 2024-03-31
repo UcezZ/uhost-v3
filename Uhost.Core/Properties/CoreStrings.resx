@@ -162,6 +162,9 @@
   <data name="Template_Registration_Title" xml:space="preserve">
     <value>uHost: Регистрация пользователя {0}</value>
   </data>
+  <data name="User_Error_LocaleFail" xml:space="preserve">
+    <value>Локаль укказана неверно, допустимые значения: {0}</value>
+  </data>
   <data name="User_Error_ThemeFail" xml:space="preserve">
     <value>Тема указана неверно, допустимые значения: {0}</value>
   </data>

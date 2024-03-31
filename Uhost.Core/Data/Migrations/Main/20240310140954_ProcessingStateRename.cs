@@ -2,7 +2,7 @@
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using System;
 
-namespace Uhost.Core.Data.Migrations
+namespace Uhost.Core.Data.Migrations.Main
 {
     public partial class ProcessingStateRename : Migration
     {

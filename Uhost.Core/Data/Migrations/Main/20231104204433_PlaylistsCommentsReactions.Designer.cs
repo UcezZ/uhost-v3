@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Uhost.Core.Data;
 
-namespace Uhost.Core.Data.Migrations
+namespace Uhost.Core.Data.Migrations.Main
 {
     [DbContext(typeof(PostgreSqlDbContext))]
-    [Migration("20240303121731_FileDigestLength")]
-    partial class FileDigestLength
+    [Migration("20231104204433_PlaylistsCommentsReactions")]
+    partial class PlaylistsCommentsReactions
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -77,7 +77,7 @@ namespace Uhost.Core.Data.Migrations
 
                     b.Property<string>("Digest")
                         .IsRequired()
-                        .HasColumnType("char(32)");
+                        .HasColumnType("char(40)");
 
                     b.Property<int?>("DynId")
                         .HasColumnType("integer");

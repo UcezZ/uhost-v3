@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Uhost.Core.Data;
 
-namespace Uhost.Core.Data.Migrations
+namespace Uhost.Core.Data.Migrations.Main
 {
     [DbContext(typeof(PostgreSqlDbContext))]
-    [Migration("20231017165034_FileNullableUser")]
-    partial class FileNullableUser
+    [Migration("20231024160613_GenTokenFix")]
+    partial class GenTokenFix
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

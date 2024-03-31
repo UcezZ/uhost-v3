@@ -38,8 +38,9 @@ namespace Uhost.Core.Models.User
         {
             entity.Name = Name?.Trim() ?? string.Empty;
             entity.Desctiption = Description?.FilterWebMultilineString() ?? string.Empty;
-            entity.Login = Login.Trim();
-            entity.Theme = Theme.Trim();
+            entity.Login = Login?.Trim() ?? string.Empty;
+            entity.Theme = Theme?.Trim() ?? string.Empty;
+            entity.Locale = Locale?.Trim() ?? string.Empty;
 
             return entity;
         }
@@ -50,6 +51,7 @@ namespace Uhost.Core.Models.User
             Description = entity.Desctiption;
             Login = entity.Login;
             Theme = entity.Theme;
+            Locale = entity.Locale;
         }
     }
 }

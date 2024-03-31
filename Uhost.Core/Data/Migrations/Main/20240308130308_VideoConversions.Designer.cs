@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Uhost.Core.Data;
 
-namespace Uhost.Core.Data.Migrations
+namespace Uhost.Core.Data.Migrations.Main
 {
     [DbContext(typeof(PostgreSqlDbContext))]
-    [Migration("20240310140954_ProcessingStateRename")]
-    partial class ProcessingStateRename
+    [Migration("20240308130308_VideoConversions")]
+    partial class VideoConversions
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -99,8 +99,8 @@ namespace Uhost.Core.Data.Migrations
                         .HasColumnType("text")
                         .HasDefaultValue("file.bin");
 
-                    b.Property<long>("Size")
-                        .HasColumnType("bigint");
+                    b.Property<int>("Size")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Token")
                         .IsRequired()
@@ -409,7 +409,7 @@ namespace Uhost.Core.Data.Migrations
                     b.ToTable("Videos");
                 });
 
-            modelBuilder.Entity("Uhost.Core.Data.Entities.VideoProcessingState", b =>
+            modelBuilder.Entity("Uhost.Core.Data.Entities.VideoConversionState", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -446,7 +446,7 @@ namespace Uhost.Core.Data.Migrations
 
                     b.HasIndex("VideoId");
 
-                    b.ToTable("VideoProcessingStates");
+                    b.ToTable("VideoConversionStates");
                 });
 
             modelBuilder.Entity("Uhost.Core.Data.Entities.VideoReaction", b =>
@@ -602,10 +602,10 @@ namespace Uhost.Core.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Uhost.Core.Data.Entities.VideoProcessingState", b =>
+            modelBuilder.Entity("Uhost.Core.Data.Entities.VideoConversionState", b =>
                 {
                     b.HasOne("Uhost.Core.Data.Entities.Video", "Video")
-                        .WithMany("VideoProcessingStates")
+                        .WithMany("VideoConversionStates")
                         .HasForeignKey("VideoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -672,7 +672,7 @@ namespace Uhost.Core.Data.Migrations
 
                     b.Navigation("PlaylistEntries");
 
-                    b.Navigation("VideoProcessingStates");
+                    b.Navigation("VideoConversionStates");
 
                     b.Navigation("VideoReactions");
                 });

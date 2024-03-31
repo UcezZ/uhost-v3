@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Uhost.Core.Data;
 
-namespace Uhost.Core.Data.Migrations
+namespace Uhost.Core.Data.Migrations.Main
 {
     [DbContext(typeof(PostgreSqlDbContext))]
-    [Migration("20231026163557_UserIX")]
-    partial class UserIX
+    [Migration("20231017165034_FileNullableUser")]
+    partial class FileNullableUser
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -224,6 +224,12 @@ namespace Uhost.Core.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BlockedByUserId");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Login")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });

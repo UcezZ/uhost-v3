@@ -196,6 +196,15 @@ namespace Uhost.Core.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Локаль укказана неверно, допустимые значения: {0}.
+        /// </summary>
+        internal static string User_Error_LocaleFail {
+            get {
+                return ResourceManager.GetString("User_Error_LocaleFail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Тема указана неверно, допустимые значения: {0}.
         /// </summary>
         internal static string User_Error_ThemeFail {

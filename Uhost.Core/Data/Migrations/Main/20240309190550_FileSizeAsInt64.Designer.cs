@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Uhost.Core.Data;
 
-namespace Uhost.Core.Data.Migrations
+namespace Uhost.Core.Data.Migrations.Main
 {
     [DbContext(typeof(PostgreSqlDbContext))]
-    [Migration("20230930233328_UserBlock")]
-    partial class UserBlock
+    [Migration("20240309190550_FileSizeAsInt64")]
+    partial class FileSizeAsInt64
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -20,6 +20,45 @@ namespace Uhost.Core.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("ProductVersion", "5.0.10")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+            modelBuilder.Entity("Uhost.Core.Data.Entities.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("VideoId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("VideoId");
+
+                    b.ToTable("Comments");
+                });
 
             modelBuilder.Entity("Uhost.Core.Data.Entities.File", b =>
                 {
@@ -38,7 +77,7 @@ namespace Uhost.Core.Data.Migrations
 
                     b.Property<string>("Digest")
                         .IsRequired()
-                        .HasColumnType("char(40)");
+                        .HasColumnType("char(32)");
 
                     b.Property<int?>("DynId")
                         .HasColumnType("integer");
@@ -60,8 +99,8 @@ namespace Uhost.Core.Data.Migrations
                         .HasColumnType("text")
                         .HasDefaultValue("file.bin");
 
-                    b.Property<int>("Size")
-                        .HasColumnType("integer");
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Token")
                         .IsRequired()
@@ -77,7 +116,7 @@ namespace Uhost.Core.Data.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -88,6 +127,65 @@ namespace Uhost.Core.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Files");
+                });
+
+            modelBuilder.Entity("Uhost.Core.Data.Entities.Playlist", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Playlists");
+                });
+
+            modelBuilder.Entity("Uhost.Core.Data.Entities.PlaylistEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PlaylistId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("VideoId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlaylistId");
+
+                    b.HasIndex("VideoId");
+
+                    b.ToTable("PlaylistEntries");
                 });
 
             modelBuilder.Entity("Uhost.Core.Data.Entities.Right", b =>
@@ -225,12 +323,6 @@ namespace Uhost.Core.Data.Migrations
 
                     b.HasIndex("BlockedByUserId");
 
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.HasIndex("Login")
-                        .IsUnique();
-
                     b.ToTable("Users");
                 });
 
@@ -256,6 +348,16 @@ namespace Uhost.Core.Data.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+                    b.Property<bool>("AllowComments")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("AllowReactions")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp")
@@ -272,6 +374,12 @@ namespace Uhost.Core.Data.Migrations
 
                     b.Property<TimeSpan>("Duration")
                         .HasColumnType("interval");
+
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsPrivate")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -301,15 +409,139 @@ namespace Uhost.Core.Data.Migrations
                     b.ToTable("Videos");
                 });
 
+            modelBuilder.Entity("Uhost.Core.Data.Entities.VideoConversionState", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp");
+
+                    b.Property<int>("VideoId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VideoId");
+
+                    b.ToTable("VideoConversionStates");
+                });
+
+            modelBuilder.Entity("Uhost.Core.Data.Entities.VideoReaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("VideoId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("VideoId");
+
+                    b.ToTable("VideoReactions");
+                });
+
+            modelBuilder.Entity("Uhost.Core.Data.Entities.Comment", b =>
+                {
+                    b.HasOne("Uhost.Core.Data.Entities.User", "User")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Uhost.Core.Data.Entities.Video", "Video")
+                        .WithMany("Comments")
+                        .HasForeignKey("VideoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+
+                    b.Navigation("Video");
+                });
+
             modelBuilder.Entity("Uhost.Core.Data.Entities.File", b =>
                 {
                     b.HasOne("Uhost.Core.Data.Entities.User", "User")
                         .WithMany("Files")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Uhost.Core.Data.Entities.Playlist", b =>
+                {
+                    b.HasOne("Uhost.Core.Data.Entities.User", "User")
+                        .WithMany("Playlists")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Uhost.Core.Data.Entities.PlaylistEntry", b =>
+                {
+                    b.HasOne("Uhost.Core.Data.Entities.Playlist", "Playlist")
+                        .WithMany("PlaylistEntries")
+                        .HasForeignKey("PlaylistId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Uhost.Core.Data.Entities.Video", "Video")
+                        .WithMany("PlaylistEntries")
+                        .HasForeignKey("VideoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Playlist");
+
+                    b.Navigation("Video");
                 });
 
             modelBuilder.Entity("Uhost.Core.Data.Entities.RoleRight", b =>
@@ -370,6 +602,41 @@ namespace Uhost.Core.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Uhost.Core.Data.Entities.VideoConversionState", b =>
+                {
+                    b.HasOne("Uhost.Core.Data.Entities.Video", "Video")
+                        .WithMany("VideoConversionStates")
+                        .HasForeignKey("VideoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Video");
+                });
+
+            modelBuilder.Entity("Uhost.Core.Data.Entities.VideoReaction", b =>
+                {
+                    b.HasOne("Uhost.Core.Data.Entities.User", "User")
+                        .WithMany("VideoReactions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Uhost.Core.Data.Entities.Video", "Video")
+                        .WithMany("VideoReactions")
+                        .HasForeignKey("VideoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+
+                    b.Navigation("Video");
+                });
+
+            modelBuilder.Entity("Uhost.Core.Data.Entities.Playlist", b =>
+                {
+                    b.Navigation("PlaylistEntries");
+                });
+
             modelBuilder.Entity("Uhost.Core.Data.Entities.Right", b =>
                 {
                     b.Navigation("RoleRights");
@@ -386,11 +653,28 @@ namespace Uhost.Core.Data.Migrations
                 {
                     b.Navigation("BlockedUsers");
 
+                    b.Navigation("Comments");
+
                     b.Navigation("Files");
+
+                    b.Navigation("Playlists");
 
                     b.Navigation("UserRoles");
 
+                    b.Navigation("VideoReactions");
+
                     b.Navigation("Videos");
+                });
+
+            modelBuilder.Entity("Uhost.Core.Data.Entities.Video", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("PlaylistEntries");
+
+                    b.Navigation("VideoConversionStates");
+
+                    b.Navigation("VideoReactions");
                 });
 #pragma warning restore 612, 618
         }
