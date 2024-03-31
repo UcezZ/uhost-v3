@@ -33,9 +33,7 @@ namespace Uhost.Web.Middleware
 
                 .Where(e =>
                     // у методов контроллеров которых есть атрибут
-                    e.ControllerMethod.CustomAttributes.Any(a => a.AttributeType.IsAssignableTo<AuthorizeAttribute>()) ||
-
-                    // или у контроллеров которых есть атрибут
+                    e.ControllerMethod.CustomAttributes.Any(a => a.AttributeType.IsAssignableTo<AuthorizeAttribute>()) &&
                     e.ControllerMethod.DeclaringType?.CustomAttributes != null &&
                     e.ControllerMethod.DeclaringType.CustomAttributes.Any(a => a.AttributeType.IsAssignableTo<AuthorizeAttribute>()) ||
 

@@ -12,9 +12,15 @@ const Video = {
     maxDuration: (value) => Common.parseTime(value) >= 3 && Common.parseTime(value) <= 14400
 }
 
+const User = {
+    name: (value) => value?.length >= 3 && value?.length <= 255,
+    desc: (value) => !value?.length || value?.length >= 5 && value?.length <= 5000
+}
+
 const Validation = {
     Auth,
-    Video
+    Video,
+    User
 }
 
 export default Validation;

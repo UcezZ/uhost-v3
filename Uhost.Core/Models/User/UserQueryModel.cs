@@ -22,7 +22,8 @@ namespace Uhost.Core.Models.User
         /// </summary>
         [EnumValidation(typeof(Entity.SortBy), nameof(Entity.SortBy.Id), ErrorMessageResourceType = typeof(CoreStrings), ErrorMessageResourceName = nameof(CoreStrings.Common_Error_SortDirection))]
         public override string SortBy { get; set; }
-
+        internal bool IncludeVideos { get; set; }
+        internal bool IncludePlaylists { get; set; }
         internal string LoginOrEmail { get; set; }
         internal int ExcludedId { get; set; }
         internal IEnumerable<int> Ids { get; set; }

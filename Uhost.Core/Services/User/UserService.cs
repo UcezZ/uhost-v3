@@ -51,16 +51,23 @@ namespace Uhost.Core.Services.User
             return pager.Paginate();
         }
 
-        public UserViewModel GetOne(int id)
+        public UserViewModel GetOne(int id) => GetOne(new QueryModel { Id = id });
+
+        public UserViewModel GetOne(string login) => GetOne(new QueryModel { Login = login });
+
+        private UserViewModel GetOne(QueryModel query)
         {
+            query.IncludePlaylists = true;
+            query.IncludeVideos = true;
+
             var model = _repo
-                .GetAll<UserViewModel>(new QueryModel { Id = id })
+                .GetAll<UserViewModel>(query)
                 .FirstOrDefault();
 
             if (model != null)
             {
                 model.Roles = _roleRepo
-                    .GetAll<RoleShortViewModel>(new RoleQueryModel { UserId = id })
+                    .GetAll<RoleShortViewModel>(new RoleQueryModel { UserId = model.Id })
                     .ToList();
                 model.Rights = _rightRepo
                     .GetAll<RightViewModel>(new RightQueryModel { RoleIds = model.Roles.Select(e => e.Id) })
@@ -90,7 +97,7 @@ namespace Uhost.Core.Services.User
             _repo.Update(id, model);
         }
 
-        public void Update(int id, UserBaseModel model)
+        public void Update(int id, UserSelfUpdateModel model)
         {
             _repo.Update(id, model);
         }

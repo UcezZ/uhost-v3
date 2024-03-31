@@ -12,9 +12,14 @@ namespace Uhost.Core.Data.Entities
             VideoCreateUpdate = 0x01,
             VideoDelete = 0x02,
             VideoGetAll = 0x03,
+
             FileGet = 0x11,
             FileCreateUpdate = 0x12,
-            FileDelete = 0x13
+            FileDelete = 0x13,
+
+            UserCreate = 0x21,
+            UserDelete = 0x22,
+            UserInteractAll = 0x23,
         }
 
         [Required, Column(TypeName = "text")]

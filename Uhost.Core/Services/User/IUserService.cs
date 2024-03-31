@@ -16,9 +16,10 @@ namespace Uhost.Core.Services.User
         UserAccessModel GetAccessData(int id);
         object GetAllPaged(UserQueryModel query);
         UserViewModel GetOne(int id);
+        UserViewModel GetOne(string login);
         void Update(int id, UserPasswordUpdateModel model);
         void Update(int id, UserCreateModel model);
-        void Update(int id, UserBaseModel model);
+        void Update(int id, UserSelfUpdateModel model);
         int UpdateLastVisitAt(int id);
     }
 }

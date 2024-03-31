@@ -26,6 +26,10 @@ namespace Uhost.Core.Repositories
             {
                 q = q.Where(e => e.Id == query.Id);
             }
+            if (!string.IsNullOrEmpty(query.Login))
+            {
+                q = q.Where(e => e.Login == query.Login);
+            }
             if (query.Ids != null)
             {
                 q = q.Where(e => query.Ids.Contains(e.Id));
@@ -41,6 +45,14 @@ namespace Uhost.Core.Repositories
             if (!string.IsNullOrEmpty(query.LoginOrEmail))
             {
                 q = q.Where(e => e.Login == query.LoginOrEmail || e.Email == query.LoginOrEmail);
+            }
+            if (query.IncludePlaylists)
+            {
+                q = q.Include(e => e.Playlists);
+            }
+            if (query.IncludeVideos)
+            {
+                q = q.Include(e => e.Videos);
             }
 
             q = q.OrderBy(query);

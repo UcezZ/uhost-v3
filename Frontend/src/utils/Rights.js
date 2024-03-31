@@ -58,6 +58,9 @@ const Rights = {
     FileGet: 0x11,
     FileCreateUpdate: 0x12,
     FileDelete: 0x13,
+    UserCreate: 0x21,
+    UserDelete: 0x22,
+    UserInteractAll: 0x23,
     checkAllRights,
     checkAnyRight
 }

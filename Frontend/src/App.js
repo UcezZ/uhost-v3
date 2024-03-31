@@ -19,6 +19,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import MenuDrawer from './components/header/MenuDrawer';
 import VideoProcessingPage from './components/pages/VideoProcessingPage';
 import { useTranslation } from 'react-i18next';
+import ProfilePage from './components/pages/ProfilePage';
 
 export default function App() {
     const { i18n } = useTranslation();
@@ -111,7 +112,10 @@ export default function App() {
                             <Route path={`${config.webroot}/`} element={<SearchPage />} />
                             <Route path={`${config.webroot}/login`} element={<AuthPage />} />
                             <Route path={`${config.webroot}/video/:token`} element={<VideoPage />} />
-                            <Route path={`${config.webroot}/videos`} element={<VideosPage />} />
+                            <Route path={`${config.webroot}/profile/:login`} element={<ProfilePage />} />
+                            <Route path={`${config.webroot}/videos/:login`} element={<VideosPage />} />
+                            {user?.id > 0 && <Route path={`${config.webroot}/videos`} element={<VideosPage />} />}
+                            {user?.id > 0 && <Route path={`${config.webroot}/profile`} element={<ProfilePage />} />}
                             {user?.id > 0 && <Route path={`${config.webroot}/video-processing`} element={<VideoProcessingPage />} />}
                             {user?.id > 0 && <Route path={`${config.webroot}/video-processing/:token`} element={<VideoProcessingPage />} />}
                             <Route path='*' element={<NotFoundPage />} />

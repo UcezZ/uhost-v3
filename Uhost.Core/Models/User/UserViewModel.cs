@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Uhost.Core.Models.Right;
 using Uhost.Core.Models.Role;
 using Entity = Uhost.Core.Data.Entities.User;
@@ -19,7 +20,8 @@ namespace Uhost.Core.Models.User
         {
             base.LoadFromEntity(entity);
 
-            VideoCount = entity.Videos?.Count ?? default;
+            VideoCount = entity.Videos?.Count(e => e.DeletedAt == null) ?? 0;
+            PlaylistCount = entity.Playlists?.Count(e => e.DeletedAt == null) ?? 0;
         }
     }
 }

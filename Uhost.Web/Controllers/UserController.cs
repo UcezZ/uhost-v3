@@ -62,6 +62,24 @@ namespace Uhost.Web.Controllers
         }
 
         /// <summary>
+        /// Получение пользователя по логину
+        /// </summary>
+        /// <param name="login">Логин</param>
+        /// <returns></returns>
+        [HttpGet("by-login/{login}"), AllowAnonymous]
+        public IActionResult GetOneByLogin(
+            [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Login), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.User_Error_NotFoundById))]
+            string login)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ResponseHelper.Error(ModelState.GetErrors());
+            }
+
+            return ResponseHelper.Success(_service.GetOne(login));
+        }
+
+        /// <summary>
         /// Создать пользователя (для админа)
         /// </summary>
         /// <param name="model">Модель данных</param>
@@ -181,7 +199,7 @@ namespace Uhost.Web.Controllers
         /// <param name="model">Модель данных</param>
         /// <returns></returns>
         [HttpPut]
-        public IActionResult UpdateSelf([FromForm] UserBaseModel model)
+        public IActionResult UpdateSelf([FromForm] UserSelfUpdateModel model)
         {
             if (!User.TryGetUserId(out var userId))
             {
@@ -190,10 +208,6 @@ namespace Uhost.Web.Controllers
             if (!ModelState.IsValid)
             {
                 return ResponseHelper.Error(ModelState.GetErrors());
-            }
-            if (_service.Exists(model.Name, model.Login, userId))
-            {
-                return ResponseHelper.ErrorMessage(nameof(model.Name), ApiStrings.Role_Error_AlreadyExists);
             }
 
             _service.Update(userId, model);

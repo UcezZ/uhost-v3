@@ -10,7 +10,8 @@ const Styles = {
     code: {
         fontFamily: 'Consolas, monospace',
         fontSize: '10pt',
-        fontWeight: 400
+        fontWeight: 400,
+        whiteSpace: 'pre-wrap'
     }
 };
 
