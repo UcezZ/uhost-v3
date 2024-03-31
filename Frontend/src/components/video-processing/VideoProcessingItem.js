@@ -1,4 +1,4 @@
-import { Accordion, AccordionDetails, AccordionSummary, Box, Grid, LinearProgress, Typography } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Box, Grid, LinearProgress, Typography, useMediaQuery } from '@mui/material';
 import Image from '../Image';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useState, useEffect } from 'react';
@@ -7,6 +7,9 @@ import Common from '../../utils/Common';
 import VideoEndpoint from '../../api/VideoEndpoint';
 import Styles from '../../ui/Styles';
 import LoadingBox from '../LoadingBox';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import config from '../../config.json';
 
 const REFRESH_THRESHOLD = 1500;
 
@@ -58,7 +61,7 @@ function transformData(data) {
 
     return keys.map(e => {
         return {
-            key: e,
+            key: e.toLowerCase(),
             state: data.states[e],
             percentage: percentageWithState(e in data?.progresses ? data.progresses[e] : 0, data.states[e]),
             isWaiting: data.states[e] === STATE_PENDING
@@ -67,10 +70,12 @@ function transformData(data) {
 }
 
 export default function VideoProcessingItem({ video, expanded }) {
+    const { t } = useTranslation();
     const [isExpanded, setIsExpanded] = useState(Boolean(expanded) ?? false);
     const [data, setData] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(new Date().getTime());
     const [allCompleded, setAllCompleded] = useState(false);
+    const isNarrowScreen = useMediaQuery('(max-width:700px)');
 
     async function onUpdate() {
         await VideoEndpoint.getProgress(video?.token)
@@ -83,6 +88,8 @@ export default function VideoProcessingItem({ video, expanded }) {
                         video.state = STATE_COMPLETED;
                     } else if (data.some(e => e?.state === STATE_PROCESSING)) {
                         video.state = STATE_PROCESSING;
+                    } else if (data.some(e => e?.state === STATE_FAILED)) {
+                        video.state = STATE_FAILED;
                     }
                 } else {
                     console.log(e);
@@ -105,64 +112,165 @@ export default function VideoProcessingItem({ video, expanded }) {
             sx={{
                 backgroundColor: colorByState(video?.state),
                 mt: 1,
-                mb: 1
+                mb: 1,
+                borderRadius: 2
             }} >
             <AccordionSummary expandIcon={<ExpandMoreIcon />} >
-                <Grid container>
-                    <Grid item>
-                        <Image
-                            src={video?.thumbnailUrl}
-                            height={90}
-                            width={160} />
-                    </Grid>
-                    <Grid
-                        item
-                        sx={{
-                            display: 'flex',
-                            gap: 1,
-                            justifyContent: 'center',
-                            flexDirection: 'column',
-                            pl: 2,
-                            pb: 3,
-                            pt: 1
-                        }} >
-                        <Typography
-                            variant='h6'
-                            component='div'
+                {isNarrowScreen ? (
+                    <Grid container spacing={2} >
+                        <Grid item xs={12} >
+                            <Link to={`${config.webroot}/video/${video?.token}`}>
+                                <Image
+                                    src={video?.thumbnailUrl}
+                                    height='12em'
+                                    sx={{
+                                        borderRadius: 4
+                                    }}
+                                />
+                            </Link>
+                        </Grid>
+                        <Grid
+                            item
+                            alignItems='center'
+                            xs={6}
                             sx={{
-                                fontSize: 16,
-                                fontWeight: 700
-                            }}
-                            noWrap>
-                            {video?.state ?? 'N/A'}
-                        </Typography>
-                        <Typography
-                            component='div'
-                            noWrap>
-                            {video?.name ?? 'N/A'}
-                        </Typography>
+                                pb: 3,
+                                pt: 1
+                            }} >
+                            <Typography
+                                variant='h6'
+                                sx={{
+                                    fontSize: 16,
+                                    fontWeight: 700
+                                }}
+                                noWrap>
+                                {t(video?.state?.length ? `video.processing.state.${video.state.toLowerCase()}` : 'N/A')}
+                            </Typography>
+                            <Typography
+                                noWrap>
+                                {video?.name ?? 'N/A'}
+                            </Typography>
+                        </Grid>
                     </Grid>
-                </Grid>
+                ) : (
+                    <Grid container spacing={2} >
+                        <Grid item  >
+                            <Link to={`${config.webroot}/video/${video?.token}`}>
+                                <Image
+                                    src={video?.thumbnailUrl}
+                                    height='5.5em'
+                                    width='9em'
+                                    sx={{
+                                        borderRadius: 4
+                                    }} />
+                            </Link>
+                        </Grid>
+                        <Grid
+                            item
+                            alignItems='center'
+                            xs={6}
+                            sx={{
+                                pb: 3,
+                                pt: 1
+                            }} >
+                            <Typography
+                                variant='h6'
+                                sx={{
+                                    fontSize: 16,
+                                    fontWeight: 700
+                                }}
+                                noWrap>
+                                {t(video?.state?.length ? `video.processing.state.${video.state.toLowerCase()}` : 'N/A')}
+                            </Typography>
+                            <Typography
+                                noWrap>
+                                {video?.name ?? 'N/A'}
+                            </Typography>
+                        </Grid>
+                    </Grid>
+                )}
             </AccordionSummary>
-            <AccordionDetails>
+            <AccordionDetails
+                sx={{
+                    p: 1
+                }} >
                 {
                     data?.length > 0
-                        ? data.map((e, i) =>
-                            <Box key={i}>
-                                <Typography>{e.key}</Typography>
-                                <Typography>{e.state}</Typography>
-                                <LinearProgress
-                                    value={e.percentage}
-                                    sx={{
-                                        flex: 1,
-                                        height: 16,
-                                        borderRadius: 16
-                                    }}
-                                    variant={e.isWaiting ? 'indeterminate' : 'determinate'} />
-                                <Typography>{e.percentage}</Typography>
-                            </Box>
-                        )
-                        //<pre style={Styles.code}>{JSON.stringify(data, null, 2)}</pre>
+                        ? data.map((e, i) => {
+                            if (isNarrowScreen) {
+                                return (
+                                    <Grid
+                                        container
+                                        xs={12}
+                                        backgroundColor={colorByState(e?.state)}
+                                        mt={1}
+                                        borderRadius={1}
+                                        alignItems='center'
+                                        textAlign='center'>
+                                        <Grid item pt={1} xs={4}>
+                                            <Typography>
+                                                {t(e?.key?.length ? `video.processing.type.${e.key}` : 'N/A')}
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item pt={1} xs={4}>
+                                            <Typography>
+                                                {t(e?.state?.length ? `video.processing.state.${e.state.toLowerCase()}` : 'N/A')}
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item pt={1} xs={4}>
+                                            <Typography>{Math.round(e.percentage)}%</Typography>
+                                        </Grid>
+                                        <Grid item flex={1} p={1} xs={12} >
+                                            <LinearProgress
+                                                value={e.percentage}
+                                                sx={{
+                                                    flex: 1,
+                                                    height: 16,
+                                                    borderRadius: 16
+                                                }}
+                                                variant={e.isWaiting ? 'indeterminate' : 'determinate'} />
+                                        </Grid>
+                                    </Grid>
+                                );
+                            }
+
+                            return (
+                                <Grid
+                                    key={i}
+                                    container
+                                    alignItems='center'
+                                    textAlign='center'
+                                    backgroundColor={colorByState(e?.state)}
+                                    borderRadius={1}
+                                    mt={1}
+                                    xs={12}
+                                >
+                                    <Grid item p={2} xs={2.5} >
+                                        <Typography>
+                                            {t(e?.key?.length ? `video.processing.type.${e.key}` : 'N/A')}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={2}>
+                                        <Typography>
+                                            {t(e?.state?.length ? `video.processing.state.${e.state.toLowerCase()}` : 'N/A')}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item flex={1} p={1} >
+                                        <LinearProgress
+                                            value={e.percentage}
+                                            sx={{
+                                                flex: 1,
+                                                height: 16,
+                                                borderRadius: 16
+                                            }}
+                                            variant={e.isWaiting ? 'indeterminate' : 'determinate'} />
+                                    </Grid>
+                                    <Grid item xs={1}>
+                                        <Typography>{Math.round(e.percentage)}%</Typography>
+                                    </Grid>
+                                </Grid>
+                            );
+                        })
                         : <LoadingBox />
                 }
             </AccordionDetails>

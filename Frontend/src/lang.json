@@ -1,6 +1,15 @@
 {
     "en": {
         "translation": {
+            "video.processing.state.pending": "Pending",
+            "video.processing.state.processing": "Processing",
+            "video.processing.state.completed": "Completed",
+            "video.processing.state.failed": "Failed",
+            "video.processing.type.videoraw": "Fetching video from url",
+            "video.processing.type.video240p": "Video 240p",
+            "video.processing.type.video480p": "Video 480p",
+            "video.processing.type.video720p": "Video 720p",
+            "video.processing.type.video1080p": "Video 1080p",
             "auth.caption": "Authorization",
             "auth.login": "Log in",
             "auth.logout": "Log out",
@@ -63,6 +72,15 @@
     },
     "ru": {
         "translation": {
+            "video.processing.state.pending": "Ожидание",
+            "video.processing.state.processing": "Обработка",
+            "video.processing.state.completed": "Завершено",
+            "video.processing.state.failed": "Неудачно",
+            "video.processing.type.videoraw": "Получение видео",
+            "video.processing.type.video240p": "Видео 240p",
+            "video.processing.type.video480p": "Видео 480p",
+            "video.processing.type.video720p": "Видео 720p",
+            "video.processing.type.video1080p": "Видео 1080p",
             "auth.caption": "Авторизация",
             "auth.login": "Войти",
             "auth.logout": "Выйти",

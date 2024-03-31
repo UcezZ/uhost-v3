@@ -287,33 +287,26 @@ export default function VideoPlayer({ video, largeMode }) {
                     padding: 0,
                     margin: 0,
                     backgroundColor: '#000',
-                    display: 'flex'
-                }}>
-                <div style={{
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
                     minHeight: '300px',
-                    height: largeMode ? '100%' : '600px',
+                    display: 'flex',
+                    maxHeight: largeMode ? '100%' : '600px',
                 }}>
-                    <video
-                        ref={videoRef}
-                        style={{
-                            flex: 1,
-                            height: '100%',
-                            padding: 0,
-                            margin: 0
-                        }}
-                        poster={video.thumbnailUrl}
-                        onTimeUpdate={onTimeUpdate}
-                        onClick={onPlayPause}
-                        onLoadedData={onVideoLoaded}
-                        onEnded={onPlaybackEnded}
-                        onContextMenu={e => false}
-                        muted
-                        autoPlay
-                    />
-                </div>
+                <video
+                    ref={videoRef}
+                    style={{
+                        flex: 1,
+                        padding: 0,
+                        margin: 0
+                    }}
+                    poster={video.thumbnailUrl}
+                    onTimeUpdate={onTimeUpdate}
+                    onClick={onPlayPause}
+                    onLoadedData={onVideoLoaded}
+                    onEnded={onPlaybackEnded}
+                    onContextMenu={e => false}
+                    muted
+                    autoPlay
+                />
             </CardMedia>
             <CardActions>
                 <IconButton onClick={onPlayPause}>

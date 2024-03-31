@@ -232,8 +232,6 @@ export default class Common {
     static combineColors(...colors) {
         var parsed = colors.map(e => this.parseColor(e));
 
-        console.log(parsed);
-
         return this.makeColor(
             parsed.map(e => e.r).reduce((acc, current) => acc + current, 0),
             parsed.map(e => e.g).reduce((acc, current) => acc + current, 0),

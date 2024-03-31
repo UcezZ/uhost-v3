@@ -603,6 +603,8 @@ namespace Uhost.Core.Services.Video
                 throw exception;
             }
 
+            _processingStates.UpdateState(processingStateId, VideoProcessingStates.Processing);
+
             var output = new FileInfo(Path.GetFullPath(Path.Combine(Path.GetFullPath("tmp"), $"temp_{Guid.NewGuid()}.mp4")));
             Tools.MakePath(output.FullName);
             (var token, var duration) = _repo.GetTokenAndDuration(processingState.VideoId);
@@ -624,6 +626,7 @@ namespace Uhost.Core.Services.Video
             }
             catch (Exception e)
             {
+                _processingStates.UpdateState(processingStateId, VideoProcessingStates.Failed);
                 await _logger?.WriteLineAsync($"An error occured while fetching video #{processingState.VideoId},{token} with arguments:\r\n{ffargs?.Arguments}", LogWriter.Severity.Warn);
                 e.Data[nameof(ffargs.Arguments)] = ffargs.Arguments;
                 SentrySdk.CaptureException(e);
@@ -663,6 +666,8 @@ namespace Uhost.Core.Services.Video
                 {
                     EnqueueConversion(processingState.VideoId, FileTypes.Video1080p);
                 }
+
+                _processingStates.UpdateState(processingStateId, VideoProcessingStates.Completed);
             }
             else
             {
