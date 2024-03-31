@@ -15,8 +15,8 @@ namespace Uhost.Core.Models.User
             base.LoadFromEntity(entity);
 
             Id = entity.Id;
-            CreatedAt = entity.CreatedAt.ToApiFmt();
-            LastVisitAt = entity.LastVisitAt?.ToApiFmt();
+            CreatedAt = entity.CreatedAt.ToHumanFmt();
+            LastVisitAt = entity.LastVisitAt?.ToHumanFmt();
             Email = entity.Email;
         }
     }
