@@ -4,9 +4,12 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import { useTranslation } from 'react-i18next';
 import PopupTransition from '../ui/PopupTransition';
 
 export default function YesNoDialog({ visible, setVisible, onYes, onNo, message }) {
+    const { t } = useTranslation();
+
     function onClose() {
         setVisible(false);
     };
@@ -28,15 +31,15 @@ export default function YesNoDialog({ visible, setVisible, onYes, onNo, message 
                 onClose={onClose}
                 aria-describedby="alert-dialog-slide-description"
             >
-                <DialogTitle>Подтверждение</DialogTitle>
+                <DialogTitle>{t('common.confirmation')}</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-slide-description">
                         {message}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={onNoClick}>Нет</Button>
-                    <Button onClick={onYesClick}>Да</Button>
+                    <Button onClick={onNoClick}>{t('common.no')}</Button>
+                    <Button onClick={onYesClick}>{t('common.yes')}</Button>
                 </DialogActions>
             </Dialog>
         </div>

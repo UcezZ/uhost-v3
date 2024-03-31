@@ -5,12 +5,14 @@ import MenuItem from '@mui/material/MenuItem';
 import { useState } from 'react';
 import config from '../../config.json';
 import Common from '../../utils/Common';
+import { useTranslation } from 'react-i18next';
 
 export default function DownloadButton({ token, sizes }) {
     if (!token || !sizes?.length || !sizes?.map) {
         return;
     }
 
+    const { t } = useTranslation();
     const [anchorEl, setAnchorEl] = useState(null);
     const isNarrowScreen = useMediaQuery('(max-width:600px)');
 
@@ -39,7 +41,7 @@ export default function DownloadButton({ token, sizes }) {
                 onClick={onClick}
                 sx={{ gap: 1 }}>
                 <FileDownloadIcon />
-                {!isNarrowScreen && <Typography variant='button'>Скачать</Typography>}
+                {!isNarrowScreen && <Typography variant='button'>{t('video.download')}</Typography>}
             </Button>
             <Menu
                 id='download-menu'
@@ -53,7 +55,7 @@ export default function DownloadButton({ token, sizes }) {
                 {
                     sizes.map((e, i) =>
                         <MenuItem onClick={ev => onDownloadClick(e)} key={i}>
-                            <Typography variant='body1'>{e.name}</Typography>
+                            <Typography variant='body1'>{t(`video.resolution.${e.key}`)}</Typography>
                             <Typography sx={{ fontStyle: 'italic', marginLeft: 1 }} variant='body2'>({e.size})</Typography>
                         </MenuItem>)
                 }

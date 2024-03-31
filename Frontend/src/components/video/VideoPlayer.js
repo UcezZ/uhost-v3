@@ -7,6 +7,7 @@ import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 import { IconButton, Slider } from '@mui/material';
 import Hls from 'hls.js';
 import Common from '../../utils/Common';
+import { useTranslation } from 'react-i18next';
 
 const RES_AUTO = 'auto';
 
@@ -77,6 +78,7 @@ const hls = Hls.isSupported() && new Hls({
 });
 
 export default function VideoPlayer({ video, largeMode }) {
+    const { t } = useTranslation();
     const [duration, setDuration] = useState(Common.parseTime(video?.duration));
     const storageKey = `video_${video?.token}`;
     const firstVideoUrl = video.urls[`video${video.resolutions.firstOrDefault()}`];
@@ -274,7 +276,7 @@ export default function VideoPlayer({ video, largeMode }) {
         const videoElement = document.querySelector('video');
 
         if (videoElement) {
-            videoElement.play(); // Начать воспроизведение видео
+            videoElement.play();
         }
     }, [videoRef?.current]);
 
@@ -355,18 +357,18 @@ export default function VideoPlayer({ video, largeMode }) {
             <CardActions>
                 <Box sx={{ display: 'flex', gap: '16px' }}>
                     <FormControl sx={{ minWidth: 100 }}>
-                        <InputLabel htmlFor='playertype'>Плеер</InputLabel>
+                        <InputLabel htmlFor='playertype'>{t('video.player')}</InputLabel>
                         <Select
                             id='playertype'
                             label='Player type'
                             value={playerType}
                             onChange={onPlayerTypeChange}
                         >
-                            {PLAYER_TYPES.map((e, i) => <MenuItem value={e} key={i}>{e.toUpperCase()}</MenuItem>)}
+                            {PLAYER_TYPES.map((e, i) => <MenuItem value={e} key={i}>{t(`video.player.${e}`)}</MenuItem>)}
                         </Select>
                     </FormControl>
                     <FormControl sx={{ minWidth: 100 }}>
-                        <InputLabel htmlFor='playerres'>Разрешение</InputLabel>
+                        <InputLabel htmlFor='playerres'>{t('video.resolution')}</InputLabel>
                         <Select
                             id='playerres'
                             label='Resolution'
@@ -374,7 +376,7 @@ export default function VideoPlayer({ video, largeMode }) {
                             onChange={onResolutionChange}
                         >
                             {getResolutions().map((e, i) => <MenuItem value={e} key={i} >
-                                {e}{playerType === PLAYER_TYPE_HLS && hls.currentLevel + 1 === i ? ' \u2022' : ''}
+                                {t(`video.resolution.${e}`)}{playerType === PLAYER_TYPE_HLS && hls.currentLevel + 1 === i ? ' \u2022' : ''}
                             </MenuItem>)}
                         </Select>
                     </FormControl>

@@ -257,6 +257,14 @@ export default class Common {
 
     /**
      * 
+     * @returns {String}
+     */
+    static getFallbackLocale() {
+        return LOCALE_EN;
+    }
+
+    /**
+     * 
      * @param {String} locale 
      * @returns {String} Supported locale only
      */
@@ -266,7 +274,7 @@ export default class Common {
         if (LOCALES.includes(locale)) {
             return locale;
         } else {
-            return LOCALE_EN;
+            return this.getFallbackLocale();
         }
     }
 

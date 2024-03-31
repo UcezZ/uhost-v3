@@ -1,6 +1,9 @@
 import { CircularProgress, Container } from "@mui/material";
+import { useTranslation } from 'react-i18next';
 
 export default function LoadingBox() {
+    const { t } = useTranslation();
+
     return (
         <Container
             style={{
@@ -14,7 +17,7 @@ export default function LoadingBox() {
             }}
         >
             <CircularProgress size={100} />
-            <span style={{ marginTop: '16px' }}>Loading...</span>
+            <span style={{ marginTop: '16px' }}>{t('common.loading')}</span>
         </Container>
     )
 }

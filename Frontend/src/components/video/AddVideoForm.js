@@ -14,10 +14,12 @@ import TabPanel from '../TabPanel';
 import VideoFileIcon from '@mui/icons-material/VideoFile';
 import CloseIcon from '@mui/icons-material/Close';
 import VideoPreview from './VideoPreview';
+import { useTranslation } from 'react-i18next';
 
 const MAX_FILE_SIZE = 8589934591;
 
 export default function AddVideoForm({ next, setCanClose }) {
+    const { t } = useTranslation();
     const { setError } = useContext(StateContext);
     const [loading, setLoading] = useState(false);
     const [name, setName] = useState('');
@@ -125,15 +127,15 @@ export default function AddVideoForm({ next, setCanClose }) {
                 }}
             >
                 <VideoPreview entity={video} />
-                <Typography>Видео успешно загружено</Typography>
-                {source === 1 && <Typography variant='caption'>Трансляция будет записана, а затем начнёт обрабатываться</Typography>}
-                <Typography variant='caption'>Дождитеcь окончания обработки видео</Typography>
+                <Typography>{t('video.add.success.caption')}</Typography>
+                {source === 1 && <Typography variant='caption'>{t('video.add.success.text.stream')}</Typography>}
+                <Typography variant='caption'>{t('video.add.success.text')}</Typography>
                 <Button
                     color='success'
                     variant='contained'
                     sx={{ m: 2 }}
                     onClick={nextAndReset}>
-                    Закрыть
+                    {t('common.close')}
                 </Button>
             </Box>
         );
@@ -154,7 +156,7 @@ export default function AddVideoForm({ next, setCanClose }) {
                     alignItems: 'center'
                 }}
             >
-                <Typography>Идёт загрузка файла</Typography>
+                <Typography>{t('common.fileupload.caption')}</Typography>
                 <Box sx={{
                     display: 'flex',
                     alignItems: 'center',
@@ -189,7 +191,7 @@ export default function AddVideoForm({ next, setCanClose }) {
                     margin='normal'
                     required
                     fullWidth
-                    label='Наименование'
+                    label={t('video.name')}
                     error={!Validation.Video.name(name)}
                     disabled={loading}
                     value={name}
@@ -199,7 +201,7 @@ export default function AddVideoForm({ next, setCanClose }) {
                 <TextField
                     margin='normal'
                     fullWidth
-                    label='Описание'
+                    label={t('video.description')}
                     error={!Validation.Video.desc(desc)}
                     disabled={loading}
                     value={desc}
@@ -215,25 +217,25 @@ export default function AddVideoForm({ next, setCanClose }) {
                             setIsHidden(true);
                         }
                     }} />}
-                    label='Скрыть из общего доступа'
+                    label={t('video.isprivate')}
                     style={Styles.noSelectSx}
                     disabled={loading}
                 />
                 <FormControlLabel
                     control={<Checkbox color='primary' checked={isHidden} onClick={e => setIsHidden(!isHidden)} />}
-                    label='Скрыть из результатов поиска'
+                    label={t('video.ishidden')}
                     sx={Styles.noSelectSx}
                     disabled={loading || isPrivate}
                 />
                 <FormControlLabel
                     control={<Checkbox color='primary' checked={allowComments} onClick={e => setAllowComments(!allowComments)} />}
-                    label='Разрешить комментарии'
+                    label={t('video.allowcomments')}
                     sx={Styles.noSelectSx}
                     disabled={loading}
                 />
                 <FormControlLabel
                     control={<Checkbox color='primary' checked={allowReactions} onClick={e => setAllowReactions(!allowReactions)} />}
-                    label='Разрешить реакции'
+                    label={t('video.allowreactions')}
                     sx={Styles.noSelectSx}
                     disabled={loading}
                 />
@@ -241,21 +243,21 @@ export default function AddVideoForm({ next, setCanClose }) {
                 <Box sx={{ width: '100%' }} disabled={loading}>
                     <Box borderColor='divider'>
                         <Tabs value={source} onChange={(e, v) => setSource(v)}>
-                            <Tab label='Загрузить файл' />
-                            <Tab label='Импортировать видео по ссылке' />
+                            <Tab label={t('video.add.source.file')} />
+                            <Tab label={t('video.add.source.url')} />
                         </Tabs>
                     </Box>
                     <TabPanel value={source} index={0}>
                         {videoFile && <div style={{ display: 'flex', gap: '0.5em', marginBottom: '0.5em' }}>
                             <TextField
                                 fullWidth
-                                label='Выбранный файл'
+                                label={t('common.selectedfile')}
                                 defaultValue={videoFile?.name}
                                 disabled
                                 variant='outlined'
                             />
                             <TextField
-                                label='Размер'
+                                label={t('common.filesize')}
                                 defaultValue={Common.sizeToHuman(videoFile?.size)}
                                 disabled
                                 variant='outlined'
@@ -268,7 +270,7 @@ export default function AddVideoForm({ next, setCanClose }) {
                                 variant='contained'
                                 startIcon={<VideoFileIcon sx={{ height: 40, width: 40 }} />}
                                 sx={{ minHeight: 40 }}>
-                                Выбрать файл
+                                {t('common.fileupload')}
                                 <input
                                     maxLength={MAX_FILE_SIZE}
                                     type='file'
@@ -299,7 +301,7 @@ export default function AddVideoForm({ next, setCanClose }) {
                     <TabPanel value={source} index={1}>
                         <TextField
                             fullWidth
-                            label='Ссылка на видео или трансляцию'
+                            label={t('video.add.source.url.caption')}
                             defaultValue={Common.sizeToHuman(videoFile?.size)}
                             error={!Validation.Video.url(videoUrl)}
                             variant='outlined'
@@ -309,7 +311,7 @@ export default function AddVideoForm({ next, setCanClose }) {
                         <TextField
                             fullWidth
                             required
-                            label='Максимальная длительность, если это трансляция'
+                            label={t('video.add.soutce.url.maxduration')}
                             defaultValue={Common.sizeToHuman(videoFile?.size)}
                             error={!Validation.Video.maxDuration(maxDuration)}
                             variant='outlined'
@@ -335,7 +337,7 @@ export default function AddVideoForm({ next, setCanClose }) {
                             sx={{ mt: 3, mb: 2, p: 1, minHeight: '40px' }}
                             onClick={next}
                         >
-                            Отмена
+                            {t('common.cancel')}
                         </Button>
                     }
                     <Button
@@ -345,7 +347,7 @@ export default function AddVideoForm({ next, setCanClose }) {
                         disabled={loading || !isValid()}
                         sx={{ mt: 3, mb: 2, p: 1, minHeight: '40px' }}
                     >
-                        {loading ? <CircularProgress size={20} /> : 'Начать загрузку'}
+                        {loading ? <CircularProgress size={20} /> : t('video.add.submit')}
                     </Button>
                 </Box>
             </Box>

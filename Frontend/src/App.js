@@ -18,32 +18,41 @@ import NotFoundPage from './components/pages/NotFoundPage';
 import CssBaseline from '@mui/material/CssBaseline';
 import MenuDrawer from './components/header/MenuDrawer';
 import VideoProcessingPage from './components/pages/VideoProcessingPage';
+import { useTranslation } from 'react-i18next';
 
 export default function App() {
+    const { i18n } = useTranslation();
     const [error, setError] = useState(null);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-    // загрузка пользователя
-    useEffect(() => {
+    async function onLoad() {
         if (loading && Common.isTokenPresent()) {
-            AuthEndpoint.info()
+            await AuthEndpoint.info()
                 .then(e => {
                     if (e?.data?.success === true && e?.data?.result) {
-                        setLoading(false);
                         setUser(e.data.result);
                     }
                 })
                 .catch(e => {
-                    setLoading(false);
                     setUser();
                     Common.resetToken();
                 });
-        } else {
-            setLoading(false);
         }
+
+        setLoading(false);
+    }
+
+    // загрузка пользователя
+    useEffect(() => {
+        onLoad();
     }, [loading]);
+
+    // меняем локаль
+    useEffect(() => {
+        i18n.changeLanguage(Common.getLocale(user));
+    }, [user]);
 
     const themeMode = Common.checkThemeName(user?.theme?.toLowerCase() ?? (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
     const themeIsDark = themeMode === 'dark';

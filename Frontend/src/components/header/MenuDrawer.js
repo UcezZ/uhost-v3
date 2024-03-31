@@ -8,6 +8,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import PersonIcon from '@mui/icons-material/Person';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import TimelapseIcon from '@mui/icons-material/Timelapse';
+import { t } from 'i18next';
 
 const listItemSx =
 {
@@ -41,7 +42,7 @@ export default function MenuDrawer() {
                             <ListItemIcon>
                                 <HomeIcon />
                             </ListItemIcon>
-                            <ListItemText primary='Главная' />
+                            <ListItemText primary={t('menu.home')} />
                         </ListItemButton>
                     </ListItem>
                 </Link>
@@ -54,7 +55,7 @@ export default function MenuDrawer() {
                             <ListItemIcon>
                                 <PersonIcon />
                             </ListItemIcon>
-                            <ListItemText primary='Профиль' />
+                            <ListItemText primary={t('menu.profile')} />
                         </ListItemButton>
                     </ListItem>
                 </Link>
@@ -66,7 +67,7 @@ export default function MenuDrawer() {
                             <ListItemIcon>
                                 <VideocamIcon />
                             </ListItemIcon>
-                            <ListItemText primary='Видео' />
+                            <ListItemText primary={t('menu.video')} />
                         </ListItemButton>
                     </ListItem>
                 </Link>
@@ -78,7 +79,7 @@ export default function MenuDrawer() {
                             <ListItemIcon>
                                 <TimelapseIcon />
                             </ListItemIcon>
-                            <ListItemText primary='Обработка видео' />
+                            <ListItemText primary={t('menu.videoprocessing')} />
                         </ListItemButton>
                     </ListItem>
                 </Link>
@@ -90,7 +91,7 @@ export default function MenuDrawer() {
                             <ListItemIcon>
                                 <FormatListBulletedIcon />
                             </ListItemIcon>
-                            <ListItemText primary='Плейлисты' />
+                            <ListItemText primary={t('menu.playlists')} />
                         </ListItemButton>
                     </ListItem>
                 </Link>

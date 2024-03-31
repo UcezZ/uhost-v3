@@ -7,10 +7,12 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import StateContext from '../utils/StateContext';
 import PopupTransition from '../ui/PopupTransition';
+import { useTranslation } from 'react-i18next';
 
 var errContent;
 
 export default function ErrorDialog() {
+    const { t } = useTranslation();
     const { error, setError } = useContext(StateContext);
 
     const handleClose = () => {
@@ -30,7 +32,7 @@ export default function ErrorDialog() {
                 onClose={handleClose}
                 aria-describedby="alert-dialog-slide-description"
             >
-                <DialogTitle>Ошибка</DialogTitle>
+                <DialogTitle>{t('common.error')}</DialogTitle>
                 <DialogContent color='red'>
                     {/* <DialogContentText id="alert-dialog-slide-description"> */}
                     {
@@ -41,7 +43,7 @@ export default function ErrorDialog() {
                     {/* </DialogContentText> */}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose}>Закрыть</Button>
+                    <Button onClick={handleClose}>{t('common.close')}</Button>
                 </DialogActions>
             </Dialog>
         </div>

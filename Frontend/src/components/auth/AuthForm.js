@@ -10,8 +10,10 @@ import { CircularProgress } from '@mui/material';
 import Common from '../../utils/Common';
 import Validation from '../../utils/Validation';
 import Styles from '../../ui/Styles';
+import { useTranslation } from 'react-i18next';
 
 export default function AuthForm({ next, slim }) {
+    const { t } = useTranslation();
     const { setError, setUser } = useContext(StateContext);
     const [loading, setLoading] = useState(false);
     const [login, setLogin] = useState('');
@@ -61,57 +63,57 @@ export default function AuthForm({ next, slim }) {
                 alignItems: 'center',
             }}
         >
-            <Box component="form" noValidate onSubmit={onSubmit} sx={{ mt: 1 }}>
+            <Box component='form' noValidate onSubmit={onSubmit} sx={{ mt: 1 }}>
                 <TextField
-                    margin="normal"
+                    margin='normal'
                     required
                     fullWidth
-                    id="login"
-                    label="Логин"
-                    name="login"
-                    autoComplete="login"
+                    id='login'
+                    label={t('auth.username')}
+                    name='login'
+                    autoComplete='login'
                     error={!Validation.Auth.login(login)}
                     disabled={loading}
                     autoFocus
                     onChange={e => setLogin(e.target.value)}
                 />
                 <TextField
-                    margin="normal"
+                    margin='normal'
                     required
                     fullWidth
-                    name="password"
-                    label="Пароль"
-                    type="password"
-                    id="password"
+                    name='password'
+                    label={t('auth.password')}
+                    type='password'
+                    id='password'
                     error={!Validation.Auth.password(password)}
                     disabled={loading}
-                    autoComplete="current-password"
+                    autoComplete='current-password'
                     onChange={e => setPassword(e.target.value)}
                 />
                 <FormControlLabel
-                    control={<Checkbox value="remember" color="primary" onChange={e => setRemember(e.target.value)} />}
-                    label="Запомнить"
+                    control={<Checkbox value='remember' color='primary' onChange={e => setRemember(e.target.value)} />}
+                    label={t('auth.remember')}
                     onClick={e => setRemember(e.target.value)}
                     sx={Styles.noSelectSx}
                 />
                 <Button
-                    type="submit"
+                    type='submit'
                     fullWidth
-                    variant="contained"
+                    variant='contained'
                     disabled={loading || !isValid()}
                     sx={{ mt: 3, mb: 2, p: 1, minHeight: '40px' }}
                 >
-                    {loading ? <CircularProgress size={20} /> : 'Войти'}
+                    {loading ? <CircularProgress size={20} /> : t('auth.login')}
                 </Button>
                 {/* <Grid container>
                     <Grid item xs>
-                        <Link href="#" variant="body2">
+                        <Link href='#' variant='body2'>
                             Forgot password?
                         </Link>
                     </Grid>
                     <Grid item>
-                        <Link href="#" variant="body2">
-                            {"Don't have an account? Sign Up"}
+                        <Link href='#' variant='body2'>
+                            {'Don't have an account? Sign Up'}
                         </Link>
                     </Grid>
                 </Grid> */}

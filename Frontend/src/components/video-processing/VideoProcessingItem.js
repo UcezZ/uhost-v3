@@ -53,7 +53,6 @@ function transformData(data) {
     var keys = Object.keys(data.states);
 
     if (!keys?.length) {
-        console.log('пиздв')
         return [];
     }
 

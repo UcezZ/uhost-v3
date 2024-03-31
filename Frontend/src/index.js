@@ -3,9 +3,27 @@ import './utils/Extentions';
 import './index.css';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { init } from '@sentry/browser';
+import * as Sentry from '@sentry/browser';
 import config from './config.json';
+import Common from './utils/Common';
+import i18next from 'i18next';
+import lang from './lang.json';
+import { I18nextProvider } from 'react-i18next';
 
-init(config.sentryConfig);
+i18next.init({
+    interpolation: {
+        escapeValue: false,
+    },
+    lng: Common.getBrowserLocale(),
+    fallbackLng: Common.getFallbackLocale(),
+    resources: lang
+});
+
+Sentry.init(config.sentryConfig);
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+root.render(
+    <I18nextProvider i18n={i18next}>
+        <App />
+    </I18nextProvider>
+);

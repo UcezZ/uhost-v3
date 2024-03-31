@@ -10,8 +10,10 @@ import Common from '../../utils/Common';
 import VideoEndpoint from '../../api/VideoEndpoint';
 import Validation from '../../utils/Validation';
 import Styles from '../../ui/Styles';
+import { useTranslation } from 'react-i18next';
 
 export default function EditVideoForm({ video, setVideo, next }) {
+    const { t } = useTranslation();
     const { setError } = useContext(StateContext);
     const [loading, setLoading] = useState(false);
     const [name, setName] = useState(video?.name ?? '');
@@ -62,7 +64,7 @@ export default function EditVideoForm({ video, setVideo, next }) {
                     margin='normal'
                     required
                     fullWidth
-                    label='Наименование'
+                    label={t('video.name')}
                     error={!Validation.Video.name(name)}
                     disabled={loading}
                     value={name}
@@ -72,7 +74,7 @@ export default function EditVideoForm({ video, setVideo, next }) {
                 <TextField
                     margin='normal'
                     fullWidth
-                    label='Описание'
+                    label={t('video.description')}
                     error={!Validation.Video.desc(desc)}
                     disabled={loading}
                     value={desc}
@@ -88,22 +90,22 @@ export default function EditVideoForm({ video, setVideo, next }) {
                             setIsHidden(true);
                         }
                     }} />}
-                    label='Скрыть из общего доступа'
+                    label={t('video.isprivate')}
                     style={Styles.noSelectSx}
                 />
                 <FormControlLabel
                     control={<Checkbox color='primary' disabled={isPrivate} checked={isHidden} onClick={e => setIsHidden(!isHidden)} />}
-                    label='Скрыть из результатов поиска'
+                    label={t('video.ishidden')}
                     sx={Styles.noSelectSx}
                 />
                 <FormControlLabel
                     control={<Checkbox color='primary' checked={allowComments} onClick={e => setAllowComments(!allowComments)} />}
-                    label='Разрешить комментарии'
+                    label={t('video.allowcomments')}
                     sx={Styles.noSelectSx}
                 />
                 <FormControlLabel
                     control={<Checkbox color='primary' checked={allowReactions} onClick={e => setAllowReactions(!allowReactions)} />}
-                    label='Разрешить реакции'
+                    label={t('video.allowreactions')}
                     sx={Styles.noSelectSx}
                 />
                 <Box sx={{
@@ -120,7 +122,7 @@ export default function EditVideoForm({ video, setVideo, next }) {
                         sx={{ mt: 3, mb: 2, p: 1, minHeight: '40px' }}
                         onClick={next}
                     >
-                        Отмена
+                        {t('common.cancel')}
                     </Button>
                     <Button
                         type='submit'
@@ -129,7 +131,7 @@ export default function EditVideoForm({ video, setVideo, next }) {
                         disabled={loading || !isValid()}
                         sx={{ mt: 3, mb: 2, p: 1, minHeight: '40px' }}
                     >
-                        {loading ? <CircularProgress size={20} /> : 'Применить'}
+                        {loading ? <CircularProgress size={20} /> : t('common.apply')}
                     </Button>
                 </Box>
             </Box>

@@ -8,8 +8,10 @@ import MessageBox from '../MessageBox';
 import VideoPreviewContainer from '../video/VideoPreviewContainer';
 import PagedResultNavigator from '../PagedResultNavigator';
 import Common from '../../utils/Common';
+import { useTranslation } from 'react-i18next';
 
 export default function SearchPage() {
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [videos, setVideos] = useState([]);
     const [pager, setPager] = useState();
@@ -69,7 +71,7 @@ export default function SearchPage() {
                         ? <LoadingBox />
                         : videos?.length > 0
                             ? <VideoPreviewContainer videos={videos} pager={pager} onPageToggle={onPageToggle} />
-                            : <MessageBox text='Не найдено ни одного видео по запросу' />
+                            : <MessageBox text={t('video.search.notfound')} />
                 }
                 {pager?.totalPages > 1 && <PagedResultNavigator pager={pager} onPageToggle={onPageToggle} sx={{ maxWidth: '1280px' }} />}
             </Container>

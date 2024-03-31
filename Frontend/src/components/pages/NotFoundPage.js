@@ -3,8 +3,11 @@ import { Container } from '@mui/system';
 import { red } from '@mui/material/colors';
 import { Link } from 'react-router-dom';
 import config from '../../config.json';
+import { useTranslation } from 'react-i18next';
 
 export default function NotFoundPage() {
+    const { t } = useTranslation();
+
     return (
         <Container sx={{
             maxWidth: '100% !important',
@@ -24,12 +27,12 @@ export default function NotFoundPage() {
                         404
                     </Typography>
                     <Typography variant='content' component='p'>
-                        Запрашиваемая страница не найдена
+                        {t('notfound.title')}
                     </Typography>
                     <Typography
                         variant='subtitle2'
                         sx={{ marginTop: 2 }}>
-                        <i>...или ещё не реализована</i>
+                        <i>{t('notfound.text')}</i>
                     </Typography>
                 </CardContent>
                 <CardContent>
@@ -40,7 +43,7 @@ export default function NotFoundPage() {
                             color='primary'
                             sx={{ mt: 3, mb: 2, p: 1, minHeight: '40px' }}
                         >
-                            Вернуться на главную
+                            {t('notfound.returnhome')}
                         </Button>
                     </Link>
                 </CardContent>

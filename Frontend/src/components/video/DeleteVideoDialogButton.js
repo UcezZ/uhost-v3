@@ -4,9 +4,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import YesNoDialog from '../YesNoDialog';
 import VideoEndpoint from '../../api/VideoEndpoint';
 import StateContext from '../../utils/StateContext';
-import { red } from '@mui/material/colors';
+import { useTranslation } from 'react-i18next';
 
 export default function DeleteVideoDialogButton({ video, setVideo }) {
+    const { t } = useTranslation();
     const { setError } = useContext(StateContext);
     const [visible, setVisible] = useState(false);
     const isNarrowScreen = useMediaQuery('(max-width:600px)');
@@ -38,12 +39,12 @@ export default function DeleteVideoDialogButton({ video, setVideo }) {
                 color='primary'
                 sx={{ gap: 1 }}>
                 <DeleteIcon />
-                {!isNarrowScreen && <Typography variant='button'>Удалить</Typography>}
+                {!isNarrowScreen && <Typography variant='button'>{t('video.delete')}</Typography>}
             </Button>
             <YesNoDialog
                 visible={visible}
                 setVisible={setVisible}
-                message={`Вы действительно ходите удалить видео "${video?.name}"?`}
+                message={t('video.delete.confirm', { name: video?.name ?? 'N/A' })}
                 onYes={onYes}
                 onNo={onNo} />
         </div>

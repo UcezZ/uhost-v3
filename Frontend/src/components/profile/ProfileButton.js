@@ -9,8 +9,10 @@ import { Link } from 'react-router-dom';
 import config from '../../config.json';
 import StateContext from '../../utils/StateContext';
 import PopupAuthForm from '../auth/PopupAuthForm';
+import { useTranslation } from 'react-i18next';
 
 export default function ProfileButton() {
+    const { t } = useTranslation();
     const [anchorEl, setAnchorEl] = useState(null);
     const [confirmLogout, setConfirmLogout] = useState(null);
     const [authFormVisible, setAuthFormVisible] = useState(false);
@@ -49,18 +51,18 @@ export default function ProfileButton() {
     return (
         <div>
             <IconButton
-                size="large"
-                color="inherit"
-                aria-label="profile"
-                id="profile-button"
+                size='large'
+                color='inherit'
+                aria-label='profile'
+                id='profile-button'
                 aria-controls={anchorEl ? undefined : 'profile-menu'}
-                aria-haspopup="true"
+                aria-haspopup='true'
                 aria-expanded={anchorEl ? undefined : 'true'}
                 onClick={onClick}>
                 <AccountCircleIcon />
             </IconButton>
             <Menu
-                id="profile-menu"
+                id='profile-menu'
                 anchorEl={anchorEl}
                 open={!!anchorEl}
                 onClose={onClose}
@@ -68,16 +70,16 @@ export default function ProfileButton() {
                     'aria-labelledby': 'profile-button',
                 }}
             >
-                {!user && <MenuItem onClick={onLoginClick}>Log in</MenuItem>}
-                {user && <MenuItem onClick={onClose}><Link to={`${config.webroot}/profile`}>Profile</Link></MenuItem>}
-                {user && <MenuItem onClick={onLogoutClick}>Log out</MenuItem>}
+                {!user && <MenuItem onClick={onLoginClick}>{t('auth.login')}</MenuItem>}
+                {user && <MenuItem onClick={onClose}><Link to={`${config.webroot}/profile`}>{t('menu.profile')}</Link></MenuItem>}
+                {user && <MenuItem onClick={onLogoutClick}>{t('auth.logout')}</MenuItem>}
             </Menu>
             <YesNoDialog
                 onNo={onLogoutNo}
                 onYes={onLogoutYes}
                 visible={confirmLogout}
                 setVisible={setConfirmLogout}
-                message='Вы действительно хотите выйти?'
+                message={t('auth.logout.confirm')}
             />
             <PopupAuthForm visible={authFormVisible} setVisible={setAuthFormVisible} next={onClose} />
         </div>

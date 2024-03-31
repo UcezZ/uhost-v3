@@ -9,22 +9,18 @@ import EditVideoDialogButton from './EditVideoDialogButton';
 import DeleteVideoDialogButton from './DeleteVideoDialogButton';
 import VideoPlayer from './VideoPlayer';
 import config from '../../config.json';
+import { useTranslation } from 'react-i18next';
 
 export default function VideoContainer({ video, setVideo }) {
+    const { t } = useTranslation();
     const { user } = useContext(StateContext);
     const sizes = video?.resolutions?.map
         ? video.resolutions
+            .filter(e => `video${e}` in video?.downloadSizes)
             .map(e => {
                 return {
-                    key: `video${e}`,
-                    name: e
-                }
-            })
-            .filter(e => e.key in video?.downloadSizes)
-            .map(e => {
-                return {
-                    ...e,
-                    size: video?.downloadSizes[e.key]
+                    key: e,
+                    size: video.downloadSizes[`video${e}`]
                 }
             })
         : [];
@@ -63,7 +59,7 @@ export default function VideoContainer({ video, setVideo }) {
             </CardActions>
             {
                 video?.description?.length > 0 && <CardContent>
-                    <Typography variant='h6'>Описание:</Typography>
+                    <Typography variant='h6'>{t('video.description')}:</Typography>
                     <Typography
                         variant='body1'
                         sx={{ whiteSpace: 'pre-line' }} >
