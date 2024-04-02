@@ -189,9 +189,9 @@ export default function ProfilePage() {
                                 </Grid>
                             </Grid>
                         </CardContent>
-                        {isCurrentUser || canModifyUser && <Divider />}
+                        {(isCurrentUser || canModifyUser) && <Divider />}
                         {
-                            isCurrentUser || canModifyUser && <CardActions>
+                            (isCurrentUser || canModifyUser) && <CardActions>
                                 {isCurrentUser && <ChangePasswordDialogButton />}
                                 {canModifyUser && <UpdateProfileDialogButton shownUser={shownUser} />}
                             </CardActions>

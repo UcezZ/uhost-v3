@@ -1,17 +1,13 @@
 import { Container } from '@mui/system';
-import { useContext, useEffect, useState } from 'react';
+import { useState } from 'react';
 import SearchBar from '../items/SearchBar';
-import LoadingBox from '../LoadingBox';
-import VideoEndpoint from '../../api/VideoEndpoint';
-import StateContext from '../../utils/StateContext';
-import MessageBox from '../MessageBox';
 import VideoSearchResult from '../video/VideoSearchResult';
-import PagedResultNavigator from '../PagedResultNavigator';
-import Common from '../../utils/Common';
 import { useTranslation } from 'react-i18next';
+import { Typography } from '@mui/material';
 
 export default function SearchPage() {
     const [search, setSearch] = useState('');
+    const { t } = useTranslation();
 
     function onSearch(value) {
         if (value?.toLowerCase() !== search?.toLocaleLowerCase()) {
@@ -21,10 +17,20 @@ export default function SearchPage() {
 
     return (
         <Container sx={{ maxWidth: '100% !important' }}>
-            <Container sx={{ maxWidth: '1152px !important' }}>
-                <SearchBar sx={{ marginTop: 1 }} onSearch={onSearch} />
-            </Container>
-            <VideoSearchResult query={search} useRandomOnEmpryQuery usePager />
+            <SearchBar sx={{ marginTop: 1 }} onSearch={onSearch} />
+            {
+                search?.length > 0
+                    ? <div>
+                        <Typography variant='h4' m={2}>{t('home.searchresult')}</Typography>
+                        <VideoSearchResult query={search} usePager sortBy='CreatedAt' sortDir='Desc' />
+                    </div>
+                    : <div>
+                        <Typography variant='h4' m={2}>{t('home.new')}</Typography>
+                        <VideoSearchResult sortBy='CreatedAt' sortDir='Desc' />
+                        <Typography variant='h4' m={2}>{t('home.random')}</Typography>
+                        <VideoSearchResult useRandomOnEmpryQuery />
+                    </div>
+            }
         </Container>
     );
 }

@@ -1,6 +1,11 @@
 {
     "en": {
         "translation": {
+            "video.ofuser": "{{user}}'s videos",
+            "video.my": "My videos",
+            "home.searchresult": "Search result",
+            "home.new": "New videos",
+            "home.random": "Random videos",
             "common.search": "Type a search query...",
             "auth.caption": "Authorization",
             "auth.login": "Log in",
@@ -87,7 +92,7 @@
             "video.processing.type.video480p": "Video 480p",
             "video.processing.type.video720p": "Video 720p",
             "video.processing.type.videoraw": "Fetching video from url",
-            "video.resolution": "Resulution",
+            "video.resolution": "Resolution",
             "video.resolution.1080p": "1080p",
             "video.resolution.240p": "240p",
             "video.resolution.480p": "480p",
@@ -98,6 +103,11 @@
     },
     "ru": {
         "translation": {
+            "video.ofuser": "Видео пользователя {{user}}",
+            "video.my": "Мои видео",
+            "home.searchresult": "Результаты поиска",
+            "home.new": "Новые видео",
+            "home.random": "Случайные видео",
             "common.search": "Введите поисковой запрос...",
             "auth.caption": "Авторизация",
             "auth.login": "Войти",
@@ -129,7 +139,7 @@
             "user.description": "Описание",
             "user.lastlogin": "Последний вход",
             "user.locale": "Язык",
-            "user.locale.en": "Англойский",
+            "user.locale.en": "Английский",
             "user.locale.ru": "Русский",
             "user.login": "Имя пользователя",
             "user.name": "Имя",

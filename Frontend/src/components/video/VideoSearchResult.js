@@ -70,7 +70,7 @@ export default function VideoSearchResult({ query, userLogin, usePager, useRando
 
     return (
         <Container sx={{ maxWidth: '100% !important' }}>
-            {pager?.totalPages > 1 && <PagedResultNavigator pager={pager} onPageToggle={onPageToggle} sx={{ maxWidth: '1280px' }} />}
+            {usePager && pager?.totalPages > 1 && <PagedResultNavigator pager={pager} onPageToggle={onPageToggle} sx={{ maxWidth: '1280px' }} />}
             {
                 loading
                     ? <LoadingBox />
@@ -80,7 +80,7 @@ export default function VideoSearchResult({ query, userLogin, usePager, useRando
                         </Grid>
                         : <MessageBox text={t('video.search.notfound')} />
             }
-            {pager?.totalPages > 1 && <PagedResultNavigator pager={pager} onPageToggle={onPageToggle} sx={{ maxWidth: '1280px' }} />}
+            {usePager && pager?.totalPages > 1 && <PagedResultNavigator pager={pager} onPageToggle={onPageToggle} sx={{ maxWidth: '1280px' }} />}
         </Container>
     );
 }
