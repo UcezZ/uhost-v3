@@ -8,6 +8,14 @@ const LOCALES = [
     LOCALE_EN
 ];
 
+const THEME_LIGHT = 'light';
+const THEME_DARK = 'dark';
+
+const THEMES = [
+    THEME_LIGHT,
+    THEME_DARK
+];
+
 export default class Common {
     static tokenKey = 'accessToken';
 
@@ -24,10 +32,13 @@ export default class Common {
                     .filter(e => error.response.data.errors[e])
                     .map(e => `${e}: ${error.response.data.errors[e]?.join(', ')}`);
             }
+        } else if (error?.response?.data) {
+            return JSON.stringify(error?.response?.data, null, 2);
+        } else {
+            console.log(error);
+            return 'N/A';
         }
-        else {
-            return error?.response?.data ? JSON.stringify(error?.response?.data, null, 2) : 'N/A';
-        }
+
     }
 
     /**
@@ -116,16 +127,42 @@ export default class Common {
 
     /**
      * 
+     * @returns {String}
+     */
+    static getBrowserTheme() {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? THEME_DARK
+            : THEME_LIGHT;
+    }
+
+    /**
+     * 
      * @param {String} name 
      */
     static checkThemeName(name) {
         var name = name?.toLowerCase();
 
-        if (name === 'light') {
-            return 'light';
+        if (THEMES.includes(name)) {
+            return name;
         }
 
-        return 'dark';
+        return THEME_DARK;
+    }
+
+    /**
+     * 
+     * @returns {String[]}
+     */
+    static getThemes() {
+        return THEMES;
+    }
+
+    /**
+     * 
+     * @returns {String[]}
+     */
+    static getLocales() {
+        return LOCALES;
     }
 
     /**

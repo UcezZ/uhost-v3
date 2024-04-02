@@ -1,16 +1,17 @@
-import { Card, CardActions, CardContent, CardHeader, Container, Divider, Grid, TextField, Typography, useMediaQuery } from '@mui/material';
+import { Card, CardActions, CardContent, Container, Divider, Grid, Typography, useMediaQuery } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useParams, } from 'react-router-dom';
-import UserEndpoint from '../../api/UserEndpoint';
+import { useTranslation } from 'react-i18next';
+import ChangePasswordDialogButton from '../profile/ChangePasswordDialogButton';
+import DeleteAvatarDialogButton from '../profile/DeleteAvatarDialogButton';
+import Image from '../Image';
+import LoadingBox from '../LoadingBox';
+import NotFoundPage from './NotFoundPage';
 import Rights from '../../utils/Rights';
 import StateContext from '../../utils/StateContext';
-import Validation from '../../utils/Validation';
-import CodeBlock from '../CodeBlock';
-import LoadingBox from '../LoadingBox';
-import ChangePasswordDialogButton from '../profile/ChangePasswordDialogButton';
 import UpdateProfileDialogButton from '../profile/UpdateProfileDialogButton';
-import NotFoundPage from './NotFoundPage';
+import UploadAvatarDialogButton from '../profile/UploadAvatarDialogButton';
+import UserEndpoint from '../../api/UserEndpoint';
 
 export default function ProfilePage() {
     const { t } = useTranslation();
@@ -66,10 +67,11 @@ export default function ProfilePage() {
 
     const canModifyUser = shownUser?.id > 0 && user?.id > 0 && (shownUser.id === user.id || Rights.checkAnyRight(user, Rights.UserInteractAll));
     const canSeePersonalData = canModifyUser || Rights.checkAnyRight(Rights.UserCreate, Rights.UserDelete);
+    const isCurrentUser = shownUser?.id > 0 && user?.id > 0 && shownUser.id === user.id;
 
     return (
-        <Container sx={{ maxWidth: '1152px !important' }}>
-            <Grid container>
+        <Container sx={{ maxWidth: '1280px !important' }}>
+            <Grid container mt={2} columnSpacing={2}>
                 <Grid item xs={isNarrowScreen ? 12 : 8}>
                     <Card>
                         <CardContent>
@@ -87,7 +89,7 @@ export default function ProfilePage() {
                                 </Grid>
                                 <Grid item xs={6} mt={0.5}>
                                     <Typography>
-                                        {shownUser?.name ?? 'N/A'}
+                                        {shownUser?.login ?? 'N/A'}
                                     </Typography>
                                 </Grid>
                                 <Grid item xs={6} textAlign='right'>
@@ -187,14 +189,41 @@ export default function ProfilePage() {
                                 </Grid>
                             </Grid>
                         </CardContent>
-                        <CardActions>
-                            {shownUser?.id > 0 && user?.id > 0 && shownUser.id === user.id && <ChangePasswordDialogButton />}
-                            {canModifyUser && <UpdateProfileDialogButton id={shownUser.id} />}
-                        </CardActions>
+                        {isCurrentUser || canModifyUser && <Divider />}
+                        {
+                            isCurrentUser || canModifyUser && <CardActions>
+                                {isCurrentUser && <ChangePasswordDialogButton />}
+                                {canModifyUser && <UpdateProfileDialogButton shownUser={shownUser} />}
+                            </CardActions>
+                        }
+                    </Card>
+                </Grid>
+
+                <Grid item xs={isNarrowScreen ? 12 : 4}>
+                    <Card>
+                        <CardContent>
+                            <Typography variant='h5'>
+                                {t('user.profile.avatar')}
+                            </Typography>
+                        </CardContent>
+                        <Divider />
+                        <CardContent>
+                            <Image
+                                src={shownUser?.avatarUrl}
+                                height={400}
+                            />
+                        </CardContent>
+                        {isCurrentUser && <Divider />}
+                        {
+                            isCurrentUser &&
+                            <CardActions>
+                                <UploadAvatarDialogButton shownUser={shownUser} setShownUser={setShownUser} />
+                                {shownUser.avatarUrl?.length > 0 && <DeleteAvatarDialogButton shownUser={shownUser} setShownUser={setShownUser} />}
+                            </CardActions>
+                        }
                     </Card>
                 </Grid>
             </Grid>
-            <CodeBlock data={shownUser} json />
         </Container>
     );
 }

@@ -31,6 +31,7 @@ export default function ErrorDialog() {
                 keepMounted
                 onClose={handleClose}
                 aria-describedby="alert-dialog-slide-description"
+                sx={{ zIndex: 1333 }}
             >
                 <DialogTitle>{t('common.error')}</DialogTitle>
                 <DialogContent color='red'>

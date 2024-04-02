@@ -9,6 +9,7 @@ namespace Uhost.Core.Models.User
         public string CreatedAt { get; set; }
         public string LastVisitAt { get; set; }
         public string Email { get; set; }
+        public string AvatarUrl { get; set; }
 
         public override void LoadFromEntity(Entity entity)
         {

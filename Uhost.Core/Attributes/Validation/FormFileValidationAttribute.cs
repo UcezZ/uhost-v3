@@ -54,17 +54,17 @@ namespace Uhost.Core.Attributes.Validation
         {
             if (file.Length > _maxFileSize)
             {
-                return new ValidationResult(string.Format(CoreStrings.File_Error_TooLarge, _maxFileSize.ToHumanSize()));
+                return new ValidationResult(CoreStrings.File_Error_TooLarge.Format(_maxFileSize.ToHumanSize()));
             }
 
             if (_mimes.Any() && !_mimes.Contains(file.ContentType?.ToLower() ?? string.Empty))
             {
-                return new ValidationResult(string.Format(CoreStrings.File_Error_InvalidMime, string.Join(", ", _mimes)));
+                return new ValidationResult(CoreStrings.File_Error_InvalidMime.Format(string.Join(", ", _mimes)));
             }
 
             if (_exts.Any() && !_exts.Contains(Path.GetExtension(file.FileName.ToLower())?[1..]))
             {
-                return new ValidationResult(string.Format(CoreStrings.File_Error_InvalidExtension, string.Join(", ", _exts)));
+                return new ValidationResult(CoreStrings.File_Error_InvalidExtension.Format(string.Join(", ", _exts)));
             }
 
             return ValidationResult.Success;

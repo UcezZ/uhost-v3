@@ -29,6 +29,7 @@ using static Uhost.Core.Data.Entities.VideoProcessingState;
 using Entity = Uhost.Core.Data.Entities.Video;
 using FileEntity = Uhost.Core.Data.Entities.File;
 using QueryModel = Uhost.Core.Models.Video.VideoQueryModel;
+using UserEntity = Uhost.Core.Data.Entities.User;
 
 namespace Uhost.Core.Services.Video
 {
@@ -89,6 +90,10 @@ namespace Uhost.Core.Services.Video
                     .GetByDynEntity<FileShortViewModel>(pager.Select(e => e.Id), typeof(Entity))
                     .ToList();
 
+                var userAvatars = _fileService
+                    .GetByDynEntity<FileShortViewModel>(pager.Select(e => e.UserId), typeof(UserEntity), FileTypes.UserAvatar)
+                    .ToList();
+
                 foreach (var model in pager)
                 {
                     model.ThumbnailUrl = files
@@ -100,6 +105,11 @@ namespace Uhost.Core.Services.Video
                         .Where(e => e > 0)
                         .OrderBy(e => e)
                         .Select(e => $"{e}p");
+
+                    if (model.User != null)
+                    {
+                        model.User.AvatarUrl = userAvatars.FirstOrDefault(e => e.DynId == model.UserId)?.Url;
+                    }
                 }
             }
 
@@ -115,37 +125,14 @@ namespace Uhost.Core.Services.Video
         {
             var query = new QueryModel
             {
+                Page = 1,
+                PerPage = count,
                 SortBy = nameof(Entity.SortBy.Random)
             };
 
             OverrideByUserRestrictions(query);
 
-            var models = _repo
-                .GetAll<VideoShortViewModel>(query)
-                .Take(count)
-                .ToList();
-
-            if (models.Any())
-            {
-                var files = _fileService
-                    .GetByDynEntity<FileShortViewModel>(models.Select(e => e.Id), typeof(Entity))
-                    .ToList();
-
-                foreach (var model in models)
-                {
-                    model.ThumbnailUrl = files
-                        .FirstOrDefault(e => e.DynId == model.Id && e.TypeParsed == FileTypes.VideoThumbnail)?
-                        .Url;
-                    model.Resolutions = files
-                        .Where(e => e.DynId == model.Id && _videoFileTypes.Contains(e.TypeParsed))
-                        .Select(e => e.Type.ParseDigits())
-                        .Where(e => e > 0)
-                        .OrderBy(e => e)
-                        .Select(e => $"{e}p");
-                }
-            }
-
-            return models;
+            return GetAllPaged(query).Items;
         }
 
         /// <summary>
@@ -239,6 +226,13 @@ namespace Uhost.Core.Services.Video
             var files = _fileService
                 .GetByDynEntity<FileShortViewModel>(model.Id, typeof(Entity))
                 .ToList();
+
+            if (model.User != null)
+            {
+                model.User.AvatarUrl = _fileService
+                    .GetByDynEntity<FileShortViewModel>(model.UserId, typeof(UserEntity), FileTypes.UserAvatar)
+                    .FirstOrDefault()?.Url;
+            }
 
             model.ThumbnailUrl = files
                 .FirstOrDefault(e => e.DynId == model.Id && e.TypeParsed == FileTypes.VideoThumbnail)?

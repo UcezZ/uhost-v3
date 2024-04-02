@@ -12,7 +12,7 @@ export default function Image({ src, alt, height, width, ...props }) {
         objectFit: 'cover'
     };
 
-    return success
+    return success && src?.length > 0
         ? <img
             src={src}
             alt={alt ?? ''}
@@ -20,7 +20,6 @@ export default function Image({ src, alt, height, width, ...props }) {
             style={style}
             {...props} />
         : <Box
-            fullwidth
             height={height ?? 'auto'}
             width={width ?? 'auto'}
             {...props}>

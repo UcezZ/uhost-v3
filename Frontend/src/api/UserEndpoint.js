@@ -38,8 +38,23 @@ export default {
      * @param {String} passwordConfirm 
      * @returns 
      */
-    changePasswordSelf: (password, passwordConfirm) => api.putForm(`${config.apiroot}/users`, {
+    changePasswordSelf: (password, passwordConfirm) => api.putForm(`${config.apiroot}/users/password`, {
         password: password ?? '',
         passwordConfirm: passwordConfirm ?? passwordConfirm
-    })
+    }),
+
+    /**
+     * 
+     * @param {any} file 
+     * @returns {Promise}
+     */
+    uploadAvatarSelf: (file) => api.postForm(`${config.apiroot}/users/avatar`, {
+        file
+    }),
+
+    /**
+     * 
+     * @returns {Promise}
+     */
+    deleteAvatarSelf: () => api.delete(`${config.apiroot}/users/avatar`)
 }

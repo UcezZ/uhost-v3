@@ -27,8 +27,6 @@ export default function ChangePasswordForm({ next }) {
         await UserEndpoint.changePasswordSelf(password, password2)
             .then(e => {
                 if (e?.data?.success && e?.data?.result) {
-                    setPassword('');
-                    setPassword2('');
                 } else {
                     setError(Common.transformErrorData(e));
                 }
@@ -36,11 +34,14 @@ export default function ChangePasswordForm({ next }) {
             .catch(e => setError(Common.transformErrorData(e)));
         setLoading(false);
 
+        setPassword('');
+        setPassword2('');
+
         next && next(event);
     }
 
     function isValid() {
-        return Validation.Video.name(name) && Validation.Video.desc(desc);
+        return Validation.User.password(password) && Validation.User.password(password2) && password === password2;
     }
 
     return (
@@ -51,55 +52,32 @@ export default function ChangePasswordForm({ next }) {
                 alignItems: 'center',
             }}
         >
-            <Box component='form' noValidate onSubmit={onSubmit} sx={{ mt: 1 }}>
+            <Box
+                width='100%'
+                component='form'
+                noValidate
+                onSubmit={onSubmit}
+                sx={{ mt: 1 }}>
                 <TextField
                     margin='normal'
                     required
                     fullWidth
-                    label={t('video.name')}
-                    error={!Validation.Video.name(name)}
+                    label={t('user.password')}
+                    error={!Validation.User.password(password)}
                     disabled={loading}
-                    value={name}
-                    onChange={e => setName(e.target.value)}
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
                     autoFocus
                 />
                 <TextField
                     margin='normal'
                     required
                     fullWidth
-                    label={t('video.description')}
-                    error={!Validation.Video.desc(desc)}
+                    label={t('user.password2')}
+                    error={!Validation.User.password(password2)}
                     disabled={loading}
-                    value={desc}
-                    onChange={e => setDesc(e.target.value)}
-                    minRows={3}
-                    maxRows={10}
-                    multiline
-                />
-                <FormControlLabel
-                    control={<Checkbox color='primary' checked={isPrivate} onClick={e => {
-                        setIsPrivate(!isPrivate);
-                        if (!isPrivate) {
-                            setIsHidden(true);
-                        }
-                    }} />}
-                    label={t('video.isprivate')}
-                    style={Styles.noSelectSx}
-                />
-                <FormControlLabel
-                    control={<Checkbox color='primary' disabled={isPrivate} checked={isHidden} onClick={e => setIsHidden(!isHidden)} />}
-                    label={t('video.ishidden')}
-                    sx={Styles.noSelectSx}
-                />
-                <FormControlLabel
-                    control={<Checkbox color='primary' checked={allowComments} onClick={e => setAllowComments(!allowComments)} />}
-                    label={t('video.allowcomments')}
-                    sx={Styles.noSelectSx}
-                />
-                <FormControlLabel
-                    control={<Checkbox color='primary' checked={allowReactions} onClick={e => setAllowReactions(!allowReactions)} />}
-                    label={t('video.allowreactions')}
-                    sx={Styles.noSelectSx}
+                    value={password2}
+                    onChange={e => setPassword2(e.target.value)}
                 />
                 <Box sx={{
                     display: 'flex',

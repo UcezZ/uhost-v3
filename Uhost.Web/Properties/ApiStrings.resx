@@ -183,6 +183,9 @@
   <data name="User_Error_AlreadyExists" xml:space="preserve">
     <value>Пользователь с таким логином или email уже существует</value>
   </data>
+  <data name="User_Error_AvatarUpload" xml:space="preserve">
+    <value>Не удалось загрузить аватар</value>
+  </data>
   <data name="User_Error_NotFoundById" xml:space="preserve">
     <value>Пользователь с таким ид. не найден</value>
   </data>

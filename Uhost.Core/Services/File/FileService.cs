@@ -308,6 +308,11 @@ namespace Uhost.Core.Services.File
             });
         }
 
+        /// <summary>
+        /// Удаляет файл по ИД
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="deleteFile"></param>
         public void Delete(int id, bool deleteFile = false)
         {
             if (_repo.FindEntity(id, out var entity))
@@ -330,25 +335,32 @@ namespace Uhost.Core.Services.File
             }
         }
 
+        /// <summary>
+        /// Удаляет ВСЕ попавшие под условие файлы
+        /// </summary>
+        /// <param name="dynId"></param>
+        /// <param name="dynEntity"></param>
+        /// <param name="type"></param>
+        /// <param name="deleteFile"></param>
         public void DeleteByDynParams(int dynId, Type dynEntity, Entity.FileTypes type, bool deleteFile = false)
         {
-            if (_repo.FindEntity(e => e.DynId == dynId && e.DynName == dynEntity.Name && e.Type == type.ToString(), out var entity))
+            if (_repo.FindEntities(e => e.DynId == dynId && e.DynName == dynEntity.Name && e.Type == type.ToString() && e.DeletedAt == null, out var entities))
             {
                 if (deleteFile)
                 {
-                    PhysicallyDelete(entity);
+                    entities.ForEach(PhysicallyDelete);
                 }
 
-                _repo.SoftDelete(entity.Id);
-                _log.Add(Events.FileDeleted, new
+                _repo.SoftDeleteAll(entities.Select(e => e.Id));
+                _log.Add(Events.FileDeleted, entities.Select(e => new
                 {
-                    entity.Id,
-                    entity.Name,
-                    entity.DynId,
-                    entity.DynName,
-                    Path = entity.GetPath(),
-                    entity.Size
-                });
+                    e.Id,
+                    e.Name,
+                    e.DynId,
+                    e.DynName,
+                    Path = e.GetPath(),
+                    e.Size
+                }));
             }
         }
     }

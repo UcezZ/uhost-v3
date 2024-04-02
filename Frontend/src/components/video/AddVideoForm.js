@@ -70,7 +70,7 @@ export default function AddVideoForm({ next, setCanClose }) {
     }
 
     function onFileSelected(e) {
-        var selectedFile = e?.target?.files?.length && e.target.files[0];
+        var selectedFile = e?.target?.files?.item && e.target.files.item(0);
 
         if (selectedFile !== videoFile) {
             setVideoFile(selectedFile);

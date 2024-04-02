@@ -117,14 +117,25 @@ namespace Uhost.Core.Common
         }
 
         /// <summary>
+        /// Получение коллекции <typeparamref name="TEntity"/> по условию
+        /// </summary>
+        /// <param name="selector"></param>
+        /// <param name="entities"></param>
+        /// <returns></returns>
+        public bool FindEntities(Expression<Func<TEntity, bool>> selector, out IEnumerable<TEntity> entities)
+        {
+            entities = DbSetUpdateTransformations.Invoke(DbSet).Where(selector).ToList();
+
+            return entities != null && entities.Any();
+        }
+
+        /// <summary>
         /// Получение коллекции <typeparamref name="TEntity"/> по коллекции Id
         /// Нужно быть внимательным т.к связи не загружаются 
         /// </summary>
-        public bool FindEntities(IEnumerable<int> ids, out IEnumerable<TEntity> items)
+        public bool FindEntities(IEnumerable<int> ids, out IEnumerable<TEntity> entities)
         {
-            items = DbSetUpdateTransformations.Invoke(DbSet).Where(e => ids.Contains(e.Id)).ToList();
-
-            return items != null && items.Any();
+            return FindEntities(e => ids.Contains(e.Id), out entities);
         }
 
         /// <summary>
@@ -383,7 +394,7 @@ namespace Uhost.Core.Common
         /// <param name="ids">Коллекция ИД сущностей</param>
         public int SoftDeleteAll(IEnumerable<int> ids)
         {
-            if (!typeof(TEntity).IsAssignableFrom<BaseDateTimedEntity>())
+            if (!typeof(TEntity).IsAssignableTo<BaseDateTimedEntity>())
             {
                 return 0;
             }

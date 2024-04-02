@@ -12,6 +12,7 @@ namespace Uhost.Core.Services.User
         Entity Auth(UserLoginQueryModel query);
         bool CheckRoleIds(IEnumerable<int> ids, out int invalid);
         void Delete(int id);
+        void DeleteAvatar(int userId = 0);
         bool Exists(string login, string email, int excludedId = 0);
         UserAccessModel GetAccessData(int id);
         object GetAllPaged(UserQueryModel query);
@@ -21,5 +22,6 @@ namespace Uhost.Core.Services.User
         void Update(int id, UserCreateModel model);
         void Update(int id, UserSelfUpdateModel model);
         int UpdateLastVisitAt(int id);
+        string UploadAvatar(UserUpdateAvatarModel model, int userId = 0);
     }
 }

@@ -259,6 +259,15 @@ namespace Uhost.Web.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Не удалось загрузить аватар.
+        /// </summary>
+        internal static string User_Error_AvatarUpload {
+            get {
+                return ResourceManager.GetString("User_Error_AvatarUpload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Пользователь с таким ид. не найден.
         /// </summary>
         internal static string User_Error_NotFoundById {

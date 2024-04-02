@@ -9,6 +9,54 @@ namespace Uhost.Core.Extensions
     public static class DrawingExtensions
     {
         /// <summary>
+        /// Shrinks image to max size. Writes result to the same stream.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="maxSide"></param>
+        /// <param name="jpegQuality"></param>
+        /// <returns></returns>
+        public static bool TryShrinkImage(this Stream stream, int maxSide, byte jpegQuality)
+        {
+            if (!stream.CanRead || !stream.CanSeek || !stream.CanWrite)
+            {
+                throw new ArgumentException("Stream is not accessible", nameof(stream));
+            }
+
+            Image img;
+
+            try
+            {
+                stream.Position = 0;
+                img = Image.FromStream(stream);
+            }
+            catch
+            {
+                return false;
+            }
+
+            using (var temp = new MemoryStream())
+            {
+                if (img.Width > maxSide || img.Height > maxSide)
+                {
+                    var newSize = img.Size.FitTo(maxSide, maxSide);
+                    img = new Bitmap(img, newSize);
+                }
+
+                img.CompressImage(jpegQuality, temp);
+
+                temp.Position = 0;
+                stream.SetLength(0);
+                temp.CopyTo(stream);
+
+                return true;
+            }
+
+            img?.Dispose();
+
+            return false;
+        }
+
+        /// <summary>
         /// Пережимает картинку из потока в JPEG с указанным качеством <paramref name="quality"/>, в случае получения меньшего размера файла пишет данные в тот же поток и возвращает true
         /// </summary>
         /// <param name="stream">Поток изображения</param>

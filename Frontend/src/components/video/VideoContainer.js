@@ -10,6 +10,7 @@ import DeleteVideoDialogButton from './DeleteVideoDialogButton';
 import VideoPlayer from './VideoPlayer';
 import config from '../../config.json';
 import { useTranslation } from 'react-i18next';
+import Image from '../Image';
 
 export default function VideoContainer({ video, setVideo }) {
     const { t } = useTranslation();
@@ -39,10 +40,10 @@ export default function VideoContainer({ video, setVideo }) {
             <Link style={{ textDecoration: 'inherit', color: 'inherit' }} to={`${config.webroot}/profile/${login}`}>
                 <CardHeader
                     avatar={
-                        <Avatar sx={{ bgcolor: red[500] }} aria-label='recipe'>
+                        <Avatar sx={{ bgcolor: video?.user?.avatarUrl?.length > 0 ? '#0000' : red[500] }} aria-label='recipe'>
                             {
                                 video?.user?.avatarUrl?.length > 0
-                                    ? <img src={entity.avatarUrl} alt={avaText} />
+                                    ? <Image src={video.user.avatarUrl} />
                                     : avaText
                             }
                         </Avatar>

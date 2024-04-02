@@ -3,7 +3,6 @@ import { red } from '@mui/material/colors';
 import { Box } from '@mui/system';
 import { Link } from 'react-router-dom';
 import config from '../../config.json';
-import BrokenImageIcon from '@mui/icons-material/BrokenImage';
 import Image from '../Image';
 
 export default function VideoPreview({ entity }) {
@@ -18,10 +17,10 @@ export default function VideoPreview({ entity }) {
             <Link style={{ textDecoration: 'inherit', color: 'inherit' }} to={`${config.webroot}/profile/${login}`}>
                 <CardHeader
                     avatar={
-                        <Avatar sx={{ bgcolor: red[500] }} aria-label='recipe'>
+                        <Avatar sx={{ bgcolor: entity?.user?.avatarUrl?.length > 0 ? '#0000' : red[500] }} aria-label='recipe'>
                             {
-                                entity?.avatarUrl?.length > 0
-                                    ? <img src={entity.avatarUrl} alt={avaText} />
+                                entity?.user?.avatarUrl?.length > 0
+                                    ? <Image src={entity.user.avatarUrl} />
                                     : avaText
                             }
                         </Avatar>

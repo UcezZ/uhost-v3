@@ -236,5 +236,42 @@ namespace Uhost.Web.Controllers
 
             return ResponseHelper.Success(_service.GetOne(userId));
         }
+
+        /// <summary>
+        /// Самостоятельная загрузка аватара пользователя
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost("avatar")]
+        public IActionResult UploadAvatarSelf([FromForm] UserUpdateAvatarModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ResponseHelper.Error(ModelState.GetErrors());
+            }
+
+            var url = _service.UploadAvatar(model);
+
+            if (string.IsNullOrEmpty(url))
+            {
+                return ResponseHelper.Error(ApiStrings.User_Error_AvatarUpload);
+            }
+            else
+            {
+                return ResponseHelper.Success(url);
+            }
+        }
+
+        /// <summary>
+        /// Самомостоятельное удаление аватара пользователя
+        /// </summary>
+        /// <returns></returns>
+        [HttpDelete("avatar")]
+        public IActionResult DeleteAvatarSelf()
+        {
+            _service.DeleteAvatar();
+
+            return ResponseHelper.Success();
+        }
     }
 }

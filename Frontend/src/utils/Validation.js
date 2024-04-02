@@ -13,8 +13,9 @@ const Video = {
 }
 
 const User = {
-    name: (value) => value?.length >= 3 && value?.length <= 255,
-    desc: (value) => !value?.length || value?.length >= 5 && value?.length <= 5000
+    name: (value) => value?.length === 0 || value?.length >= 3 && value?.length <= 255,
+    password: (value) => value?.length >= 5 && value?.length <= 255,
+    desc: (value) => value?.length === 0 || value?.length >= 5 && value?.length <= 5000
 }
 
 const Validation = {

@@ -3,6 +3,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import PopupTransition from '../../ui/PopupTransition';
+import ChangePasswordForm from './ChangePasswordForm';
 
 export default function ChangePasswordDialogButton() {
     const { t } = useTranslation();
@@ -34,7 +35,7 @@ export default function ChangePasswordDialogButton() {
                 fullWidth>
                 <DialogTitle>{t('user.profile.changepassword.caption')}</DialogTitle>
                 <DialogContent >
-
+                    <ChangePasswordForm visible={visible} next={onClose} />
                 </DialogContent>
             </Dialog>
         </div>

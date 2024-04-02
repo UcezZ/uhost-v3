@@ -55,7 +55,7 @@ export default function App() {
         i18n.changeLanguage(Common.getLocale(user));
     }, [user]);
 
-    const themeMode = Common.checkThemeName(user?.theme?.toLowerCase() ?? (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+    const themeMode = Common.checkThemeName(user?.theme?.toLowerCase() ?? Common.getBrowserTheme());
     const themeIsDark = themeMode === 'dark';
 
     const theme = createTheme({

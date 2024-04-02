@@ -1,11 +1,11 @@
 import { Button, Dialog, DialogContent, DialogTitle, Typography } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import PopupTransition from '../../ui/PopupTransition';
-import UpdateProfileForm from './UpdateProfileForm';
+import UploadAvatarForm from './UploadAvatarForm';
 
-export default function UpdateProfileDialogButton({ shownUser }) {
+export default function UploadAvatarDialogButton({ shownUser, setShownUser }) {
     const { t } = useTranslation();
     const [visible, setVisible] = useState(false);
 
@@ -24,8 +24,8 @@ export default function UpdateProfileDialogButton({ shownUser }) {
                 onClick={onClick}
                 fullWidth
                 sx={{ gap: 1 }}>
-                <EditIcon />
-                <Typography variant='button'>{t('user.profile.edit')}</Typography>
+                <CloudUploadIcon />
+                <Typography variant='button'>{t('user.profile.avatar.upload')}</Typography>
             </Button>
             <Dialog
                 open={visible ?? false}
@@ -33,9 +33,9 @@ export default function UpdateProfileDialogButton({ shownUser }) {
                 keepMounted
                 onClose={onClose}
                 fullWidth>
-                <DialogTitle>{t('user.profile.edit.caption')}</DialogTitle>
+                <DialogTitle>{t('user.profile.avatar.upload.caption')}</DialogTitle>
                 <DialogContent >
-                    <UpdateProfileForm shownUser={shownUser} next={onClose} />
+                    <UploadAvatarForm visible={visible} next={onClose} shownUser={shownUser} setShownUser={setShownUser} />
                 </DialogContent>
             </Dialog>
         </div>

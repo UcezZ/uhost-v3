@@ -31,6 +31,7 @@ namespace Uhost.Core.Data.Entities
             UserLogOut = 0x25,
             UserBanned = 0x26,
             UserUnbanned = 0x27,
+            UserAvatarUploaded = 0x28,
 
             VideoUploaded = 0x31,
             VideoEdited = 0x32,
