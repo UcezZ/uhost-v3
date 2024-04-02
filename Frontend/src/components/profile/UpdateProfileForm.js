@@ -53,7 +53,11 @@ export default function UpdateProfileForm({ shownUser, next }) {
                 alignItems: 'center',
             }}
         >
-            <Box component='form' noValidate onSubmit={onSubmit} sx={{ mt: 1 }}>
+            <Box
+                component='form'
+                noValidate
+                onSubmit={onSubmit}
+                sx={{ mt: 1, width: '100%' }}>
                 <TextField
                     margin='normal'
                     fullWidth

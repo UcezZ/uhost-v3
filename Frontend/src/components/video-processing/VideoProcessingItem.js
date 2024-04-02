@@ -201,7 +201,6 @@ export default function VideoProcessingItem({ video, expanded }) {
                                 return (
                                     <Grid
                                         container
-                                        xs={12}
                                         backgroundColor={colorByState(e?.state)}
                                         mt={1}
                                         borderRadius={1}
@@ -243,7 +242,6 @@ export default function VideoProcessingItem({ video, expanded }) {
                                     backgroundColor={colorByState(e?.state)}
                                     borderRadius={1}
                                     mt={1}
-                                    xs={12}
                                 >
                                     <Grid item p={2} xs={2.5} >
                                         <Typography>

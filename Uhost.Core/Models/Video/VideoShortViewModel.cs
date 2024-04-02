@@ -39,7 +39,7 @@ namespace Uhost.Core.Models.Video
         {
             Id = entity.Id;
             Name = entity.Name;
-            CreatedAt = entity.CreatedAt.ToApiFmt();
+            CreatedAt = entity.CreatedAt.ToHumanFmt();
             Description = entity.Description.Length > 32 ? entity.Description[..32] : entity.Description;
             DurationObj = entity.Duration;
             Token = entity.Token;

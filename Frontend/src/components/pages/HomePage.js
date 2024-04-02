@@ -26,9 +26,9 @@ export default function SearchPage() {
                     </div>
                     : <div>
                         <Typography variant='h4' m={2}>{t('home.new')}</Typography>
-                        <VideoSearchResult sortBy='CreatedAt' sortDir='Desc' />
+                        <VideoSearchResult sortBy='CreatedAt' sortDir='Desc' perPage={10} />
                         <Typography variant='h4' m={2}>{t('home.random')}</Typography>
-                        <VideoSearchResult useRandomOnEmpryQuery />
+                        <VideoSearchResult useRandomOnEmpryQuery perPage={15} />
                     </div>
             }
         </Container>

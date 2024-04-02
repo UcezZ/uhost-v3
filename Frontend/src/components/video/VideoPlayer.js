@@ -276,7 +276,10 @@ export default function VideoPlayer({ video, largeMode }) {
         const videoElement = document.querySelector('video');
 
         if (videoElement) {
-            videoElement.play();
+            try {
+                videoElement.play();
+            }
+            catch { }
         }
     }, [videoRef?.current]);
 
@@ -296,7 +299,8 @@ export default function VideoPlayer({ video, largeMode }) {
                     style={{
                         flex: 1,
                         padding: 0,
-                        margin: 0
+                        margin: 0,
+                        maxWidth: '100%'
                     }}
                     poster={video.thumbnailUrl}
                     onTimeUpdate={onTimeUpdate}
