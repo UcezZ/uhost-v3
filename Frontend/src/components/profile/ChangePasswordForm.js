@@ -60,6 +60,7 @@ export default function ChangePasswordForm({ next }) {
                 sx={{ mt: 1 }}>
                 <TextField
                     margin='normal'
+                    type='password'
                     required
                     fullWidth
                     label={t('user.password')}
@@ -71,6 +72,7 @@ export default function ChangePasswordForm({ next }) {
                 />
                 <TextField
                     margin='normal'
+                    type='password'
                     required
                     fullWidth
                     label={t('user.password2')}
