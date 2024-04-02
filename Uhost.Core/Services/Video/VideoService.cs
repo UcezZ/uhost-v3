@@ -862,6 +862,11 @@ namespace Uhost.Core.Services.Video
                     query.ShowHiddenForUserId = userId;
                     query.ShowPrivateForUserId = userId;
                 }
+                else
+                {
+                    query.ShowHidden = true;
+                    query.ShowPrivate = true;
+                }
             }
 
             query.IncludeProcessingStates = true;
