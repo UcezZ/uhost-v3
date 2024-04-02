@@ -12,6 +12,7 @@ using Uhost.Core.Services.Email;
 using Uhost.Core.Services.File;
 using Uhost.Core.Services.Graylog;
 using Uhost.Core.Services.Log;
+using Uhost.Core.Services.Playlist;
 using Uhost.Core.Services.Razor;
 using Uhost.Core.Services.RedisSwitcher;
 using Uhost.Core.Services.Register;
@@ -58,6 +59,7 @@ namespace Uhost.Core.Extensions
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IRegisterService, RegisterService>();
             services.AddScoped<ICommentService, CommentService>();
+            services.AddScoped<IPlaylistService, PlaylistService>();
 
             services.AddSingleton<ISchedulerService, SchedulerService>();
             services.AddSingleton<IRazorService, RazorService>();

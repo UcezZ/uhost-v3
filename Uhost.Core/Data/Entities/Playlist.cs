@@ -7,6 +7,14 @@ namespace Uhost.Core.Data.Entities
     [Table("Playlists")]
     public class Playlist : BaseDateTimedEntity
     {
+        public enum SortBy
+        {
+            Id,
+            CreatedAt,
+            Name,
+            VideoCount
+        }
+
         public int UserId { get; set; }
 
         [Required, Column(TypeName = "text")]

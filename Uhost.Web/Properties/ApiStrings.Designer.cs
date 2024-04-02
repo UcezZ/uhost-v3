@@ -160,6 +160,15 @@ namespace Uhost.Web.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Плейлист с таким ид. не найден.
+        /// </summary>
+        internal static string Playlist_Error_NotFoundById {
+            get {
+                return ResourceManager.GetString("Playlist_Error_NotFoundById", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Реакции к этому видео отключены.
         /// </summary>
         internal static string Reaction_Error_NotAllowed {

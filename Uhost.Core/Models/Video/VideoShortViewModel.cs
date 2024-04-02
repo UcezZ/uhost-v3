@@ -9,7 +9,7 @@ namespace Uhost.Core.Models.Video
 {
     public class VideoShortViewModel : IEntityLoadable<Entity>
     {
-        internal int Id { get; set; }
+        public int Id { get; set; }
 
         public string Name { get; set; }
 

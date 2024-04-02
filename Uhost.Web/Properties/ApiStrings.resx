@@ -150,6 +150,9 @@
   <data name="File_Error_TypeFail" xml:space="preserve">
     <value>Недопустимый тип файла, допустимые значения: {0}</value>
   </data>
+  <data name="Playlist_Error_NotFoundById" xml:space="preserve">
+    <value>Плейлист с таким ид. не найден</value>
+  </data>
   <data name="Reaction_Error_NotAllowed" xml:space="preserve">
     <value>Реакции к этому видео отключены</value>
   </data>

@@ -265,5 +265,23 @@ namespace Uhost.Core.Extensions
                 }
             }
         }
+
+        /// <summary>
+        /// Безопасная функция Max()
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="enumerable"></param>
+        /// <param name="selector"></param>
+        /// <returns></returns>
+        public static TResult SafeMax<TSource, TResult>(this IEnumerable<TSource> enumerable, Func<TSource, TResult> selector)
+        {
+            if (enumerable.Any())
+            {
+                return enumerable.Max(selector);
+            }
+
+            return default;
+        }
     }
 }
