@@ -854,12 +854,18 @@ namespace Uhost.Core.Services.Video
         public PagerResultModel<VideoShortProcessingModel> GetAllProcessingsPaged(QueryModel query)
         {
             // это ограничение нужно только здесь
-            if (TryGetUserRights(out var rights) && TryGetUserId(out var userId) && !rights.Contains(Rights.VideoGetAll))
+            if (TryGetUserRights(out var rights) && TryGetUserId(out var userId))
             {
-                query.UserId = userId;
+                if (!rights.Contains(Rights.VideoGetAll))
+                {
+                    query.UserId = userId;
+                    query.ShowHiddenForUserId = userId;
+                    query.ShowPrivateForUserId = userId;
+                }
             }
 
             query.IncludeProcessingStates = true;
+
             var pager = _repo
                 .GetAll<VideoShortProcessingModel>(query)
                 .CreatePager(query);

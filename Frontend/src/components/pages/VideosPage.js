@@ -48,6 +48,8 @@ export default function Videos() {
                 query={search}
                 sortBy='CreatedAt'
                 sortDir={search?.length && 'Desc'}
+                showHidden
+                showPrivate
                 usePager />
         </Container>
     );
