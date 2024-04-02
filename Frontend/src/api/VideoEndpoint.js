@@ -20,15 +20,20 @@ export default {
      * @param {Number} perPage 
      * @param {String} sortBy 
      * @param {String} sortDir 
+     * @param {Boolean} showHidden
+     * @param {Boolean} showPrivate
      * @returns {Promise}
      */
-    search: (query, page, perPage, sortBy, sortDir) => api.get(`${config.apiroot}/videos`, {
+    search: (query, page, perPage, sortBy, sortDir, showHidden, showPrivate, userLogin) => api.get(`${config.apiroot}/videos`, {
         params: {
-            name: query,
+            name: query?.length > 0 ? query : null,
+            userLogin: userLogin?.length > 3 ? userLogin : null,
+            showHidden: showHidden ? true : null,
+            showPrivate: showPrivate ? true : null,
             page: page > 0 ? page : 1,
             perPage: perPage > 0 ? perPage : 25,
-            sortBy: sortBy,
-            sortDirection: sortDir
+            sortBy: sortBy?.length > 0 ? sortBy : null,
+            sortDirection: sortDir?.length > 0 ? sortDir : null
         }
     }),
 

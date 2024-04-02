@@ -32,6 +32,11 @@ namespace Uhost.Core.Models.Video
         public int UserId { get; set; }
 
         /// <summary>
+        /// Точный поиск по логину пользователя
+        /// </summary>
+        public string UserLogin { get; set; }
+
+        /// <summary>
         /// Включая удалённые
         /// </summary>
         public bool IncludeDeleted { get; set; }

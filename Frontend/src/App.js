@@ -11,7 +11,7 @@ import LoadingBox from './components/LoadingBox';
 import Common from './utils/Common';
 import { createTheme } from '@mui/material/styles';
 import { green, lime, orange, red, yellow } from '@mui/material/colors';
-import SearchPage from './components/pages/SearchPage';
+import SearchPage from './components/pages/HomePage';
 import VideoPage from './components/pages/VideoPage';
 import VideosPage from './components/pages/VideosPage';
 import NotFoundPage from './components/pages/NotFoundPage';

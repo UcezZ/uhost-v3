@@ -1,6 +1,7 @@
 {
     "en": {
         "translation": {
+            "common.search": "Type a search query...",
             "auth.caption": "Authorization",
             "auth.login": "Log in",
             "auth.logout": "Log out",
@@ -97,6 +98,7 @@
     },
     "ru": {
         "translation": {
+            "common.search": "Введите поисковой запрос...",
             "auth.caption": "Авторизация",
             "auth.login": "Войти",
             "auth.logout": "Выйти",

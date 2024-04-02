@@ -31,6 +31,10 @@ namespace Uhost.Core.Repositories
             {
                 q = q.Where(e => e.UserId == query.UserId);
             }
+            if (!string.IsNullOrEmpty(query.UserLogin))
+            {
+                q = q.Where(e => e.User.Login == query.UserLogin);
+            }
             if (!query.IncludeDeleted)
             {
                 q = q.Where(e => e.DeletedAt == null);
@@ -64,13 +68,15 @@ namespace Uhost.Core.Repositories
 
                 if (query.IsDescending)
                 {
-                    q = q.OrderBy(e => PostgreSqlFunctions.TrgmWordSimilarity(PostgreSqlFunctions.Debloat(e.Name), PostgreSqlFunctions.Debloat(query.Name)))
+                    q = q.OrderByDescending(e => EF.Functions.Like(PostgreSqlFunctions.Debloat(e.Name), "%" + PostgreSqlFunctions.Debloat(query.Name) + "%"))
+                        .ThenBy(e => PostgreSqlFunctions.TrgmWordSimilarity(PostgreSqlFunctions.Debloat(e.Name), PostgreSqlFunctions.Debloat(query.Name)))
                         .ThenByDescending(e => e.Name)
                         .ThenByDescending(e => e.CreatedAt);
                 }
                 else
                 {
-                    q = q.OrderByDescending(e => PostgreSqlFunctions.TrgmWordSimilarity(PostgreSqlFunctions.Debloat(e.Name), PostgreSqlFunctions.Debloat(query.Name)))
+                    q = q.OrderBy(e => EF.Functions.Like(PostgreSqlFunctions.Debloat(e.Name), "%" + PostgreSqlFunctions.Debloat(query.Name) + "%"))
+                        .ThenByDescending(e => PostgreSqlFunctions.TrgmWordSimilarity(PostgreSqlFunctions.Debloat(e.Name), PostgreSqlFunctions.Debloat(query.Name)))
                         .ThenBy(e => e.Name)
                         .ThenBy(e => e.CreatedAt);
                 }
