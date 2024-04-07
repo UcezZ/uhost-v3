@@ -12,7 +12,7 @@ import VideoDummy from './VideoDummy';
 import config from '../../config.json';
 
 const RES_AUTO = 'auto';
-const RES_WEBM = 'videoWebm';
+const RES_WEBM = 'videowebm';
 
 const IS_HLS_SUPPORTED = Common.isHlsSupported();
 const IS_MP4_SUPPORTED = Common.isMp4Supported();
@@ -447,7 +447,7 @@ export default function VideoPlayer({ video, largeMode }) {
                         <InputLabel htmlFor='playertype'>{t('video.player')}</InputLabel>
                         <Select
                             id='playertype'
-                            label='Player type'
+                            label={t('video.player')}
                             value={playerType}
                             onChange={onPlayerTypeChange}
                         >
@@ -460,7 +460,7 @@ export default function VideoPlayer({ video, largeMode }) {
                             <InputLabel htmlFor='playerres'>{t('video.resolution')}</InputLabel>
                             <Select
                                 id='playerres'
-                                label='Resolution'
+                                label={t('video.resolution')}
                                 value={getResolutions().some(e => e === playerRes) ? playerRes : getResolutions().firstOrDefault()}
                                 onChange={onResolutionChange}
                             >
