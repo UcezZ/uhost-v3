@@ -19,7 +19,7 @@ const THEMES = [
 ];
 
 const IS_MP4_SUPPORTED = document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
-const IS_HLS_SUPPORTED = IS_HLS_SUPPORTED && (Hls.isSupported() || Hls.isMSESupported());
+const IS_HLS_SUPPORTED = IS_MP4_SUPPORTED && (Hls.isSupported() || Hls.isMSESupported());
 
 export default class Common {
     static tokenKey = 'accessToken';
