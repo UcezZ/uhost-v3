@@ -139,6 +139,8 @@ export default function VideoPlayer({ video, largeMode }) {
                 return MP4_RESOLUTIONS.filter(e => video.resolutions.includes(e));
             case PLAYER_TYPE_WEBM:
                 return WEBM_RESOLUTIONS;
+            default:
+                return [];
         }
     }
 

@@ -18,6 +18,7 @@ export default function VideoDummy({ video }) {
                 maxWidth: '100%',
                 display: 'flex',
                 height: '100%',
+                minHeight: '300px',
                 backgroundImage: `url('${video?.thumbnailUrl}')`,
                 backgroundRepeat: 'no-repeat',
                 backgroundSize: 'contain',
