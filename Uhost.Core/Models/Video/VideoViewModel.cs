@@ -29,14 +29,12 @@ namespace Uhost.Core.Models.Video
         /// <summary>
         /// Токен доступа для установки в куку
         /// </summary>
-        internal string AccessToken { get; } = Guid.NewGuid().ToString();
+        public string AccessToken { get; } = Guid.NewGuid().ToString().Replace("-", string.Empty);
 
         /// <summary>
         /// Пути URL для генерации токенов
         /// </summary>
         internal IDictionary<string, string> UrlPaths { get; set; }
-
-        internal TimeSpan CookieTtl { get; set; }
 
         public override void LoadFromEntity(Entity entity)
         {
@@ -46,9 +44,5 @@ namespace Uhost.Core.Models.Video
             AllowComments = entity.AllowComments;
             AllowReactions = entity.AllowReactions;
         }
-
-        public string GetAccessToken() => AccessToken;
-
-        public TimeSpan GetCookieTtl() => CookieTtl;
     }
 }

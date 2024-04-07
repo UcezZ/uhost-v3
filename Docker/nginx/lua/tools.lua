@@ -57,7 +57,15 @@ function tools.get_path()
         end
     end
 
-    return path
+    if string.match(path, '%.urlset/[%w%d%-_]+%.[%w%d%-_]+$') then
+        local ix = path:find('/[%w%d%-_]+%.[%w%d%-_]+$')
+
+        if ix and ix > 3 then
+            path = path:sub(0, ix - 1)
+        end
+    end
+
+    return string.gsub(path, '%?.*', '')
 end
 
 function tools.get_client_ip()

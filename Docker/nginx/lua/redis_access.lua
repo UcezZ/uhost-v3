@@ -1,3 +1,7 @@
+if ngx.req.get_method() == 'OPTIONS' then
+    return
+end
+
 local tools = require 'tools'
 local md5 = require 'md5'
 
@@ -10,9 +14,9 @@ if not token_salt then
     ngx.exit(500)
 end
 
-local video_token = ngx.var.cookie_video_token
+local access_token = ngx.var.arg_access_token or ngx.var.http_access_token
 
-if not video_token then
+if not access_token then
     ngx.header.content_type = 'text/plain'
     ngx.status = 403
     ngx.say('Not allowed. No token provided.')
@@ -20,31 +24,23 @@ if not video_token then
 end
 
 local query = tools.get_path()
-local key_payload = video_token .. query .. token_salt
+local key_payload = access_token .. query .. token_salt
 
 local key_hash = md5.sumhexa(key_payload)
 local key = 'videotoken_' .. key_hash
 
 local red = tools.connect_redis()
 local res, err = red:exists(key)
-if not res or err or res == ngx.null then
+if err or res == 0 or res == ngx.null then
     red:close()
     ngx.header.content_type = 'text/plain'
     ngx.status = 403
 
-    if is_dev then
-        ngx.say('tk: ' .. video_token)
-        ngx.say('q: ' .. query)
-        ngx.say('s: ' .. token_salt)
-        ngx.say('k: ' .. key_payload)
-    else
-        ngx.say('Not allowed. ID: ' .. key_hash)
-        ngx.log('tk: ' .. video_token)
-        ngx.log('q: ' .. query)
-        ngx.log('ip: ' .. client_addr)
-        ngx.log('s: ' .. token_salt)
-        ngx.log('k: ' .. key_payload)
-    end
+    ngx.say('Not allowed. ID: ' .. key_hash)
+    ngx.log(ngx.INFO, 'tk: ' .. access_token)
+    ngx.log(ngx.INFO, 'q: ' .. query)
+    ngx.log(ngx.INFO, 's: ' .. token_salt)
+    ngx.log(ngx.INFO, 'k: ' .. key_payload)
 
     ngx.exit(403)
 end

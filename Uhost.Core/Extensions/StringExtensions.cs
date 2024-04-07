@@ -72,7 +72,7 @@ namespace Uhost.Core.Extensions
         /// <returns></returns>
         public static TEnum? ParseEnum<TEnum>(this string str) where TEnum : struct
         {
-            return Enum.TryParse<TEnum>(str, out var parsed) ? parsed : null;
+            return Enum.TryParse<TEnum>(str, true, out var parsed) ? parsed : null;
         }
 
         /// <summary>
@@ -309,6 +309,36 @@ namespace Uhost.Core.Extensions
                 .Join("\n");
 
             return _lineBreakFilterRegex.Replace(filtered, "\n\n");
+        }
+
+        /// <summary>
+        /// Преобразует строку в PascalCase
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string ToPascalCase(this string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+
+            return char.ToUpperInvariant(value[0]) + value[1..];
+        }
+
+        /// <summary>
+        /// Преобразует строку в camelCase
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string ToCamelCase(this string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+
+            return char.ToLowerInvariant(value[0]) + value[1..];
         }
     }
 }

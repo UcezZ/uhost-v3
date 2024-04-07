@@ -202,7 +202,7 @@ namespace Uhost.Core.Common
         /// Создаёт путь к файлу <paramref name="fileName"/>
         /// </summary>
         /// <param name="fileName"></param>
-        public static void MakePath(string fileName)
+        public static void EnsurePathToFileExist(string fileName)
         {
             var dirName = Path.GetDirectoryName(fileName);
 

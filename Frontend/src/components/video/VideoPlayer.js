@@ -8,42 +8,34 @@ import { IconButton, Slider } from '@mui/material';
 import Hls from 'hls.js';
 import Common from '../../utils/Common';
 import { useTranslation } from 'react-i18next';
+import VideoDummy from './VideoDummy';
+import config from '../../config.json';
 
 const RES_AUTO = 'auto';
+const RES_WEBM = 'videoWebm';
 
-const IS_HLS_SUPPORTED = Hls.isSupported();
+const IS_HLS_SUPPORTED = Common.isHlsSupported();
+const IS_MP4_SUPPORTED = Common.isMp4Supported();
 
 const PLAYER_TYPE_HLS = 'hls';
 const PLAYER_TYPE_MP4 = 'mp4';
+const PLAYER_TYPE_WEBM = 'webm';
 
-const PLAYER_TYPES = [
-    IS_HLS_SUPPORTED ? PLAYER_TYPE_HLS : null,
-    PLAYER_TYPE_MP4
-].filter(e => e);
+const MP4_RESOLUTIONS = [
+    'video240p',
+    'video480p',
+    'video720p',
+    'video1080p'
+];
 
-/**
- * 
- * @returns {String}
- */
-function loadPlayerType() {
-    var type = localStorage.getItem('player_type');
+const HLS_RESOLUTIONS = [
+    RES_AUTO,
+    ...MP4_RESOLUTIONS
+];
 
-    if (PLAYER_TYPES.includes(type)) {
-        return type;
-    } else {
-        return PLAYER_TYPE_HLS;
-    }
-}
-
-/**
- * 
- * @param {String} type 
- */
-function savePlayerType(type) {
-    if (PLAYER_TYPES.includes(type)) {
-        localStorage.setItem('player_type', type);
-    }
-}
+const WEBM_RESOLUTIONS = [
+    RES_WEBM
+];
 
 /**
  * 
@@ -71,17 +63,10 @@ function savePlayerVolume(value) {
     localStorage.setItem('player_volume', value)
 }
 
-const hls = Hls.isSupported() && new Hls({
-    xhrSetup: async (xhr, url) => {
-        xhr.withCredentials = true;
-    }
-});
-
 export default function VideoPlayer({ video, largeMode }) {
     const { t } = useTranslation();
     const [duration, setDuration] = useState(Common.parseTime(video?.duration));
     const storageKey = `video_${video?.token}`;
-    const firstVideoUrl = video.urls[`video${video.resolutions.firstOrDefault()}`];
 
     const [prevType, setPrevType] = useState();
     const [prevRes, setPrevRes] = useState();
@@ -94,15 +79,66 @@ export default function VideoPlayer({ video, largeMode }) {
     const [playerType, setPlayerType] = useState(loadPlayerType());
     const [playerRes, setPlayerRes] = useState(loadResolution());
 
+    const hls = IS_HLS_SUPPORTED ? new Hls({
+        xhrSetup: function (xhr, url) {
+            xhr.withCredentials = true;
+            xhr.setRequestHeader('Access-Token', video?.accessToken);
+        },
+        ...config.hlsConfig
+    }) : null;
+
+    function turnOffHls() {
+        if (IS_HLS_SUPPORTED) {
+            try {
+                hls?.stopLoad && hls.stopLoad();
+                hls?.destroy && hls.destroy();
+            } catch { }
+        }
+    }
+
+    function getPlayerTypes() {
+        return [
+            IS_HLS_SUPPORTED && HLS_RESOLUTIONS.some(e => video.resolutions.includes(e)) ? PLAYER_TYPE_HLS : null,
+            IS_MP4_SUPPORTED && MP4_RESOLUTIONS.some(e => video.resolutions.includes(e)) ? PLAYER_TYPE_MP4 : null,
+            WEBM_RESOLUTIONS.some(e => video.resolutions.includes(e)) ? PLAYER_TYPE_WEBM : null
+        ].filter(e => e);
+    }
+
     /**
      * 
-     * @returns {String[]}
+     * @returns {String}
      */
+    function loadPlayerType() {
+        var type = localStorage.getItem('player_type');
+
+        if (getPlayerTypes().includes(type)) {
+            return type;
+        } else {
+            return PLAYER_TYPE_HLS;
+        }
+    }
+
+    /**
+     * 
+     * @param {String} type 
+     */
+    function savePlayerType(type) {
+        if (getPlayerTypes().includes(type)) {
+            localStorage.setItem('player_type', type);
+        }
+    }
+
+    const NO_PLAYER = getPlayerTypes().length === 0;
+
     function getResolutions() {
-        return [
-            playerType === PLAYER_TYPES[0] && IS_HLS_SUPPORTED ? RES_AUTO : null,
-            ...video?.resolutions
-        ].filter(e => e);
+        switch (playerType) {
+            case PLAYER_TYPE_HLS:
+                return HLS_RESOLUTIONS.filter(e => e === RES_AUTO || video.resolutions.includes(e));
+            case PLAYER_TYPE_MP4:
+                return MP4_RESOLUTIONS.filter(e => video.resolutions.includes(e));
+            case PLAYER_TYPE_WEBM:
+                return WEBM_RESOLUTIONS;
+        }
     }
 
     function loadResolution() {
@@ -131,7 +167,10 @@ export default function VideoPlayer({ video, largeMode }) {
     };
 
     useEffect(() => {
-        setIsPlaying(!videoRef.current.paused);
+        try {
+            setIsPlaying(!videoRef.current.paused);
+        }
+        catch { }
     }, [videoRef?.current?.paused]);
 
     function onMute() {
@@ -203,12 +242,34 @@ export default function VideoPlayer({ video, largeMode }) {
     }
 
     function updateHlsLevel() {
-        var levelIndex = getResolutions().indexOf(playerRes);
+        var levelIndex = HLS_RESOLUTIONS.indexOf(playerRes);
 
         if (levelIndex < 0) {
             hls.currentLevel = -1;
         } else {
             hls.currentLevel = levelIndex - 1;
+        }
+    }
+
+    function updateVideoSource() {
+        var allRes = getResolutions();
+
+        var res = playerRes;
+
+        if (!allRes.includes(res)) {
+            console.log(`${res} not found, ${playerType}`);
+            res = allRes[0];
+        }
+        if (res in video.urls) {
+            var url = video.urls[res];
+
+            if (url && videoRef?.current?.src?.startsWith && !videoRef.current.src.startsWith(url)) {
+                videoRef.current.src = `${url}?access_token=${video?.accessToken}`;
+            } else {
+                console.log(`source not updated, ${url}`);
+            }
+        } else {
+            console.log(`${res} not found in video`);
         }
     }
 
@@ -221,36 +282,39 @@ export default function VideoPlayer({ video, largeMode }) {
         var t = time;
         var doUpdate = playerType !== prevType || prevRes !== playerRes;
 
-        // если смена плеера на hls и hls поддерживается
-        if (playerType !== prevType && playerType === PLAYER_TYPE_HLS && IS_HLS_SUPPORTED) {
-            hls.loadSource(video.urls.hls);
-            hls.attachMedia(videoRef.current);
-            hls.on(Hls.Events.MANIFEST_PARSED, (ev, data) => {
-                updateHlsLevel();
-                if (videoRef.current.paused && wasPlaying) {
-                    videoRef.current.play();
-                }
-            });
+        if (!doUpdate) {
+            return;
         }
 
-        // если смена разрешения на hls и hls поддерживается
-        if ((prevRes !== playerRes || playerType === PLAYER_TYPE_HLS && prevType !== PLAYER_TYPE_HLS) && IS_HLS_SUPPORTED) {
-            updateHlsLevel();
-        }
-
-        // если смена плеера или разрешения на mp4 или не поддерживается hls
-        if (doUpdate && (playerType === PLAYER_TYPE_MP4 || playerType === PLAYER_TYPE_HLS && !IS_HLS_SUPPORTED)) {
-            hls?.stopLoad && hls.stopLoad();
-            hls?.detachMedia && hls.detachMedia();
-
-            var url = firstVideoUrl;
-            var key = `video${playerRes}`;
-
-            if (key in video.urls) {
-                url = video.urls[key];
+        if (playerType !== prevType) {
+            // выключаем HLS
+            if (prevType === PLAYER_TYPE_HLS) {
+                turnOffHls();
             }
-            if (videoRef.current.src != url) {
-                videoRef.current.src = url;
+
+            switch (playerType) {
+                case PLAYER_TYPE_HLS:
+                    hls.loadSource(video.urls.hls);
+                    hls.attachMedia(videoRef.current);
+                    hls.on(Hls.Events.MANIFEST_PARSED, (ev, data) => {
+                        updateHlsLevel();
+                        if (videoRef.current.paused && wasPlaying) {
+                            videoRef.current.play();
+                        }
+                    });
+                    break;
+                default:
+                    updateVideoSource();
+                    break;
+            }
+        } else {
+            switch (playerType) {
+                case PLAYER_TYPE_HLS:
+                    updateHlsLevel();
+                    break;
+                default:
+                    updateVideoSource();
+                    break;
             }
         }
 
@@ -259,7 +323,9 @@ export default function VideoPlayer({ video, largeMode }) {
             onTimeSeek(null, t);
 
             if (videoRef.current.paused && wasPlaying) {
-                videoRef.current.play();
+                try {
+                    videoRef.current.play();
+                } catch { }
             }
         }
 
@@ -282,6 +348,27 @@ export default function VideoPlayer({ video, largeMode }) {
             catch { }
         }
     }, [videoRef?.current]);
+
+    // останавливаем HLS при размонтировании компонента
+    useEffect(() => turnOffHls, []);
+
+    if (NO_PLAYER) {
+        return (
+            <div>
+                <CardMedia
+                    sx={{
+                        padding: 0,
+                        margin: 0,
+                        backgroundColor: '#000',
+                        minHeight: '300px',
+                        display: 'flex',
+                        maxHeight: largeMode ? '100%' : '600px',
+                    }}>
+                    <VideoDummy video={video} />
+                </CardMedia>
+            </div>
+        );
+    }
 
     return (
         <div>
@@ -307,7 +394,9 @@ export default function VideoPlayer({ video, largeMode }) {
                     onClick={onPlayPause}
                     onLoadedData={onVideoLoaded}
                     onEnded={onPlaybackEnded}
+                    onError={console.log}
                     onContextMenu={e => false}
+                    onContextMenuCapture={e => false}
                     muted
                     autoPlay
                 />
@@ -361,22 +450,25 @@ export default function VideoPlayer({ video, largeMode }) {
                             value={playerType}
                             onChange={onPlayerTypeChange}
                         >
-                            {PLAYER_TYPES.map((e, i) => <MenuItem value={e} key={i}>{t(`video.player.${e}`)}</MenuItem>)}
+                            {getPlayerTypes().map((e, i) => <MenuItem value={e} key={i}>{t(`video.player.${e}`)}</MenuItem>)}
                         </Select>
                     </FormControl>
-                    <FormControl sx={{ minWidth: 100 }}>
-                        <InputLabel htmlFor='playerres'>{t('video.resolution')}</InputLabel>
-                        <Select
-                            id='playerres'
-                            label='Resolution'
-                            value={getResolutions().some(e => e === playerRes) ? playerRes : getResolutions().firstOrDefault()}
-                            onChange={onResolutionChange}
-                        >
-                            {getResolutions().map((e, i) => <MenuItem value={e} key={i} >
-                                {t(`video.resolution.${e}`)}{playerType === PLAYER_TYPE_HLS && hls.currentLevel + 1 === i ? ' \u2022' : ''}
-                            </MenuItem>)}
-                        </Select>
-                    </FormControl>
+
+                    {
+                        playerType !== PLAYER_TYPE_WEBM && <FormControl sx={{ minWidth: 100 }}>
+                            <InputLabel htmlFor='playerres'>{t('video.resolution')}</InputLabel>
+                            <Select
+                                id='playerres'
+                                label='Resolution'
+                                value={getResolutions().some(e => e === playerRes) ? playerRes : getResolutions().firstOrDefault()}
+                                onChange={onResolutionChange}
+                            >
+                                {getResolutions().map((e, i) => <MenuItem value={e} key={i} >
+                                    {t(`video.resolution.${e}`)}{playerType === PLAYER_TYPE_HLS && hls.currentLevel + 1 === i ? ' \u2022' : ''}
+                                </MenuItem>)}
+                            </Select>
+                        </FormControl>
+                    }
                 </Box>
             </CardActions>
         </div>

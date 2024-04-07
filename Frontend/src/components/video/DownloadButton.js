@@ -23,7 +23,7 @@ export default function DownloadButton({ token, sizes }) {
         setAnchorEl(null);
     };
     function onDownloadClick(link) {
-        Common.openDownloadUrl(`${config.apiroot}/videos/${token}/download/${link.key.toPascalCase()}`);
+        Common.openDownloadUrl(`${config.apiroot}/videos/${token}/download/${link.key}`);
         onClose();
     }
 

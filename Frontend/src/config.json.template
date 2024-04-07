@@ -3,5 +3,6 @@
     "webroot": "",
     "sentryConfig": {
         "dsn": "https://key@sentry.host.domain/1"
-    }
+    },
+    "hlsConfig": {}
 }

@@ -17,11 +17,11 @@ export default function VideoContainer({ video, setVideo }) {
     const { user } = useContext(StateContext);
     const sizes = video?.resolutions?.map
         ? video.resolutions
-            .filter(e => `video${e}` in video?.downloadSizes)
+            .filter(e => e in video?.downloadSizes)
             .map(e => {
                 return {
                     key: e,
-                    size: video.downloadSizes[`video${e}`]
+                    size: video.downloadSizes[e]
                 }
             })
         : [];

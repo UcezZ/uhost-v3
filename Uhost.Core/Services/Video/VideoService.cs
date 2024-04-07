@@ -51,7 +51,8 @@ namespace Uhost.Core.Services.Video
             FileTypes.Video240p,
             FileTypes.Video480p,
             FileTypes.Video720p,
-            FileTypes.Video1080p
+            FileTypes.Video1080p,
+            FileTypes.VideoWebm
         };
 
         public static IReadOnlyCollection<FileTypes> VideoFileTypes => _videoFileTypes;
@@ -101,10 +102,8 @@ namespace Uhost.Core.Services.Video
                         .Url;
                     model.Resolutions = files
                         .Where(e => e.DynId == model.Id && _videoFileTypes.Contains(e.TypeParsed))
-                        .Select(e => e.Type.ParseDigits())
-                        .Where(e => e > 0)
-                        .OrderBy(e => e)
-                        .Select(e => $"{e}p");
+                        .Select(e => e.Type.ToCamelCase())
+                        .OrderBy(e => e.ParseDigits());
 
                     if (model.User != null)
                     {
@@ -157,6 +156,11 @@ namespace Uhost.Core.Services.Video
             return FillViewModel(model);
         }
 
+        /// <summary>
+        /// Создаёт ключи redis для проверуки токена
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         private async Task CreateRedisKeys(VideoViewModel model)
         {
             if (model == null)
@@ -164,7 +168,7 @@ namespace Uhost.Core.Services.Video
                 return;
             }
 
-            model.CookieTtl = model.DurationObj.Add(TimeSpan.FromHours(1));
+            var keyTtl = model.DurationObj.Add(TimeSpan.FromHours(24));
 
             TryGetUserIp(out var ip);
 
@@ -174,15 +178,15 @@ namespace Uhost.Core.Services.Video
                 {
                     model.Token,
                     model.AccessToken,
-                    Url = url,
-                    Ip = ip.ToString()
+                    Url = url.Replace("/master.m3u8", string.Empty, StringComparison.InvariantCultureIgnoreCase),
+                    Ip = ip?.ToString()
                 };
 
                 var keyPayload = $"{value.AccessToken}{value.Url}{CoreSettings.VideoTokenSalt}";
                 var keyHash = keyPayload.ComputeHash(HasherExtensions.EncryptionMethod.MD5);
                 var key = $"videotoken_{keyHash}";
 
-                await _redis.ExecuteAsync(async e => await e.StringSetAsync(key, value.ToJson(Formatting.Indented), model.CookieTtl));
+                await _redis.ExecuteAsync(async e => await e.StringSetAsync(key, value.ToJson(Formatting.Indented), keyTtl));
             }
         }
 
@@ -205,8 +209,11 @@ namespace Uhost.Core.Services.Video
                 .GetAll<VideoViewModel>(query)
                 .FirstOrDefault();
 
-            FillViewModel(model);
-            await CreateRedisKeys(model);
+            if (model != null)
+            {
+                FillViewModel(model);
+                await CreateRedisKeys(model);
+            }
 
             return model;
         }
@@ -242,16 +249,17 @@ namespace Uhost.Core.Services.Video
                 .OrderBy(e => e.Type.ParseDigits())
                 .ToList();
             model.Resolutions = videoFiles
-                .Select(e => e.Type.ParseDigits())
-                .Where(e => e > 0)
-                .Select(e => $"{e}p");
+                .Select(e => e.Type.ToCamelCase())
+                .OrderBy(e => e.ParseDigits());
             model.UrlPaths = videoFiles.ToDictionary(e => e.Type, e => e.UrlPath);
 
-            if (videoFiles.Any())
+            var h264files = videoFiles.Where(e => e.TypeParsed != FileTypes.VideoWebm);
+
+            if (h264files.Any())
             {
                 model.UrlPaths["Hls"] = Tools.UrlCombine(
                     CoreSettings.HlsUrl,
-                    $",{videoFiles.Select(e => e.UrlPath).Join(",")},.urlset",
+                    $",{h264files.Select(e => e.UrlPath).Join(",")},.urlset",
                     "master.m3u8");
             }
 
@@ -400,7 +408,7 @@ namespace Uhost.Core.Services.Video
                     .FromUrlInput(new Uri(url))
                     .OutputToFile(thumbFile.FullName, true, e => e.WithVideoFilters(vf => vf.Scale(size)).WithFrameOutputCount(1));
 
-                Tools.MakePath(thumbFile.FullName);
+                Tools.EnsurePathToFileExist(thumbFile.FullName);
 
                 if (!ffargs.ProcessSynchronously())
                 {
@@ -485,7 +493,7 @@ namespace Uhost.Core.Services.Video
                     .FromFileInput(rawVideoPath)
                     .OutputToFile(thumbFile.FullName, true, e => e.WithVideoFilters(vf => vf.Scale(thumbSize)).Seek(capTime).WithFrameOutputCount(1));
 
-                Tools.MakePath(thumbFile.FullName);
+                Tools.EnsurePathToFileExist(thumbFile.FullName);
 
                 if (!ffargs.ProcessSynchronously())
                 {
@@ -500,6 +508,7 @@ namespace Uhost.Core.Services.Video
                     dynId: entity.Id);
 
                 EnqueueConversion(entity.Id, FileTypes.Video240p);
+                EnqueueConversion(entity.Id, FileTypes.VideoWebm);
 
                 if (size.Height >= 480)
                 {
@@ -560,7 +569,8 @@ namespace Uhost.Core.Services.Video
                 return;
             }
 
-            var output = new FileInfo(Path.GetFullPath(Path.Combine(Path.GetFullPath("tmp"), $"temp_{Guid.NewGuid()}.mp4")));
+            var extension = processingState.Type == FileTypes.VideoWebm ? "webm" : "mp4";
+            var output = new FileInfo(Path.GetFullPath(Path.Combine(Path.GetFullPath("tmp"), $"temp_{Guid.NewGuid()}.{extension}")));
             var mediaInfo = await FFProbe.AnalyseAsync(file.Path);
             var ffargs = FFMpegArguments
                 .FromFileInput(file.Path, true, e => e.WithHardwareAcceleration(CoreSettings.InputHardwareAcceleration))
@@ -599,8 +609,9 @@ namespace Uhost.Core.Services.Video
 
             _processingStates.UpdateState(processingStateId, VideoProcessingStates.Processing);
 
-            var output = new FileInfo(Path.GetFullPath(Path.Combine(Path.GetFullPath("tmp"), $"temp_{Guid.NewGuid()}.mp4")));
-            Tools.MakePath(output.FullName);
+            var extension = processingState.Type == FileTypes.VideoWebm ? "webm" : "mp4";
+            var output = new FileInfo(Path.GetFullPath(Path.Combine(Path.GetFullPath("tmp"), $"temp_{Guid.NewGuid()}.{extension}")));
+            Tools.EnsurePathToFileExist(output.FullName);
             (var token, var duration) = _repo.GetTokenAndDuration(processingState.VideoId);
             var ffargs = FFMpegArguments
                 .FromUrlInput(new Uri(url))
@@ -647,6 +658,7 @@ namespace Uhost.Core.Services.Video
                 }
 
                 EnqueueConversion(processingState.VideoId, FileTypes.Video240p);
+                EnqueueConversion(processingState.VideoId, FileTypes.VideoWebm);
 
                 if (mediaInfo.PrimaryVideoStream.Height >= 480)
                 {
@@ -683,7 +695,7 @@ namespace Uhost.Core.Services.Video
         /// <returns></returns>
         private async Task DoConversion(FFMpegArgumentProcessor ffargs, FileInfo output, VideoProcessingStateViewModel processingState)
         {
-            Tools.MakePath(output.FullName);
+            Tools.EnsurePathToFileExist(output.FullName);
             (var token, var duration) = _repo.GetTokenAndDuration(processingState.VideoId);
 
             await _logger?.WriteLineAsync($"Processing video #{processingState.VideoId},{token} ({processingState.Type}) with arguments:\r\n{ffargs?.Arguments}", LogWriter.Severity.Info);
@@ -692,6 +704,7 @@ namespace Uhost.Core.Services.Video
             {
                 _processingStates.UpdateState(processingState.Id, VideoProcessingStates.Processing);
 
+                var extension = processingState.Type == FileTypes.VideoWebm ? "webm" : "mp4";
                 var result = await ffargs?
                     .NotifyOnProgress(async e => await OnFFProgressAsync(e, token, processingState.Type.Value), duration)
                     .ProcessAsynchronously();
@@ -700,7 +713,7 @@ namespace Uhost.Core.Services.Video
                 {
                     _fileService.Add(
                         output,
-                        name: "video.mp4",
+                        name: $"video.{extension}",
                         type: processingState.Type,
                         dynType: typeof(Entity),
                         dynId: processingState.VideoId);
@@ -829,8 +842,9 @@ namespace Uhost.Core.Services.Video
                 return false;
             }
 
+            var extension = type == FileTypes.VideoWebm ? "webm" : "mp4";
             lastModified = video.LastModified;
-            name = $"{video.Name}.mp4";
+            name = $"{video.Name}.{extension}";
 
             var file = _fileService.GetByDynEntity<FileShortViewModel>(video.Id, typeof(Entity), type).FirstOrDefault();
 

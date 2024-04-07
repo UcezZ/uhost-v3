@@ -24,7 +24,8 @@ namespace Uhost.Core.Data.Entities
             Video240p,
             Video480p,
             Video720p,
-            Video1080p
+            Video1080p,
+            VideoWebm
         }
 
         public int? UserId { get; set; }

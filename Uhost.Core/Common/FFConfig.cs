@@ -14,6 +14,8 @@ namespace Uhost.Core.Common
 
         public static IDictionary<Speed, string> VideoPresets { get; }
 
+        public static string HardwareAcceleration { get; }
+
         static FFConfig()
         {
             _hwinfo = new HardwareInfo();
@@ -37,10 +39,12 @@ namespace Uhost.Core.Common
 
             if (_hwinfo.VideoControllerList.Any(e => e.Manufacturer.Contains("intel", StringComparison.InvariantCultureIgnoreCase)))
             {
+                HardwareAcceleration = "qsv";
                 VideoCodec = "h264_qsv";
             }
             if (_hwinfo.VideoControllerList.Any(e => e.Manufacturer.Contains("nvidia", StringComparison.InvariantCultureIgnoreCase)))
             {
+                HardwareAcceleration = "cuda";
                 VideoCodec = "h264_nvenc";
                 VideoPresets[Speed.VerySlow] = "p7";
                 VideoPresets[Speed.Slower] = "p6";

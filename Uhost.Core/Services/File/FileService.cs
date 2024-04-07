@@ -39,7 +39,7 @@ namespace Uhost.Core.Services.File
             {
                 var temp = Path.GetFullPath(Path.Combine(Path.GetTempPath(), $"upload_{Guid.NewGuid()}"));
 
-                Tools.MakePath(temp);
+                Tools.EnsurePathToFileExist(temp);
 
                 return new FileStream(temp, FileMode.Create, FileAccess.ReadWrite);
             }
@@ -49,7 +49,7 @@ namespace Uhost.Core.Services.File
 
                 var temp = Path.GetFullPath(Path.Combine(Path.GetFullPath("tmp"), $"upload_{Guid.NewGuid()}"));
 
-                Tools.MakePath(temp);
+                Tools.EnsurePathToFileExist(temp);
 
                 return new FileStream(temp, FileMode.Create, FileAccess.ReadWrite);
             }

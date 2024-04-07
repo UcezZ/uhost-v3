@@ -130,7 +130,7 @@ namespace Uhost.Core.Extensions
         /// <returns></returns>
         public static IEnumerable<TObject> DistinctBy<TObject, TProperty>(this IEnumerable<TObject> input, Func<TObject, TProperty> selector)
         {
-            var tracker = new List<TProperty>();
+            var tracker = new HashSet<TProperty>();
 
             foreach (var obj in input)
             {
@@ -170,9 +170,7 @@ namespace Uhost.Core.Extensions
         /// <returns></returns>
         public static IEnumerable<(int Index, T Value)> AsIndexValueEnumerable<T>(this IEnumerable<T> enumerable)
         {
-            var index = 0;
-
-            return enumerable.Select(e => (index++, e));
+            return enumerable.Select((e, i) => (i, e));
         }
 
         /// <summary>

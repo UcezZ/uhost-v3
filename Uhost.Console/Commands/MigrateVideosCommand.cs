@@ -44,7 +44,7 @@ namespace Uhost.Console.Commands
 
                 try
                 {
-                    Tools.MakePath(file.New.FullName);
+                    Tools.EnsurePathToFileExist(file.New.FullName);
                     file.Old.MoveTo(file.New.FullName, true);
                     WriteLine("\tOk!!");
                 }

@@ -13,6 +13,7 @@ namespace Uhost.Core.Extensions
 
             return type switch
             {
+                FileEntity.FileTypes.VideoWebm or
                 FileEntity.FileTypes.Video240p or
                 FileEntity.FileTypes.Video480p or
                 FileEntity.FileTypes.Video720p or
@@ -28,6 +29,7 @@ namespace Uhost.Core.Extensions
 
             return type switch
             {
+                FileEntity.FileTypes.VideoWebm or
                 FileEntity.FileTypes.Video240p or
                 FileEntity.FileTypes.Video480p or
                 FileEntity.FileTypes.Video720p or
@@ -43,6 +45,7 @@ namespace Uhost.Core.Extensions
 
             return type switch
             {
+                FileEntity.FileTypes.VideoWebm or
                 FileEntity.FileTypes.Video240p or
                 FileEntity.FileTypes.Video480p or
                 FileEntity.FileTypes.Video720p or

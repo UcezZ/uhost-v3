@@ -1,3 +1,5 @@
+import Hls from 'hls.js';
+
 const COLOR_EMPTY = { r: 0, g: 0, b: 0, a: 0 };
 
 const LOCALE_RU = 'ru';
@@ -15,6 +17,9 @@ const THEMES = [
     THEME_LIGHT,
     THEME_DARK
 ];
+
+const IS_HLS_SUPPORTED = Hls.isSupported() || Hls.isMSESupported();
+const IS_MP4_SUPPORTED = document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
 
 export default class Common {
     static tokenKey = 'accessToken';
@@ -320,5 +325,21 @@ export default class Common {
      */
     static getLocale(user = null) {
         return this.filterLocale(user?.locale ?? this.getBrowserLocale());
+    }
+
+    /**
+     * 
+     * @returns {Boolean}
+     */
+    static isHlsSupported() {
+        return IS_HLS_SUPPORTED;
+    }
+
+    /**
+     * 
+     * @returns {Boolean}
+     */
+    static isMp4Supported() {
+        return IS_MP4_SUPPORTED;
     }
 }

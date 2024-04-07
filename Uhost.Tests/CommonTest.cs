@@ -24,6 +24,20 @@ namespace Uhost.Tests
         }
 
         [Fact]
+        public async Task WebmConversionTest()
+        {
+            var file = GetAnyMediaFile();
+
+            Assert.NotNull(file);
+
+            var mediaInfo = await FFProbe.AnalyseAsync(file.FullName);
+            var ffargs = FFMpegArguments
+                .FromFileInput(file.FullName)
+                .OutputToFile(Path.Combine(Path.GetTempPath(), "test480.webm"), true, e => e.ApplyOptimalPreset(mediaInfo, FileTypes.VideoWebm, TimeSpan.FromSeconds(30)));
+            await ffargs.ProcessAsynchronously(true);
+        }
+
+        [Fact]
         public async Task ConversionTest()
         {
             var file = GetAnyMediaFile();

@@ -22,38 +22,35 @@ namespace Uhost.Core.Extensions
                 throw new ArgumentException("Stream is not accessible", nameof(stream));
             }
 
-            Image img;
-
             try
             {
                 stream.Position = 0;
-                img = Image.FromStream(stream);
+                var img = Image.FromStream(stream);
+
+                using (var temp = new MemoryStream())
+                {
+                    if (img.Width > maxSide || img.Height > maxSide)
+                    {
+                        var newSize = img.Size.FitTo(maxSide, maxSide);
+                        img = new Bitmap(img, newSize);
+                    }
+
+                    img.CompressImage(jpegQuality, temp);
+
+                    temp.Position = 0;
+                    stream.SetLength(0);
+                    temp.CopyTo(stream);
+                }
+
+                img?.Dispose();
+                stream.Position = 0;
+
+                return true;
             }
             catch
             {
                 return false;
             }
-
-            using (var temp = new MemoryStream())
-            {
-                if (img.Width > maxSide || img.Height > maxSide)
-                {
-                    var newSize = img.Size.FitTo(maxSide, maxSide);
-                    img = new Bitmap(img, newSize);
-                }
-
-                img.CompressImage(jpegQuality, temp);
-
-                temp.Position = 0;
-                stream.SetLength(0);
-                temp.CopyTo(stream);
-
-                return true;
-            }
-
-            img?.Dispose();
-
-            return false;
         }
 
         /// <summary>

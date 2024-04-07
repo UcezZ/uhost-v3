@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Uhost.Core.Extensions;
 
 namespace Uhost.Core.Attributes.Validation
 {
@@ -72,7 +73,7 @@ namespace Uhost.Core.Attributes.Validation
                 return ValidationResult.Success;
             }
 
-            var errorMessage = string.Format(ErrorMessageString, string.Join(", ", _values));
+            var errorMessage = ErrorMessageString.Format(_values.Join(", "));
 
             if ((value == null || value is string str && string.IsNullOrEmpty(str)) && _ifNullOrEmpty != null)
             {
@@ -96,17 +97,17 @@ namespace Uhost.Core.Attributes.Validation
                 }
             }
 
-            if (value is string[] array && array.All(_values.Contains))
+            if (value is string[] array && array.All(s => _values.Any(e => e.Equals(s, StringComparison.InvariantCultureIgnoreCase))))
             {
                 return ValidationResult.Success;
             }
 
-            if (value is IEnumerable<string> enumerable && enumerable.All(_values.Contains))
+            if (value is IEnumerable<string> enumerable && enumerable.All(s => _values.Any(e => e.Equals(s, StringComparison.InvariantCultureIgnoreCase))))
             {
                 return ValidationResult.Success;
             }
 
-            return _values.Contains(str)
+            return _values.Any(e => e.Equals(str, StringComparison.InvariantCultureIgnoreCase))
                 ? ValidationResult.Success
                 : new ValidationResult(errorMessage);
         }

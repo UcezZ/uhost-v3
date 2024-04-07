@@ -15,7 +15,13 @@ namespace Uhost.Core.Models.VideoProcessingState
         {
             States = entities.AsEnumerable()
                 .OrderBy(e => e.Type.ParseDigits())
-                .Select(e => new { Type = e.Type.ParseEnum<FileTypes>(), State = e.State.ParseEnum<VideoProcessingStates>() })
+                .ThenByDescending(e => e.CreatedAt)
+                .DistinctBy(e => e.Type)
+                .Select(e => new
+                {
+                    Type = e.Type.ParseEnum<FileTypes>(),
+                    State = e.State.ParseEnum<VideoProcessingStates>()
+                })
                 .Where(e => e.Type != null && e.State != null)
                 .ToDictionary(e => e.Type.Value, e => e.State.Value.ToString());
         }

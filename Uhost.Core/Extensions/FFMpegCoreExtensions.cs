@@ -250,16 +250,29 @@ namespace Uhost.Core.Extensions
         /// <returns></returns>
         public static FFMpegArgumentOptions ApplyOptimalPreset(this FFMpegArgumentOptions options, IMediaAnalysis mediaInfo, FileTypes type, TimeSpan? maxDuration = null)
         {
+            if (type == FileTypes.VideoWebm)
+            {
+                options = options
+                    .WithVideoCodec(VideoCodec.LibVpx)
+                    .WithPreset(Speed.UltraFast)
+                    .WithTune("ssim")
+                    .WithAudioCodec(AudioCodec.LibVorbis);
+            }
+            else
+            {
+                options = options
+                    .WithVideoCodec(FFConfig.VideoCodec)
+                    .WithPreset(CoreSettings.EncodingSpeed)
+                    .WithTune("hq")
+                    .WithAudioCodec(AudioCodec.Aac);
+            }
+
             options = options
-                .WithVideoCodec(FFConfig.VideoCodec)
-                .WithPreset(CoreSettings.EncodingSpeed)
-                .WithTune("hq")
                 .WithFpsMode(FpsMode.Vfr)
-                .WithPixelFormat(PixelFormat.Nv12)
+                .WithPixelFormat(PixelFormat.Yuv420p)
                 .WithQMin(28)
                 .WithQMax(35)
-                .WithoutMetadata()
-                .WithAudioCodec("aac");
+                .WithoutMetadata();
 
             switch (type)
             {
@@ -301,6 +314,31 @@ namespace Uhost.Core.Extensions
                         .WithMaxRate(6144)
                         .WithMaxFramerate(60)
                         .WithKeyFrames(60);
+                    break;
+                case FileTypes.VideoWebm:
+                    var size = mediaInfo.PrimaryVideoStream.GetSize();
+                    var videoBitRate = 960;
+                    var frameRate = 30;
+
+                    if (size.Width > size.Height && size.Height >= 480 || size.Height > size.Width && size.Width >= 480)
+                    {
+                        size = size.FitToMin(480);
+                    }
+                    if (size.Width > size.Height && size.Height < 480 || size.Height > size.Width && size.Width < 480)
+                    {
+                        size = size.FitToMin(240);
+                        videoBitRate = 300;
+                        frameRate = 18;
+                    }
+
+                    options = options
+                        .WithVideoFilters(vf => vf.Scale(size))
+                        .UsingThreads(Math.Max(Environment.ProcessorCount / 2, 1))
+                        .WithVideoBitrate(videoBitRate)
+                        .WithAudioBitrate(128)
+                        .WithMaxFramerate(frameRate)
+                        .WithKeyFrames(30);
+
                     break;
             }
 

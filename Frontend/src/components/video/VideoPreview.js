@@ -1,11 +1,13 @@
 import { Avatar, Card, CardContent, CardHeader, CardMedia, Typography } from '@mui/material';
 import { red } from '@mui/material/colors';
 import { Box } from '@mui/system';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import config from '../../config.json';
 import Image from '../Image';
 
 export default function VideoPreview({ entity }) {
+    const { t } = useTranslation();
     var login = entity?.user?.login ?? 'N/A';
     var avaText = login.at(0).toString().toUpperCase();
     var title = entity?.name ?? 'N/A';
@@ -72,7 +74,7 @@ export default function VideoPreview({ entity }) {
                                 borderRadius: '4px',
                                 fontSize: '8pt',
                                 fontWeight: '700'
-                            }}>{e}</Typography>
+                            }}>{t(`video.resolution.${e}`)}</Typography>
                         )}
                     </Box>
                 }

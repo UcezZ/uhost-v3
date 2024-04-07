@@ -23,7 +23,7 @@ export default function UpdateProfileForm({ shownUser, next }) {
         event?.preventDefault && event.preventDefault();
 
         setLoading(true);
-        await UserEndpoint.updateSelf(name, desc, theme.toPascalCase(), locale.toPascalCase())
+        await UserEndpoint.updateSelf(name, desc, theme, locale)
             .then(e => {
                 if (e?.data?.success && e?.data?.result) {
                     setUser && setUser(e.data.result);

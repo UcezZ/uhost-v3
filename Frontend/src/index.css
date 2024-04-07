@@ -15,3 +15,7 @@ ul.MuiList-root>a {
   text-decoration: inherit;
   color: inherit;
 }
+
+#root {
+  min-width: 400px !important;
+}

@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Threading.Tasks;
 using Uhost.Core.Attributes.Validation;
-using Uhost.Core.Common;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.Video;
 using Uhost.Core.Services.Video;
@@ -81,17 +78,6 @@ namespace Uhost.Web.Controllers
                 return ResponseHelper.Error(ApiStrings.Video_Error_NotFound);
             }
 
-            var cookieOptions = new CookieOptions
-            {
-                IsEssential = true,
-                Expires = DateTimeOffset.Now.Add(model.GetCookieTtl()),
-                SameSite = LocalEnvironment.IsDev
-                    ? SameSiteMode.None
-                    : SameSiteMode.Strict
-            };
-
-            Response.Cookies.Append("video_token", model.GetAccessToken(), cookieOptions);
-
             return ResponseHelper.Success(model);
         }
 
@@ -105,21 +91,28 @@ namespace Uhost.Web.Controllers
         public IActionResult Download(
             [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Token), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Video_Error_NotFound))]
             string token,
-            [EnumValidation(typeof(FileTypes), whitelist:new[]
+            [EnumValidation(typeof(FileTypes), whitelist: new[]
             {
                 nameof(FileTypes.Video240p),
                 nameof(FileTypes.Video480p),
                 nameof(FileTypes.Video720p),
-                nameof(FileTypes.Video1080p)
+                nameof(FileTypes.Video1080p),
+                nameof(FileTypes.VideoWebm)
             }, ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.File_Error_TypeFail))]
             string type)
         {
+            var typeParsed = type.ParseEnum<FileTypes>();
+
+            if (typeParsed == null)
+            {
+                ModelState.AddModelError(nameof(type), ApiStrings.Common_Error_Invalid);
+            }
             if (!ModelState.IsValid)
             {
                 return ResponseHelper.Error(ModelState.GetErrors());
             }
 
-            if (_service.TryGetDownload(token, Enum.Parse<FileTypes>(type), out var name, out var stream, out var lastModified))
+            if (_service.TryGetDownload(token, typeParsed.Value, out var name, out var stream, out var lastModified))
             {
                 return new DisposableFileStreamResult(stream, name.GetContentType())
                 {
@@ -230,17 +223,6 @@ namespace Uhost.Web.Controllers
             _service.Update(token, model);
 
             var updated = await _service.GetOne(token);
-
-            var cookieOptions = new CookieOptions
-            {
-                IsEssential = true,
-                Expires = new DateTimeOffset().Add(updated.GetCookieTtl()),
-                SameSite = LocalEnvironment.IsDev
-                    ? SameSiteMode.None
-                    : SameSiteMode.Strict
-            };
-
-            Response.Cookies.Append("video_token", updated.GetAccessToken(), cookieOptions);
 
             return ResponseHelper.Success(updated);
         }

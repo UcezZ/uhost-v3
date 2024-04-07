@@ -83,6 +83,7 @@
             "video.player": "Player",
             "video.player.hls": "HLS",
             "video.player.mp4": "MP4",
+            "video.player.webm": "WebM",
             "video.processing.state.completed": "Completed",
             "video.processing.state.failed": "Failed",
             "video.processing.state.pending": "Pending",
@@ -92,17 +93,25 @@
             "video.processing.type.video480p": "Video 480p",
             "video.processing.type.video720p": "Video 720p",
             "video.processing.type.videoraw": "Fetching video from url",
+            "video.processing.type.videoWebm": "Video Webm",
             "video.resolution": "Resolution",
-            "video.resolution.1080p": "1080p",
-            "video.resolution.240p": "240p",
-            "video.resolution.480p": "480p",
-            "video.resolution.720p": "720p",
             "video.resolution.auto": "Auto",
-            "video.search.notfound": "No videos was found"
+            "video.resolution.video1080p": "1080p",
+            "video.resolution.video240p": "240p",
+            "video.resolution.video480p": "480p",
+            "video.resolution.video720p": "720p",
+            "video.resolution.videoWebm": "WebM",
+            "video.search.notfound": "No videos was found",
+            "video.error.notsupported": "Your browser doesn't support neither H.264, nor VP8 video codecs, or the supported codec haven't been processed yet.",
+            "video.error.notprocessed": "The video is still processing.",
+            "video.error.checkprocessing": "Please check video processing page"
         }
     },
     "ru": {
         "translation": {
+            "video.error.notsupported": "Ваш браузер не поддерживает видеокодеки H.264 и VP8, либо конвертация в поддерживаемый кодек ещё не завершилась.",
+            "video.error.notprocessed": "Видео ещё обрабатывается.",
+            "video.error.checkprocessing": "Проверьте страницу обработки видео.",
             "video.ofuser": "Видео пользователя {{user}}",
             "video.my": "Мои видео",
             "home.searchresult": "Результаты поиска",
@@ -191,6 +200,7 @@
             "video.processing.type.video480p": "Видео 480p",
             "video.processing.type.video720p": "Видео 720p",
             "video.processing.type.videoraw": "Получение видео",
+            "video.processing.type.videoWebm": "Видео Webm",
             "video.resolution": "Разрешение",
             "video.resolution.auto": "Авто",
             "video.search.notfound": "Не найдено ни одного видео по запросу"
