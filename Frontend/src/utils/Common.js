@@ -347,4 +347,19 @@ export default class Common {
     static isMp4Supported() {
         return IS_MP4_SUPPORTED;
     }
+
+    /**
+     * 
+     * @param {String} id 
+     */
+    static scrollToElementById(id) {
+        var element = document.getElementById(id);
+
+        if (element) {
+            element.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+    }
 }

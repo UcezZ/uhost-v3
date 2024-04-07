@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { InputBase, Paper, IconButton, Container, useMediaQuery } from '@mui/material';
+import { InputBase, Paper, IconButton, Container } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useSearchParams } from 'react-router-dom';
@@ -9,7 +9,6 @@ export default function SearchBar({ sx, onSearch }) {
     const { t } = useTranslation();
     const [value, setValue] = useState('');
     const [search, setSearch] = useSearchParams();
-    const isLess600 = useMediaQuery('(max-width:600px)');
 
     function handleSearch(event) {
         event?.preventDefault && event.preventDefault();
@@ -52,7 +51,6 @@ export default function SearchBar({ sx, onSearch }) {
                 <InputBase
                     sx={{ ml: 1, flex: 1 }}
                     placeholder={t('common.search')}
-                    inputProps={{ 'aria-label': 'search google maps' }}
                     value={value}
                     onChange={e => setValue(e.target.value)}
                 />

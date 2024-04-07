@@ -16,7 +16,7 @@ namespace Uhost.Core.Models.Comment
             base.LoadFromEntity(entity);
 
             Id = entity.Id;
-            CreatedAt = entity.CreatedAt.ToApiFmt();
+            CreatedAt = entity.CreatedAt.ToHumanFmt();
             User = entity.User?.ToModel<UserEntity, UserCommentViewModel>();
         }
     }

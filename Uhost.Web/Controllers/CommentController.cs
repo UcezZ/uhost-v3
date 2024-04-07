@@ -9,7 +9,8 @@ using Uhost.Web.Attributes;
 using Uhost.Web.Common;
 using Uhost.Web.Extensions;
 using Uhost.Web.Properties;
-using Entity = Uhost.Core.Data.Entities.Video;
+using Entity = Uhost.Core.Data.Entities.Comment;
+using VideoEntity = Uhost.Core.Data.Entities.Video;
 
 namespace Uhost.Web.Controllers
 {
@@ -34,7 +35,7 @@ namespace Uhost.Web.Controllers
         /// <returns></returns>
         [HttpGet("{videoToken}"), AllowAnonymous]
         public IActionResult GetAllByVideoPaged(
-            [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Token), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Video_Error_NotFound))]
+            [DatabaseExistionValidation(typeof(VideoEntity), nameof(VideoEntity.Token), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Video_Error_NotFound))]
             string videoToken,
             [FromQuery]
             CommentShortQueryModel query)
@@ -62,7 +63,7 @@ namespace Uhost.Web.Controllers
         /// <returns></returns>
         [HttpPost("{videoToken}"), Authorize, Throttle(Count = 5, SpanSeconds = 30)]
         public IActionResult Create(
-            [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Token), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Video_Error_NotFound))]
+            [DatabaseExistionValidation(typeof(VideoEntity), nameof(VideoEntity.Token), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Video_Error_NotFound))]
             string videoToken,
             [FromForm, StringLengthValidation(minLength: 3, maxLength: 512, allowEmpty: false, trim: false)]
             string text)
@@ -88,12 +89,28 @@ namespace Uhost.Web.Controllers
         /// <summary>
         /// Удаление комментария к видео
         /// </summary>
+        /// <param name="videoToken">Токен видео</param>
         /// <param name="id">ИД комментария</param>
         /// <returns></returns>
-        [HttpDelete("{id}")]
-        public IActionResult Delete(string id)
+        [HttpDelete("{videoToken}/{id}")]
+        public IActionResult Delete(
+            [DatabaseExistionValidation(typeof(VideoEntity), nameof(VideoEntity.Token), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Video_Error_NotFound))]
+            string videoToken,
+            [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Id), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Comment_Error_NotFound))]
+            string id)
         {
-            return Ok();
+            if (!id.TryParsePositiveInt(out var idParsed))
+            {
+                return ResponseHelper.ErrorMessage(nameof(id), ApiStrings.Common_Error_Invalid);
+            }
+            if (!ModelState.IsValid)
+            {
+                return ResponseHelper.Error(ModelState.GetErrors());
+            }
+
+            _service.Delete(videoToken, idParsed);
+
+            return ResponseHelper.Success();
         }
     }
 }

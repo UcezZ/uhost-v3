@@ -242,7 +242,7 @@ export default function AddVideoForm({ next, setCanClose }) {
                 <Divider />
                 <Box sx={{ width: '100%' }} disabled={loading}>
                     <Box borderColor='divider'>
-                        <Tabs value={source} onChange={(e, v) => setSource(v)}>
+                        <Tabs variant='scrollable' scrollButtons={false} value={source} onChange={(e, v) => setSource(v)}>
                             <Tab label={t('video.add.source.file')} />
                             <Tab label={t('video.add.source.url')} />
                         </Tabs>
