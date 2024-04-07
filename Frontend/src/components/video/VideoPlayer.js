@@ -12,7 +12,7 @@ import VideoDummy from './VideoDummy';
 import config from '../../config.json';
 
 const RES_AUTO = 'auto';
-const RES_WEBM = 'videowebm';
+const RES_WEBM = 'videoWebm';
 
 const IS_HLS_SUPPORTED = Common.isHlsSupported();
 const IS_MP4_SUPPORTED = Common.isMp4Supported();
