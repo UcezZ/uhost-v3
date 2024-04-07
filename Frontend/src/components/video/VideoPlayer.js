@@ -110,11 +110,12 @@ export default function VideoPlayer({ video, largeMode }) {
      */
     function loadPlayerType() {
         var type = localStorage.getItem('player_type');
+        var allTypes = getPlayerTypes();
 
-        if (getPlayerTypes().includes(type)) {
+        if (allTypes.includes(type)) {
             return type;
         } else {
-            return PLAYER_TYPE_HLS;
+            return allTypes[0];
         }
     }
 
@@ -463,9 +464,11 @@ export default function VideoPlayer({ video, largeMode }) {
                                 value={getResolutions().some(e => e === playerRes) ? playerRes : getResolutions().firstOrDefault()}
                                 onChange={onResolutionChange}
                             >
-                                {getResolutions().map((e, i) => <MenuItem value={e} key={i} >
-                                    {t(`video.resolution.${e}`)}{playerType === PLAYER_TYPE_HLS && hls.currentLevel + 1 === i ? ' \u2022' : ''}
-                                </MenuItem>)}
+                                {
+                                    getResolutions().map((e, i) => <MenuItem value={e} key={i} >
+                                        {t(`video.resolution.${e}`)}{playerType === PLAYER_TYPE_HLS && hls.currentLevel + 1 === i ? ' \u2022' : ''}
+                                    </MenuItem>)
+                                }
                             </Select>
                         </FormControl>
                     }
