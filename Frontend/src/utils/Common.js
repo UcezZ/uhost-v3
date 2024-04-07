@@ -18,7 +18,12 @@ const THEMES = [
     THEME_DARK
 ];
 
-const IS_MP4_SUPPORTED = document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
+const SUPPORT_STATES = [
+    'probably',
+    'maybe'
+];
+
+const IS_MP4_SUPPORTED = SUPPORT_STATES.some(e => e === document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E, mp4a.40.2"'));
 const IS_HLS_SUPPORTED = IS_MP4_SUPPORTED && (Hls.isSupported() || Hls.isMSESupported());
 
 export default class Common {
