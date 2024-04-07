@@ -63,6 +63,16 @@ function savePlayerVolume(value) {
     localStorage.setItem('player_volume', value)
 }
 
+var setHeaderFunc = (xhr) => false;
+
+const hls = IS_HLS_SUPPORTED ? new Hls({
+    xhrSetup: function (xhr, url) {
+        xhr.withCredentials = true;
+        setHeaderFunc && setHeaderFunc(xhr);
+    },
+    ...config.hlsConfig
+}) : null;
+
 export default function VideoPlayer({ video, largeMode }) {
     const { t } = useTranslation();
     const [duration, setDuration] = useState(Common.parseTime(video?.duration));
@@ -79,19 +89,16 @@ export default function VideoPlayer({ video, largeMode }) {
     const [playerType, setPlayerType] = useState(loadPlayerType());
     const [playerRes, setPlayerRes] = useState(loadResolution());
 
-    const hls = IS_HLS_SUPPORTED ? new Hls({
-        xhrSetup: function (xhr, url) {
-            xhr.withCredentials = true;
-            xhr.setRequestHeader('Access-Token', video?.accessToken);
-        },
-        ...config.hlsConfig
-    }) : null;
+    if (IS_HLS_SUPPORTED) {
+        setHeaderFunc = xhr => xhr.setRequestHeader('Access-Token', video?.accessToken);
+    }
 
     function turnOffHls() {
         if (IS_HLS_SUPPORTED) {
             try {
                 hls?.stopLoad && hls.stopLoad();
                 hls?.destroy && hls.destroy();
+                console.log('hls stopped');
             } catch { }
         }
     }
@@ -246,6 +253,8 @@ export default function VideoPlayer({ video, largeMode }) {
 
     function updateHlsLevel() {
         var levelIndex = HLS_RESOLUTIONS.indexOf(playerRes);
+
+        console.log(HLS_RESOLUTIONS.indexOf(playerRes), HLS_RESOLUTIONS, playerRes)
 
         if (levelIndex < 0) {
             hls.currentLevel = -1;
