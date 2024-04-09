@@ -100,7 +100,12 @@ namespace Uhost.Core.Services.Comment
             }
 
             var video = _videoRepo
-                .GetAll<VideoShortViewModel>(new VideoQueryModel { Token = videoToken })
+                .GetAll<VideoShortViewModel>(new VideoQueryModel
+                {
+                    ShowHidden = true,
+                    ShowPrivateForUserId = userId,
+                    Token = videoToken
+                })
                 .FirstOrDefault();
 
             if (video == null || !TryGetUserRights(out var rights))
