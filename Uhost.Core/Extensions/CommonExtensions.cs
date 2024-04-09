@@ -370,9 +370,9 @@ namespace Uhost.Core.Extensions
                 return EnumTranslations.Undefined;
             }
 
-            if (value is Rights right)
+            if (value is Rights right && RightNames.TryGetValue(right, out var rightName))
             {
-                return RightNames[right];
+                return rightName;
             }
 
             var key = $"{typeof(T).FullName}_{value}";
