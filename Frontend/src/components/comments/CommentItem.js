@@ -43,7 +43,7 @@ export default function CommentItem({ videoToken, comment, onCommentDeleted }) {
     }
 
     const icon = loading ? <CircularProgress size={20} /> : <DeleteIcon />
-    const deleteText = comment?.text?.length > 32 ? `${comment.text.subString(0, 32)}...` : comment.text;
+    const deleteText = comment?.text?.length > 32 ? `${comment.text.substring(0, 32)}...` : comment.text;
 
     return (
         <Grid
