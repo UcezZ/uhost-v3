@@ -116,79 +116,41 @@ export default function VideoProcessingItem({ video, expanded }) {
                 borderRadius: 2
             }} >
             <AccordionSummary expandIcon={<ExpandMoreIcon />} >
-                {isNarrowScreen ?
-                    <Grid container spacing={2} >
-                        <Grid item xs={12} >
-                            <Link to={`${config.webroot}/video/${video?.token}`}>
-                                <Image
-                                    src={video?.thumbnailUrl}
-                                    height='12em'
-                                    sx={{
-                                        borderRadius: 4
-                                    }}
-                                />
-                            </Link>
-                        </Grid>
-                        <Grid
-                            item
-                            alignItems='center'
-                            xs={6}
-                            sx={{
-                                pb: 3,
-                                pt: 1
-                            }} >
-                            <Typography
-                                variant='h6'
+                <Grid container spacing={2} >
+                    <Grid item  >
+                        <Link to={`${config.webroot}/video/${video?.token}`}>
+                            <Image
+                                src={video?.thumbnailUrl}
+                                height='5.5em'
+                                width='9em'
                                 sx={{
-                                    fontSize: 16,
-                                    fontWeight: 700
-                                }}
-                                noWrap>
-                                {t(video?.state?.length ? `video.processing.state.${video.state.toLowerCase()}` : 'N/A')}
-                            </Typography>
-                            <Typography
-                                noWrap>
-                                {video?.name ?? 'N/A'}
-                            </Typography>
-                        </Grid>
+                                    borderRadius: 4
+                                }} />
+                        </Link>
                     </Grid>
-                    :
-                    <Grid container spacing={2} >
-                        <Grid item  >
-                            <Link to={`${config.webroot}/video/${video?.token}`}>
-                                <Image
-                                    src={video?.thumbnailUrl}
-                                    height='5.5em'
-                                    width='9em'
-                                    sx={{
-                                        borderRadius: 4
-                                    }} />
-                            </Link>
-                        </Grid>
-                        <Grid
-                            item
-                            alignItems='center'
-                            xs={6}
+                    <Grid
+                        item
+                        alignItems='center'
+                        xs={6}
+                        sx={{
+                            pb: 3,
+                            pt: 1
+                        }} >
+                        <Typography
+                            variant='h6'
                             sx={{
-                                pb: 3,
-                                pt: 1
-                            }} >
-                            <Typography
-                                variant='h6'
-                                sx={{
-                                    fontSize: 16,
-                                    fontWeight: 700
-                                }}
-                                noWrap>
-                                {t(video?.state?.length ? `video.processing.state.${video.state.toLowerCase()}` : 'N/A')}
-                            </Typography>
-                            <Typography
-                                noWrap>
-                                {video?.name ?? 'N/A'}
-                            </Typography>
-                        </Grid>
+                                fontSize: 16,
+                                fontWeight: 700
+                            }}
+                            noWrap>
+                            {t(video?.state?.length ? `video.processing.state.${video.state.toLowerCase()}` : 'N/A')}
+                        </Typography>
+                        <Typography
+                            noWrap>
+                            {video?.name ?? 'N/A'}
+                        </Typography>
                     </Grid>
-                }
+                </Grid>
             </AccordionSummary>
             <AccordionDetails
                 sx={{
