@@ -97,7 +97,7 @@ export default function VideoPlayer({ video, largeMode }) {
         if (IS_HLS_SUPPORTED) {
             try {
                 hls?.stopLoad && hls.stopLoad();
-                hls?.destroy && hls.destroy();
+                //hls?.destroy && hls.destroy();
                 console.log('hls stopped');
             } catch { }
         }
@@ -362,7 +362,13 @@ export default function VideoPlayer({ video, largeMode }) {
     }, [videoRef?.current]);
 
     // останавливаем HLS при размонтировании компонента
-    useEffect(() => turnOffHls, []);
+    useEffect(() => {
+        return () => {
+            if (!videoRef?.current) {
+                turnOffHls();
+            }
+        }
+    }, []);
 
     if (NO_PLAYER) {
         return (
