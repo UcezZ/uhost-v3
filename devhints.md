@@ -28,3 +28,5 @@ source urls
 merged url
 /hls/,0f/f3/4df239801e90893662a3a5b13368/temp_6a96fd76-0364-4fd1-ad57-429703c47006.mp4,dZ/ri/1kR7Qerwt1wdlTRWeUh628WwoO3R/2023-05-01 17-29-44.mp4,.urlset/master.m3u8
 ```
+
+[Sentry frontend issue](https://github.com/getsentry/sentry-javascript/issues/5586#issuecomment-1217926178)
