@@ -10,6 +10,7 @@ import config from '../../config.json';
 import StateContext from '../../utils/StateContext';
 import PopupAuthForm from '../auth/PopupAuthForm';
 import { useTranslation } from 'react-i18next';
+import Common from '../../utils/Common';
 
 export default function ProfileButton() {
     const { t } = useTranslation();
@@ -33,10 +34,7 @@ export default function ProfileButton() {
     }
     async function onLogoutYes(event) {
         await AuthEndpoint.logout()
-            .then(e => {
-                localStorage.removeItem('accessToken');
-                sessionStorage.removeItem('accessToken');
-            })
+            .then(e => Common.resetToken())
             .catch(e => { });
 
         setConfirmLogout(false);

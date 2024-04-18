@@ -34,14 +34,14 @@
       "firefox >= 20",
       "safari >= 8",
       "opera >= 20",
-      "IE >= 7"
+      "IE >= 8"
     ],
     "development": [
       "chrome >= 20",
       "firefox >= 20",
       "safari >= 8",
       "opera >= 20",
-      "IE >= 7"
+      "IE >= 8"
     ]
   }
 }

@@ -33,9 +33,9 @@ export default function AuthForm({ next, slim }) {
             .then(e => {
                 if (e?.data?.success && e?.data?.result?.token) {
                     if (remember) {
-                        localStorage.setItem('accessToken', e.data.result.token);
+                        localStorage.setItem(Common.getTokenKey(), e.data.result.token);
                     } else {
-                        sessionStorage.setItem('accessToken', e.data.result.token);
+                        sessionStorage.setItem(Common.getTokenKey(), e.data.result.token);
                     }
 
                     next && next();

@@ -10,6 +10,7 @@ import Common from '../../utils/Common';
 import { useTranslation } from 'react-i18next';
 import VideoDummy from './VideoDummy';
 import config from '../../config.json';
+import * as Sentry from '@sentry/browser';
 
 const RES_AUTO = 'auto';
 const RES_WEBM = 'videoWebm';
@@ -42,14 +43,21 @@ const WEBM_RESOLUTIONS = [
  * @returns {Number}
  */
 function loadPlayerVolume() {
-    var value = localStorage.getItem('player_volume');
+    try {
+        var value = localStorage.getItem('player_volume');
 
-    if (value) {
-        var num = Number(value);
+        if (value) {
+            var num = Number(value);
 
-        if (!isNaN(num)) {
-            return num;
+            if (!isNaN(num)) {
+                return num;
+            }
         }
+    } catch (err) {
+        Sentry.withScope(scope => {
+            scope.setExtra('msg', { message: 'failed to get player_volume from localStorage in VideoPlayer' });
+            Sentry.captureException(err);
+        });
     }
 
     return 100;
@@ -60,7 +68,14 @@ function loadPlayerVolume() {
  * @param {Number} value 
  */
 function savePlayerVolume(value) {
-    localStorage.setItem('player_volume', value)
+    try {
+        localStorage.setItem('player_volume', value);
+    } catch (err) {
+        Sentry.withScope(scope => {
+            scope.setExtra('msg', { message: 'failed to set player_volume to localStorage in VideoPlayer' });
+            Sentry.captureException(err);
+        });
+    }
 }
 
 var setHeaderFunc = (xhr) => false;
@@ -116,14 +131,22 @@ export default function VideoPlayer({ video, largeMode }) {
      * @returns {String}
      */
     function loadPlayerType() {
-        var type = localStorage.getItem('player_type');
         var allTypes = getPlayerTypes();
 
-        if (allTypes.includes(type)) {
-            return type;
-        } else {
-            return allTypes[0];
+        try {
+            var type = localStorage.getItem('player_type');
+
+            if (allTypes.includes(type)) {
+                return type;
+            }
+        } catch (err) {
+            Sentry.withScope(scope => {
+                scope.setExtra('msg', { message: 'failed to get player_type from localStorage in VideoPlayer' });
+                Sentry.captureException(err);
+            });
         }
+
+        return allTypes[0];
     }
 
     /**
@@ -132,7 +155,14 @@ export default function VideoPlayer({ video, largeMode }) {
      */
     function savePlayerType(type) {
         if (getPlayerTypes().includes(type)) {
-            localStorage.setItem('player_type', type);
+            try {
+                localStorage.setItem('player_type', type);
+            } catch (err) {
+                Sentry.withScope(scope => {
+                    scope.setExtra('msg', { message: 'failed to set player_type to localStorage in VideoPlayer' });
+                    Sentry.captureException(err);
+                });
+            }
         }
     }
 
@@ -152,18 +182,33 @@ export default function VideoPlayer({ video, largeMode }) {
     }
 
     function loadResolution() {
-        var res = localStorage.getItem(`video_res`);
         var allRes = getResolutions();
 
-        if (res && allRes.includes(res)) {
-            return res;
-        } else {
-            return allRes[0];
+        try {
+            var res = localStorage.getItem(`video_res`);
+
+            if (res && allRes.includes(res)) {
+                return res;
+            }
+        } catch (err) {
+            Sentry.withScope(scope => {
+                scope.setExtra('msg', { message: 'failed to get video_res from localStorage in VideoPlayer' });
+                Sentry.captureException(err);
+            });
         }
+
+        return allRes[0];
     }
 
     function saveResolution(res) {
-        localStorage.setItem(`video_res`, res ?? playerRes);
+        try {
+            localStorage.setItem(`video_res`, res ?? playerRes);
+        } catch (err) {
+            Sentry.withScope(scope => {
+                scope.setExtra('msg', { message: 'failed to set video_res to localStorage in VideoPlayer' });
+                Sentry.captureException(err);
+            });
+        }
     }
 
     function onPlayPause() {

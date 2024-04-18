@@ -1,5 +1,6 @@
 import axios from 'axios';
 import Common from '../utils/Common';
+import * as Sentry from '@sentry/browser';
 //import { makeUrl, makeReqConfig } from './api-config.js';
 
 //export const API_URL = 'http://localhost:5101';
@@ -15,12 +16,19 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (cfg) => {
-        const local = localStorage.getItem(Common.tokenKey);
-        const session = sessionStorage.getItem(Common.tokenKey);
-        if (local) {
-            cfg.headers.Authorization = `Bearer ${local}`;
-        } else if (session) {
-            cfg.headers.Authorization = `Bearer ${session}`;
+        try {
+            const local = localStorage.getItem(Common.getTokenKey());
+            const session = sessionStorage.getItem(Common.getTokenKey());
+            if (local) {
+                cfg.headers.Authorization = `Bearer ${local}`;
+            } else if (session) {
+                cfg.headers.Authorization = `Bearer ${session}`;
+            }
+        } catch (err) {
+            Sentry.withScope(scope => {
+                scope.setExtra('msg', { message: 'failed to get token from storage in axios' });
+                Sentry.captureException(err);
+            });
         }
 
         return cfg;

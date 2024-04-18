@@ -1,4 +1,5 @@
 import Hls from 'hls.js';
+import * as Sentry from '@sentry/browser';
 
 const COLOR_EMPTY = { r: 0, g: 0, b: 0, a: 0 };
 
@@ -26,8 +27,13 @@ const SUPPORT_STATES = [
 const IS_MP4_SUPPORTED = SUPPORT_STATES.some(e => e === document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E, mp4a.40.2"'));
 const IS_HLS_SUPPORTED = IS_MP4_SUPPORTED && (Hls.isSupported() || Hls.isMSESupported());
 
+const KEY_TOKEN = 'access_token';
+
 export default class Common {
-    static tokenKey = 'accessToken';
+
+    static getTokenKey() {
+        return KEY_TOKEN;
+    }
 
     static transformErrorData(error) {
         if (error?.response?.data?.errors) {
@@ -56,12 +62,36 @@ export default class Common {
      * @returns {Boolean}
      */
     static isTokenPresent() {
-        return !!localStorage.getItem(this.tokenKey) || !!sessionStorage.getItem(this.tokenKey);
+        try {
+            return Boolean(localStorage.getItem(KEY_TOKEN)) || Boolean(sessionStorage.getItem(KEY_TOKEN));
+        }
+        catch (err) {
+            Sentry.withScope(scope => {
+                scope.setExtra('msg', { message: 'failed to get token from storage in Common' });
+                Sentry.captureException(err);
+            });
+
+            return false;
+        }
     }
 
     static resetToken() {
-        localStorage.removeItem(this.tokenKey);
-        sessionStorage.removeItem(this.tokenKey);
+        try {
+            localStorage.removeItem(KEY_TOKEN);
+        } catch (err) {
+            Sentry.withScope(scope => {
+                scope.setExtra('msg', { message: 'failed to reset local token in Common' });
+                Sentry.captureException(err);
+            });
+        }
+        try {
+            window.sessionStorage.removeItem(KEY_TOKEN);
+        } catch (err) {
+            Sentry.withScope(scope => {
+                scope.setExtra('msg', { message: 'failed to reset session token in Common' });
+                Sentry.captureException(err);
+            });
+        }
     }
 
     /**
