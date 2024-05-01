@@ -118,7 +118,13 @@
             "video.search.notfound": "No videos was found",
             "logs.details.data": "Event data",
             "logs.details.ip": "IP address",
-            "logs.details.user": "User"
+            "logs.details.user": "User",
+            "session.guid": "GUID",
+            "session.expiresat": "Expires at",
+            "session.expiresin": "Expires in",
+            "session.iscurrent": "Is current session",
+            "session.terminate": "Terminate",
+            "session.terminate.self.confirm": "Are you sure you want to terminate your current session?"
         }
     },
     "ru": {
@@ -231,7 +237,12 @@
             "video.search.notfound": "Не найдено ни одного видео по запросу",
             "logs.details.data": "Данные события",
             "logs.details.ip": "IP адрес",
-            "logs.details.user": "Пользователь"
+            "logs.details.user": "Пользователь",
+            "session.expiresat": "Истекает в",
+            "session.expiresin": "Истекает через",
+            "session.iscurrent": "Текущая сессия",
+            "session.terminate": "Завершить",
+            "session.terminate.self.confirm": "Вы действительно хотите завершить вашу текущую сессию?"
         }
     }
 }

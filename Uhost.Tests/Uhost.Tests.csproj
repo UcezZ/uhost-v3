@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Uhost.Console\Uhost.Console.csproj" />
     <ProjectReference Include="..\Uhost.Web\Uhost.Web.csproj" />
   </ItemGroup>
 

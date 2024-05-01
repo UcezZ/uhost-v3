@@ -18,8 +18,9 @@ namespace Uhost.Core.Services.Log
         /// </summary>
         /// <param name="ev">Тип события</param>
         /// <param name="data">Данные</param>
+        /// <param name="userId"></param>
         /// <param name="writeToStdOut">Вывод в STDOUT</param>
-        void Add(Events ev, object data = null, bool writeToStdOut = false);
+        void Add(Events ev, object data = null, int userId = default, bool writeToStdOut = false);
 
         /// <summary>
         /// Получение логов по запросу

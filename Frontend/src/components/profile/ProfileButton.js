@@ -1,4 +1,4 @@
-import { IconButton } from '@mui/material';
+import { Avatar, IconButton } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -11,6 +11,7 @@ import StateContext from '../../utils/StateContext';
 import PopupAuthForm from '../auth/PopupAuthForm';
 import { useTranslation } from 'react-i18next';
 import Common from '../../utils/Common';
+import Image from '../Image';
 
 export default function ProfileButton() {
     const { t } = useTranslation();
@@ -18,6 +19,9 @@ export default function ProfileButton() {
     const [confirmLogout, setConfirmLogout] = useState(null);
     const [authFormVisible, setAuthFormVisible] = useState(false);
     const { user, setUser } = useContext(StateContext);
+
+    var login = user?.login ?? 'N/A';
+    var avaText = login.at(0).toString().toUpperCase();
 
     function onClick(event) {
         setAnchorEl(event.currentTarget);
@@ -57,7 +61,21 @@ export default function ProfileButton() {
                 aria-haspopup='true'
                 aria-expanded={anchorEl ? undefined : 'true'}
                 onClick={onClick}>
-                <AccountCircleIcon />
+                {
+                    user
+                        ? <Avatar sx={{
+                            bgcolor: user?.avatarUrl?.length > 0 ? '#0000' : 'secondary',
+                            height: '32px',
+                            width: '32px'
+                        }} >
+                            {
+                                user?.avatarUrl?.length > 0
+                                    ? <Image src={user.avatarUrl} height={32} width={32} />
+                                    : avaText
+                            }
+                        </Avatar>
+                        : <AccountCircleIcon />
+                }
             </IconButton>
             <Menu
                 id='profile-menu'

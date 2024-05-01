@@ -52,7 +52,7 @@ namespace Uhost.Console
 
                     using (var svc = provider.GetRequiredService<ILogService>())
                     {
-                        svc.Add(Events.ConsoleCommandError, new { Args = args, Exception = e?.ToDetailedDataObject() }, true);
+                        svc.Add(Events.ConsoleCommandError, new { Args = args, Exception = e?.ToDetailedDataObject() }, writeToStdOut: true);
                     }
 
                     return 1;

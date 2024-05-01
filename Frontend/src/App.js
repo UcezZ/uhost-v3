@@ -124,7 +124,7 @@ export default function App() {
                         {user?.id > 0 && <Route path={`${config.webroot}/video-processing/:token`} element={<VideoProcessingPage />} />}
 
                         {Rights.checkAnyRight(user, Rights.AdminLogAccess) && <Route path={`${config.webroot}/admin/logs`} element={<LogsPage />} />}
-                        {/* {Rights.checkAnyRight(user, Rights.AdminSessionAccess, Rights.AdminSessionTerminate) && <Route path={`${config.webroot}/admin/sessions`} element={<SessionPage />} />} */}
+                        {Rights.checkAnyRight(user, Rights.AdminSessionAccess, Rights.AdminSessionTerminate) && <Route path={`${config.webroot}/admin/sessions`} element={<SessionPage />} />}
                         <Route path='*' element={<NotFoundPage />} />
                     </Routes>
                 </BrowserRouter>

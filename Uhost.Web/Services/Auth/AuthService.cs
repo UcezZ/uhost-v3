@@ -4,8 +4,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Uhost.Core.Extensions;
+using Uhost.Core.Services.Log;
 using Uhost.Core.Services.Token;
 using Uhost.Web.Middleware;
+using static Uhost.Core.Data.Entities.Log;
 using UserEntity = Uhost.Core.Data.Entities.User;
 
 namespace Uhost.Web.Services.Auth
@@ -13,12 +15,14 @@ namespace Uhost.Web.Services.Auth
     public class AuthService : IAuthService
     {
         private readonly ITokenService _tokens;
+        private readonly ILogService _log;
         private readonly DummyTokenHandler _tokenHandler;
 
-        public AuthService(ITokenService tokens)
+        public AuthService(ITokenService tokens, ILogService log)
         {
             _tokens = tokens;
             _tokenHandler = new DummyTokenHandler();
+            _log = log;
         }
 
         /// <summary>
@@ -94,6 +98,11 @@ namespace Uhost.Web.Services.Auth
             if (claims != null && claims.TryGetUserId(out var userId) && claims.TryGetJti(out var jti))
             {
                 var result = await _tokens.InvalidateAuthTokenAsync(userId, jti);
+
+                if (result)
+                {
+                    _log.Add(Events.UserLogOut, userId: userId);
+                }
 
                 return result;
             }

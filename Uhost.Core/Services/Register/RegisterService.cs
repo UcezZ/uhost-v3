@@ -75,7 +75,11 @@ namespace Uhost.Core.Services.Register
                 throw exception;
             }
 
-            var html = await _razor.RenderToStringAsync(RazorService.Templates.Registration, dataModel);
+            var templateKey = dataModel.Model.LocaleParsed == Data.Entities.User.Locales.En
+                ? RazorService.Templates.RegistrationEn
+                : RazorService.Templates.RegistrationRu;
+
+            var html = await _razor.RenderToStringAsync(templateKey, dataModel);
             _email.Send(CoreSettings.SmtpConfig.Sender, dataModel.Model.Email, dataModel.Title, html, true);
         }
 

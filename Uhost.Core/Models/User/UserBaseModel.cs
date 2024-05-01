@@ -34,6 +34,8 @@ namespace Uhost.Core.Models.User
         [EnumValidation(typeof(Entity.Locales), ErrorMessageResourceType = typeof(CoreStrings), ErrorMessageResourceName = nameof(CoreStrings.User_Error_LocaleFail))]
         public string Locale { get; set; }
 
+        internal Entity.Locales? LocaleParsed => Locale?.ParseEnum<Entity.Locales>();
+
         public virtual Entity FillEntity(Entity entity)
         {
             entity.Name = Name?.Trim() ?? string.Empty;

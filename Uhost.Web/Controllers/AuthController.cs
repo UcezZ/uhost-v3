@@ -63,10 +63,7 @@ namespace Uhost.Web.Controllers
         [HttpPost("logout"), Authorize]
         public async Task<IActionResult> Logout()
         {
-            if (await _authService.Logout(User))
-            {
-                _logService.Add(Events.UserLogOut);
-            }
+            await _authService.Logout(User);
 
             return ResponseHelper.Success("OK");
         }
@@ -87,12 +84,13 @@ namespace Uhost.Web.Controllers
             if (user == null)
             {
                 _logService.Add(
-                     Events.UserAuthFail,
-                     new
-                     {
-                         Request = query,
-                         User = user?.ToModel<UserEntity, UserShortViewModel>()
-                     });
+                    Events.UserAuthFail,
+                    new
+                    {
+                        Request = query,
+                        User = user?.ToModel<UserEntity, UserShortViewModel>()
+                    },
+                    userId: user.Id);
 
                 return ResponseHelper.ErrorMessage(nameof(query.Login), ApiStrings.Auth_Error_InvalidCredentials);
             }
@@ -105,13 +103,14 @@ namespace Uhost.Web.Controllers
                     user.BlockReason);
 
                 _logService.Add(
-                     Events.UserAuthFail,
-                     new
-                     {
-                         Request = query,
-                         User = user?.ToModel<UserEntity, UserShortViewModel>(),
-                         Comment = comment
-                     });
+                    Events.UserAuthFail,
+                    new
+                    {
+                        Request = query,
+                        User = user?.ToModel<UserEntity, UserShortViewModel>(),
+                        Comment = comment
+                    },
+                    userId: user.Id);
 
                 return ResponseHelper.ErrorMessage("login", comment);
             }
@@ -119,7 +118,13 @@ namespace Uhost.Web.Controllers
             (var expiresAt, var token) = await _authService.GenToken(user.Id);
             var model = _userService.GetOne(user.Id);
             _userService.UpdateLastVisitAt(user.Id);
-            _logService.Add(Events.UserAuth, user?.ToModel<UserEntity, UserShortViewModel>());
+            _logService.Add(Events.UserAuth, new
+            {
+                Token = token,
+                ValidTo = expiresAt.ToApiFmt(),
+                User = user?.ToModel<UserEntity, UserShortViewModel>()
+            },
+            userId: user.Id);
 
             return ResponseHelper.Success(new
             {

@@ -39,7 +39,7 @@ export default function Header() {
                         </IconButton>
                     </Link>}
                 <div style={{ display: 'flex', gap: '1em' }}>
-                    {user && <NotificationsButton />}
+                    {/* {user && <NotificationsButton />} */}
                     {!isLoginPage && <ProfileButton />}
                 </div>
             </Toolbar>

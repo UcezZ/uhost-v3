@@ -1,5 +1,39 @@
 ﻿<!-- TODO: добавить разметку и стили для email уведомления -->
 
-<header style="font-family:monospace">&lt;Это email уведомление/&gt;</header>
-@RenderBody()
-<footer style="font-family:monospace">&lt;Конец email уведомления/&gt;</footer>
+<head>
+    <style>
+        * {
+            font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+            line-height: 1.334;
+        }
+
+        hr {
+            display: block;
+            height: 1px;
+            border: 0;
+            border-top: 1px solid #ccc;
+            margin: 1em 0;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <header style="
+        font-weight: 300;
+        font-size: 24pt;
+        color: #fff;
+        background: #c62828;
+        text-align: center;
+        padding: 0.25em;">
+        UcezZ Host
+    </header>
+    @RenderBody()
+    <hr />
+    <footer style="
+        color:#ccc;
+        text-align:center;
+        ">
+        UcezZ Host &#169; UcezZ 2023-@(DateTime.Now.Year)
+    </footer>
+</body>

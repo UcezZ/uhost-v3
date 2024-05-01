@@ -1,0 +1,21 @@
+﻿@using Uhost.Core.Extensions;
+@model Uhost.Core.Models.Razor.RegistrationRazorDataModel;
+
+@{
+    Layout = System.IO.Path.Combine(System.AppContext.BaseDirectory, "Templates", "_EmailLayout.cshtml");
+}
+
+<div style="margin: auto; max-width: 1152px">
+    <p>Здравствуйте, <b>@(Model.Model.Login)</b>! Ваша почта была указана для регистрации аккаунта на хостинге <a href="@(Uhost.Core.CoreSettings.PublicUrl)">UcezZ Host</a>.</p>
+    <p>Ваш код подтверждения:</p>
+    <div style="
+        margin: 0.5em;
+        text-align: center;
+        color: #c62828;
+        font-size: 48pt;
+        font-weight: 700;
+        letter-spacing: 0.125em">
+        @(Model.Code)
+    </div>
+    <p>Если вы не запрашивали регистрацию, просто проигнорируйте это сообщение.</p>
+</div>

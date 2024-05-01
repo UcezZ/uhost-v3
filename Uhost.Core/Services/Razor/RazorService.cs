@@ -9,7 +9,8 @@ namespace Uhost.Core.Services.Razor
     {
         public enum Templates
         {
-            Registration
+            RegistrationRu,
+            RegistrationEn
         }
 
         private readonly RazorLightEngine _engine;

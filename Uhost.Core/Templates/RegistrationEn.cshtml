@@ -1,0 +1,21 @@
+﻿@using Uhost.Core.Extensions;
+@model Uhost.Core.Models.Razor.RegistrationRazorDataModel;
+
+@{
+    Layout = System.IO.Path.Combine(System.AppContext.BaseDirectory, "Templates", "_EmailLayout.cshtml");
+}
+
+<div style="margin: auto; max-width: 1152px">
+    <p>Hello, <b>@(Model.Model.Login)</b>! Your e-mail was used to register on <a href="@(Uhost.Core.CoreSettings.PublicUrl)">UcezZ Host</a> video hosting.</p>
+    <p>You confirmation code:</p>
+    <div style="
+        margin: 0.5em;
+        text-align: center;
+        color: #c62828;
+        font-size: 48pt;
+        font-weight: 700;
+        letter-spacing: 0.125em">
+        @(Model.Code)
+    </div>
+    <p>If you didn't request registration, just ignore this email.</p>
+</div>

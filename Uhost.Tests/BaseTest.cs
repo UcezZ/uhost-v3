@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Hangfire;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Text;
+using Uhost.Console.Common;
 using Uhost.Core.Extensions;
 using Uhost.Web.Middleware;
 using Uhost.Web.Providers;
@@ -20,6 +22,7 @@ namespace Uhost.Tests
             services.AddUhostCoreServices();
 
             services.AddScoped<IAuthService, AuthService>();
+            services.AddSingleton<JobActivator, HangfireJobActivator>();
 
             services.AddHttpContextAccessor();
 

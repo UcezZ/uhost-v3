@@ -39,11 +39,16 @@ namespace Uhost.Core.Services.Log
             _users = new UserRepository(_dbContext);
         }
 
-        public void Add(Events ev, object data = null, bool writeToStdOut = false)
+        public void Add(Events ev, object data = null, int userId = default, bool writeToStdOut = false)
         {
+            if (userId <= 0)
+            {
+                TryGetUserId(out userId);
+            }
+
             var entity = new Entity
             {
-                UserId = TryGetUserId(out var userId) ? userId : null,
+                UserId = userId > 0 ? userId : null,
                 EventId = (int)ev,
                 IPAddress = _httpContextAccessor?.HttpContext?.ResolveClientIp(),
                 Data = (data ?? new { }).ToJson()
