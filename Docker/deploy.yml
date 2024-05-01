@@ -150,7 +150,7 @@ services:
 
   # nginx server
   nginx:
-    image: ucezz/nginx:1.16.1-alpine-3.12-vod-lua
+    image: ucezz/nginx:1.25.5-alpine-3.18-vod-lua
     container_name: "${APP_NAME}-nginx"
     restart: unless-stopped
     environment:

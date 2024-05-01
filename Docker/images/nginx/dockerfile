@@ -1,4 +1,4 @@
-FROM alpine:3.12 AS base_image
+FROM alpine:3.18 AS base_image
 
 FROM base_image AS build
 
@@ -20,7 +20,7 @@ RUN mkdir /src
 
 # nginx
 RUN mkdir /src/nginx
-RUN curl -sL https://nginx.org/download/nginx-1.16.1.tar.gz | tar -C /src/nginx --strip 1 -xz
+RUN curl -sL https://nginx.org/download/nginx-1.25.5.tar.gz | tar -C /src/nginx --strip 1 -xz
 
 WORKDIR /src
 
