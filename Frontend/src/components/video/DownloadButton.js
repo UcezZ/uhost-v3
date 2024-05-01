@@ -32,7 +32,6 @@ export default function DownloadButton({ token, sizes }) {
             <Button
                 size='large'
                 color='inherit'
-                aria-label='profile'
                 id='download-button'
                 aria-controls={anchorEl ? undefined : 'download-menu'}
                 aria-haspopup='true'

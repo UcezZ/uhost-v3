@@ -61,6 +61,9 @@ const Rights = {
     UserCreate: 0x21,
     UserDelete: 0x22,
     UserInteractAll: 0x23,
+    AdminLogAccess: 0x31,
+    AdminSessionAccess: 0x32,
+    AdminSessionTerminate: 0x33,
     checkAllRights,
     checkAnyRight
 }

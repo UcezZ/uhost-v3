@@ -11,6 +11,7 @@ namespace Uhost.Core.Extensions
         public const string DateTimeFileFmt = "yyyyMMdd-HHmmss";
         public const string DateTimeLogFmt = "yyyy-MM-dd HH:mm:ss.fff";
         public const string DateTimeHumanFmt = "dd.MM.yyyy HH:mm";
+        public const string DateTimeHumanDetailFmt = "dd.MM.yyyy HH:mm:ss.fff";
 
         private static readonly string[] _dateTimeFormats = new[]
         {
@@ -18,7 +19,8 @@ namespace Uhost.Core.Extensions
             DateApiFmt,
             DateDbFmt,
             DateTimeFileFmt,
-            DateTimeHumanFmt
+            DateTimeHumanFmt,
+            DateTimeHumanDetailFmt
         };
 
         public static string ToApiFmt(this DateTime dt) => dt.ToString(DateTimeApiFmt);
@@ -31,6 +33,8 @@ namespace Uhost.Core.Extensions
         public static string ToFileFmt(this DateTime dt) => dt.ToString(DateTimeFileFmt);
 
         public static string ToHumanFmt(this DateTime dt) => dt.ToString(DateTimeHumanFmt);
+
+        public static string ToHumanDetailFmt(this DateTime dt) => dt.ToString(DateTimeHumanDetailFmt);
 
         public static string ToHumanFmt(this TimeSpan ts)
         {

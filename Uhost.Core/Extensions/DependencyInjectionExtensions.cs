@@ -19,6 +19,8 @@ using Uhost.Core.Services.Register;
 using Uhost.Core.Services.RestClient;
 using Uhost.Core.Services.Role;
 using Uhost.Core.Services.Scheduler;
+using Uhost.Core.Services.Session;
+using Uhost.Core.Services.Token;
 using Uhost.Core.Services.User;
 using Uhost.Core.Services.Video;
 
@@ -60,10 +62,12 @@ namespace Uhost.Core.Extensions
             services.AddScoped<IRegisterService, RegisterService>();
             services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<IPlaylistService, PlaylistService>();
+            services.AddScoped<ISessionService, SessionService>();
 
             services.AddSingleton<ISchedulerService, SchedulerService>();
             services.AddSingleton<IRazorService, RazorService>();
             services.AddSingleton<IRedisSwitcherService, RedisSwitcherService>();
+            services.AddSingleton<ITokenService, TokenService>();
 
             // Redis
             ConnectionMultiplexer.SetFeatureFlag("preventthreadtheft", true);

@@ -175,7 +175,7 @@ export default function VideoPlayer({ video, largeMode }) {
             case PLAYER_TYPE_MP4:
                 return MP4_RESOLUTIONS.filter(e => video.resolutions.includes(e));
             case PLAYER_TYPE_WEBM:
-                return WEBM_RESOLUTIONS;
+                return WEBM_RESOLUTIONS.filter(e => video.resolutions.includes(e));
             default:
                 return [];
         }
@@ -297,9 +297,10 @@ export default function VideoPlayer({ video, largeMode }) {
     }
 
     function updateHlsLevel() {
-        var levelIndex = HLS_RESOLUTIONS.indexOf(playerRes);
+        var res = HLS_RESOLUTIONS.filter(e => e === RES_AUTO || video.resolutions.includes(e));
+        var levelIndex = res.indexOf(playerRes);
 
-        console.log(HLS_RESOLUTIONS.indexOf(playerRes), HLS_RESOLUTIONS, playerRes)
+        console.log(res.indexOf(playerRes), res, playerRes);
 
         if (levelIndex < 0) {
             hls.currentLevel = -1;

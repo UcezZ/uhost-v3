@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Uhost.Core.Extensions;
-using Uhost.Core.Services.RedisSwitcher;
+using Uhost.Core.Services.Token;
 using Uhost.Web.Middleware;
 using UserEntity = Uhost.Core.Data.Entities.User;
 
@@ -12,12 +12,12 @@ namespace Uhost.Web.Services.Auth
 {
     public class AuthService : IAuthService
     {
-        private readonly IRedisSwitcherService _redis;
+        private readonly ITokenService _tokens;
         private readonly DummyTokenHandler _tokenHandler;
 
-        public AuthService(IRedisSwitcherService redis)
+        public AuthService(ITokenService tokens)
         {
-            _redis = redis;
+            _tokens = tokens;
             _tokenHandler = new DummyTokenHandler();
         }
 
@@ -57,8 +57,7 @@ namespace Uhost.Web.Services.Auth
                 jwtToken.Claims.TryGetUserId(out var id) &&
                 jwtToken.Claims.TryGetJti(out var jti))
             {
-                var key = RedisTokenHandlerMiddleware.RedisKey(id, jti);
-                await _redis.ExecuteAsync(async e => await e.StringSetAsync(key, string.Empty, secToken.ValidTo - secToken.ValidFrom));
+                await _tokens.CreateAuthToken(id, jti, secToken.ValidTo - secToken.ValidFrom);
 
                 return (tokenDescriptor.Expires ?? default, _tokenHandler.WriteToken(secToken));
             }
@@ -94,8 +93,9 @@ namespace Uhost.Web.Services.Auth
         {
             if (claims != null && claims.TryGetUserId(out var userId) && claims.TryGetJti(out var jti))
             {
-                var key = RedisTokenHandlerMiddleware.RedisKey(userId, jti);
-                return await _redis.ExecuteAsync(async e => await e.KeyDeleteAsync(key));
+                var result = await _tokens.InvalidateAuthTokenAsync(userId, jti);
+
+                return result;
             }
 
             return false;

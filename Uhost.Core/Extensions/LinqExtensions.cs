@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Uhost.Core.Extensions
 {
@@ -38,9 +39,21 @@ namespace Uhost.Core.Extensions
         /// <param name="disposables">Коллекция <typeparamref name="T"/></param>
         public static void Dispose<T>(this IEnumerable<T> disposables) where T : IDisposable
         {
-            foreach (var disposable in disposables)
+            try
             {
-                disposable.Dispose();
+                foreach (var disposable in disposables)
+                {
+                    disposable?.Dispose();
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                var disposableList = disposables.ToList();
+
+                for (var i = 0; i < disposableList.Count; i++)
+                {
+                    disposableList[i]?.Dispose();
+                }
             }
         }
 
@@ -280,6 +293,24 @@ namespace Uhost.Core.Extensions
             }
 
             return default;
+        }
+
+        /// <summary>
+        /// Перечисление асинхронного перечисления в список
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="asyncEnumerable"></param>
+        /// <returns></returns>
+        public static async Task<List<T>> ToListAsync<T>(this IAsyncEnumerable<T> asyncEnumerable)
+        {
+            var items = new List<T>();
+
+            await foreach (var item in asyncEnumerable)
+            {
+                items.Add(item);
+            }
+
+            return items;
         }
     }
 }

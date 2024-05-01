@@ -58,6 +58,9 @@ export default function VideoContainer({ video, setVideo }) {
                 {canEditVideo && <EditVideoDialogButton video={video} setVideo={setVideo} />}
                 {canEditVideo && <DeleteVideoDialogButton video={video} setVideo={setVideo} />}
             </CardActions>
+            <CardContent>
+                <Typography variant='h6'>{video.name}</Typography>
+            </CardContent>
             {
                 video?.description?.length > 0 && <CardContent>
                     <Typography variant='h6'>{t('video.description')}:</Typography>

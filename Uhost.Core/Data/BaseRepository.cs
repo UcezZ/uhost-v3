@@ -37,7 +37,7 @@ namespace Uhost.Core.Common
         /// </summary>
         public virtual IQueryable<TModel> Get<TModel>(IQueryable<TEntity> query = null) where TModel : IEntityLoadable<TEntity>, new()
         {
-            query ??= DbSet;
+            query ??= DbSet.AsNoTracking();
 
             return query.ToModelCollection<TEntity, TModel>();
         }
@@ -48,7 +48,7 @@ namespace Uhost.Core.Common
         /// </summary>
         public virtual TCollectionModel GetCollection<TCollectionModel>(IQueryable<TEntity> query = null) where TCollectionModel : IEntityCollectionLoadable<TEntity>, new()
         {
-            query ??= DbSet;
+            query ??= DbSet.AsNoTracking();
             var model = new TCollectionModel();
             model.LoadFromEntityCollection(query);
 

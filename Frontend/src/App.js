@@ -20,6 +20,9 @@ import MenuDrawer from './components/header/MenuDrawer';
 import VideoProcessingPage from './components/pages/VideoProcessingPage';
 import { useTranslation } from 'react-i18next';
 import ProfilePage from './components/pages/ProfilePage';
+import Rights from './utils/Rights';
+import LogsPage from './components/pages/LogsPage';
+import SessionPage from './components/pages/SessionsPage';
 
 export default function App() {
     const { i18n } = useTranslation();
@@ -96,34 +99,37 @@ export default function App() {
             </ThemeProvider>
         );
     }
-    else {
-        return (
-            <ThemeProvider theme={theme}>
-                <CssBaseline />
-                <StateContext.Provider value={{
-                    error, setError,
-                    user, setUser,
-                    isDrawerOpen, setIsDrawerOpen
-                }}>
-                    <BrowserRouter>
-                        <MenuDrawer open={isDrawerOpen} />
-                        <Header />
-                        <Routes>
-                            <Route path={`${config.webroot}/`} element={<SearchPage />} />
-                            <Route path={`${config.webroot}/login`} element={<AuthPage />} />
-                            <Route path={`${config.webroot}/video/:token`} element={<VideoPage />} />
-                            <Route path={`${config.webroot}/profile/:login`} element={<ProfilePage />} />
-                            <Route path={`${config.webroot}/videos/:login`} element={<VideosPage />} />
-                            {user?.id > 0 && <Route path={`${config.webroot}/videos`} element={<VideosPage />} />}
-                            {user?.id > 0 && <Route path={`${config.webroot}/profile`} element={<ProfilePage />} />}
-                            {user?.id > 0 && <Route path={`${config.webroot}/video-processing`} element={<VideoProcessingPage />} />}
-                            {user?.id > 0 && <Route path={`${config.webroot}/video-processing/:token`} element={<VideoProcessingPage />} />}
-                            <Route path='*' element={<NotFoundPage />} />
-                        </Routes>
-                    </BrowserRouter>
-                    <ErrorDialog />
-                </StateContext.Provider>
-            </ThemeProvider>
-        );
-    }
+
+    return (
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <StateContext.Provider value={{
+                error, setError,
+                user, setUser,
+                isDrawerOpen, setIsDrawerOpen
+            }}>
+                <BrowserRouter>
+                    <MenuDrawer open={isDrawerOpen} />
+                    <Header />
+                    <Routes>
+                        <Route path={`${config.webroot}/`} element={<SearchPage />} />
+                        <Route path={`${config.webroot}/login`} element={<AuthPage />} />
+                        <Route path={`${config.webroot}/video/:token`} element={<VideoPage />} />
+                        <Route path={`${config.webroot}/profile/:login`} element={<ProfilePage />} />
+                        <Route path={`${config.webroot}/videos/:login`} element={<VideosPage />} />
+
+                        {user?.id > 0 && <Route path={`${config.webroot}/videos`} element={<VideosPage />} />}
+                        {user?.id > 0 && <Route path={`${config.webroot}/profile`} element={<ProfilePage />} />}
+                        {user?.id > 0 && <Route path={`${config.webroot}/video-processing`} element={<VideoProcessingPage />} />}
+                        {user?.id > 0 && <Route path={`${config.webroot}/video-processing/:token`} element={<VideoProcessingPage />} />}
+
+                        {Rights.checkAnyRight(user, Rights.AdminLogAccess) && <Route path={`${config.webroot}/admin/logs`} element={<LogsPage />} />}
+                        {/* {Rights.checkAnyRight(user, Rights.AdminSessionAccess, Rights.AdminSessionTerminate) && <Route path={`${config.webroot}/admin/sessions`} element={<SessionPage />} />} */}
+                        <Route path='*' element={<NotFoundPage />} />
+                    </Routes>
+                </BrowserRouter>
+                <ErrorDialog />
+            </StateContext.Provider>
+        </ThemeProvider>
+    );
 }

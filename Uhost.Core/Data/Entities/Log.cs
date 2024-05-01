@@ -29,16 +29,21 @@ namespace Uhost.Core.Data.Entities
             UserRegisterQuery = 0x23,
             UserRegistered = 0x24,
             UserLogOut = 0x25,
-            UserBanned = 0x26,
-            UserUnbanned = 0x27,
-            UserAvatarUploaded = 0x28,
+            UserAvatarUploaded = 0x26,
 
             VideoUploaded = 0x31,
             VideoEdited = 0x32,
             VideoDeleted = 0x33,
+            VideoConversionFailed = 0x34,
+            VideoConversionCompleted = 0x35,
+            VideoFetchFailed = 0x36,
+            VideoFetchCompleted = 0x37,
 
             CommentPosted = 0x41,
-            CommentDeleted = 0x42
+            CommentDeleted = 0x42,
+
+            SessionTerminated = 0x51,
+
         }
 
         public enum SortBy

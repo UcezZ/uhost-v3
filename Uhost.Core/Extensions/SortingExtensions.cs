@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Uhost.Core.Data;
 using Uhost.Core.Models;
 
 namespace Uhost.Core.Extensions
@@ -30,11 +29,11 @@ namespace Uhost.Core.Extensions
             return string.Empty;
         }
 
-        public static IQueryable<TEntity> OrderBy<TEntity>(this IQueryable<TEntity> source, BaseQueryModel query) where TEntity : BaseEntity =>
+        public static IQueryable<T> OrderBy<T>(this IQueryable<T> source, BaseQueryModel query) =>
             source.OrderBy(SetDirection(query.SortDirection, query.SortBy));
 
         // Сортируем набор Entity по переданной строке
-        public static IQueryable<TEntity> OrderBy<TEntity>(this IQueryable<TEntity> source, string orderByStrValues) where TEntity : BaseEntity
+        public static IQueryable<T> OrderBy<T>(this IQueryable<T> source, string orderByStrValues)
         {
             if (string.IsNullOrEmpty(orderByStrValues))
             {
@@ -54,7 +53,7 @@ namespace Uhost.Core.Extensions
                 //Get propertyname and remove optional ASC or DESC
                 var propertyName = orderPairCommand.Split(' ')[0].Trim();
 
-                var type = typeof(TEntity);
+                var type = typeof(T);
                 var parameter = Expression.Parameter(type, "p");
 
                 PropertyInfo property;
@@ -106,7 +105,7 @@ namespace Uhost.Core.Extensions
                 methodDesc = "ThenByDescending";
             }
 
-            return source.Provider.CreateQuery<TEntity>(queryExpr);
+            return source.Provider.CreateQuery<T>(queryExpr);
         }
     }
 }

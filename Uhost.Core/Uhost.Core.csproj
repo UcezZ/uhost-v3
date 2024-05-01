@@ -60,6 +60,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>EnumTranslations.resx</DependentUpon>
     </Compile>
+    <Compile Update="Properties\LogEvents.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LogEvents.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -70,6 +75,10 @@
     <EmbeddedResource Update="Properties\EnumTranslations.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>EnumTranslations.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Properties\LogEvents.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>LogEvents.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 

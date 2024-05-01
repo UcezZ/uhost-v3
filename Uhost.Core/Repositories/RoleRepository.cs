@@ -21,6 +21,7 @@ namespace Uhost.Core.Repositories
         public IQueryable<Entity> PrepareQuery(QueryModel query)
         {
             IQueryable<Entity> q = DbSet
+                .AsNoTracking()
                 .Include(e => e.RoleRights)
                 .Include(e => e.Rights);
 

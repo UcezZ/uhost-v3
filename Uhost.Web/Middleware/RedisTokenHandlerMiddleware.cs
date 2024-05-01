@@ -8,7 +8,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Uhost.Core.Common;
 using Uhost.Core.Extensions;
-using Uhost.Core.Services.RedisSwitcher;
+using Uhost.Core.Services.Token;
 using Uhost.Web.Common;
 using Uhost.Web.Properties;
 using static System.Console;
@@ -20,10 +20,6 @@ namespace Uhost.Web.Middleware
     /// </summary>
     public class RedisTokenHandlerMiddleware
     {
-        private const string _keyPrefix = "authtoken";
-        public static string RedisKey<TId, TJti>(TId id, TJti jti) =>
-            $"{_keyPrefix}_{id}_{jti}";
-
         private static readonly List<RouteInfo> _targets;
 
         static RedisTokenHandlerMiddleware()
@@ -46,12 +42,12 @@ namespace Uhost.Web.Middleware
                 .ToList();
         }
 
-        private readonly IRedisSwitcherService _redis;
+        private readonly ITokenService _tokens;
         private readonly RequestDelegate _next;
 
-        public RedisTokenHandlerMiddleware(IRedisSwitcherService redis, RequestDelegate next)
+        public RedisTokenHandlerMiddleware(ITokenService tokens, RequestDelegate next)
         {
-            _redis = redis;
+            _tokens = tokens;
             _next = next;
         }
 
@@ -75,14 +71,7 @@ namespace Uhost.Web.Middleware
             {
                 try
                 {
-                    if (!context.User.TryGetUserId(out var userId) || userId <= 0 || !context.User.TryGetJti(out var jti))
-                    {
-                        await ForbidAsync(context);
-                        return;
-                    }
-
-                    var key = RedisKey(userId, jti);
-                    var exists = await _redis.ExecuteAsync(async e => await e.KeyExistsAsync(key));
+                    var exists = await _tokens.CheckExistsAsync(context.User);
 
                     if (!exists)
                     {

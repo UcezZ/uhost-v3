@@ -17,7 +17,8 @@ namespace Uhost.Core.Repositories
         {
             query ??= new QueryModel();
 
-            IQueryable<Entity> q = DbSet;
+            IQueryable<Entity> q = DbSet
+                .AsNoTracking();
 
             if (query.RoleIds != null)
             {

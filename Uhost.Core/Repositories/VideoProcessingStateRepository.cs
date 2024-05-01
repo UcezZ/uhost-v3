@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using Uhost.Core.Common;
 using Uhost.Core.Data;
@@ -16,7 +17,8 @@ namespace Uhost.Core.Repositories
 
         public IQueryable<Entity> PrepareQuery(QueryModel query)
         {
-            IQueryable<Entity> q = DbSet;
+            IQueryable<Entity> q = DbSet
+                .AsNoTracking();
 
             if (query.Id > 0)
             {

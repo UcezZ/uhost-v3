@@ -48,6 +48,13 @@ ORDER BY
             return _httpContextAccessor?.HttpContext?.User != null && _httpContextAccessor.HttpContext.User.TryGetUserId(out userId);
         }
 
+        protected bool TryGetUserJti(out string jti)
+        {
+            jti = default;
+
+            return _httpContextAccessor?.HttpContext?.User != null && _httpContextAccessor.HttpContext.User.TryGetJti(out jti);
+        }
+
         protected bool TryGetUserRights(out IReadOnlyCollection<Rights> rights)
         {
             if (_httpContextAccessor?.HttpContext?.User != null && _httpContextAccessor.HttpContext.User.TryGetUserId(out var userId))

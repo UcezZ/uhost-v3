@@ -1,7 +1,6 @@
 ﻿using FFMpegCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using Sentry;
 using Sentry.Protocol;
 using StackExchange.Redis;
@@ -21,9 +20,12 @@ using Uhost.Core.Models.VideoProcessingState;
 using Uhost.Core.Repositories;
 using Uhost.Core.Services.Comment;
 using Uhost.Core.Services.File;
+using Uhost.Core.Services.Log;
 using Uhost.Core.Services.RedisSwitcher;
 using Uhost.Core.Services.Scheduler;
+using Uhost.Core.Services.Token;
 using static Uhost.Core.Data.Entities.File;
+using static Uhost.Core.Data.Entities.Log;
 using static Uhost.Core.Data.Entities.Right;
 using static Uhost.Core.Data.Entities.VideoProcessingState;
 using Entity = Uhost.Core.Data.Entities.Video;
@@ -41,7 +43,9 @@ namespace Uhost.Core.Services.Video
         private readonly ISchedulerService _scheduler;
         private readonly IFileService _fileService;
         private readonly IRedisSwitcherService _redis;
+        private readonly ITokenService _tokens;
         private readonly ICommentService _commentService;
+        private readonly ILogService _log;
         private const string _redisProgressKeyMask = "progress_{0}";
         private static readonly TimeSpan _redisProgressKeyTtl = TimeSpan.FromMinutes(5);
         private static readonly TimeSpan _maxStreamDuration = TimeSpan.FromHours(4);
@@ -63,7 +67,9 @@ namespace Uhost.Core.Services.Video
             ISchedulerService scheduler,
             IFileService fileService,
             ICommentService commentService,
-            IRedisSwitcherService redis) : base(factory, provider)
+            IRedisSwitcherService redis,
+            ITokenService tokens,
+            ILogService log) : base(factory, provider)
         {
             _repo = new VideoRepository(_dbContext);
             _processingStates = new VideoProcessingStateRepository(_dbContext);
@@ -72,6 +78,8 @@ namespace Uhost.Core.Services.Video
             _fileService = fileService;
             _redis = redis;
             _commentService = commentService;
+            _tokens = tokens;
+            _log = log;
         }
 
         /// <summary>
@@ -186,7 +194,7 @@ namespace Uhost.Core.Services.Video
                 var keyHash = keyPayload.ComputeHash(HasherExtensions.EncryptionMethod.MD5);
                 var key = $"videotoken_{keyHash}";
 
-                await _redis.ExecuteAsync(async e => await e.StringSetAsync(key, value.ToJson(Formatting.Indented), keyTtl));
+                await _tokens.StoreVideoKeyAsync(key, value, keyTtl);
             }
         }
 
@@ -287,6 +295,18 @@ namespace Uhost.Core.Services.Video
             if (file != null && PrepareVideo(entity, file))
             {
                 _repo.Save();
+                _log.Add(Events.VideoUploaded, new
+                {
+                    entity.Id,
+                    entity.Token,
+                    Model = model.ToPropertiesDictionary(e => e.Name != nameof(model.File)),
+                    File = new
+                    {
+                        model.File.FileName,
+                        model.File.ContentType,
+                        model.File.Length
+                    }
+                });
 
                 return entity;
             }
@@ -316,6 +336,12 @@ namespace Uhost.Core.Services.Video
             if (PrepareVideo(entity, model.Url, model.MaxDurationParsed))
             {
                 _repo.Save();
+                _log.Add(Events.VideoUploaded, new
+                {
+                    entity.Id,
+                    entity.Token,
+                    Model = model
+                });
 
                 return entity;
             }
@@ -335,6 +361,11 @@ namespace Uhost.Core.Services.Video
         public void Update(string token, VideoUpdateModel model)
         {
             _repo.Update(e => e.Token == token, model);
+            _log.Add(Events.VideoEdited, new
+            {
+                Token = token,
+                Model = model
+            });
         }
 
         /// <summary>
@@ -344,6 +375,10 @@ namespace Uhost.Core.Services.Video
         public void Delete(int id)
         {
             _repo.SoftDelete(id);
+            _log.Add(Events.VideoDeleted, new
+            {
+                Id = id
+            });
         }
 
         /// <summary>
@@ -353,6 +388,10 @@ namespace Uhost.Core.Services.Video
         public void Delete(string token)
         {
             _repo.Perform(e => e.DeletedAt = DateTime.Now, e => e.Token == token && e.DeletedAt == null);
+            _log.Add(Events.VideoDeleted, new
+            {
+                Token = token
+            });
         }
 
         /// <summary>
@@ -612,7 +651,7 @@ namespace Uhost.Core.Services.Video
             var extension = processingState.Type == FileTypes.VideoWebm ? "webm" : "mp4";
             var output = new FileInfo(Path.GetFullPath(Path.Combine(Path.GetFullPath("tmp"), $"temp_{Guid.NewGuid()}.{extension}")));
             Tools.EnsurePathToFileExist(output.FullName);
-            (var token, var duration) = _repo.GetTokenAndDuration(processingState.VideoId);
+            _repo.GetTokenAndDuration(processingState.VideoId, out var token, out var duration);
             var ffargs = FFMpegArguments
                 .FromUrlInput(new Uri(url))
                 .OutputToFile(output.FullName, true, e => e
@@ -628,6 +667,13 @@ namespace Uhost.Core.Services.Video
                 await ffargs?
                     .NotifyOnProgress(async e => await OnFFProgressAsync(e, token, FileTypes.VideoRaw), duration)
                     .ProcessAsynchronously();
+
+                _log.Add(Events.VideoFetchCompleted, new
+                {
+                    ProcessingStateId = processingStateId,
+                    ProcessingState = processingState,
+                    ffargs.Arguments
+                });
             }
             catch (Exception e)
             {
@@ -636,6 +682,13 @@ namespace Uhost.Core.Services.Video
                 e.Data[nameof(ffargs.Arguments)] = ffargs.Arguments;
                 SentrySdk.CaptureException(e);
                 ffException = e;
+
+                _log.Add(Events.VideoFetchFailed, new
+                {
+                    ProcessingStateId = processingStateId,
+                    ProcessingState = processingState,
+                    ffargs.Arguments
+                });
             }
 
             if (output.Exists && output.Length > 0)
@@ -696,7 +749,7 @@ namespace Uhost.Core.Services.Video
         private async Task DoConversion(FFMpegArgumentProcessor ffargs, FileInfo output, VideoProcessingStateViewModel processingState)
         {
             Tools.EnsurePathToFileExist(output.FullName);
-            (var token, var duration) = _repo.GetTokenAndDuration(processingState.VideoId);
+            _repo.GetTokenAndDuration(processingState.VideoId, out var token, out var duration);
 
             await _logger?.WriteLineAsync($"Processing video #{processingState.VideoId},{token} ({processingState.Type}) with arguments:\r\n{ffargs?.Arguments}", LogWriter.Severity.Info);
 
@@ -729,6 +782,12 @@ namespace Uhost.Core.Services.Video
                 await OnFFProgressAsync(100, token, processingState.Type.Value);
                 await _logger?.WriteLineAsync($"Processing video #{processingState.VideoId},{token} ({processingState.Type}) completed", LogWriter.Severity.Info);
                 _processingStates.UpdateState(processingState.Id, VideoProcessingStates.Completed);
+
+                _log.Add(Events.VideoConversionCompleted, new
+                {
+                    ProcessingState = processingState,
+                    ffargs.Arguments
+                });
             }
             catch (Exception e)
             {
@@ -736,6 +795,13 @@ namespace Uhost.Core.Services.Video
                 e.Data["Arguments"] = ffargs?.Arguments;
                 SentrySdk.CaptureException(e);
                 _processingStates.UpdateState(processingState.Id, VideoProcessingStates.Failed);
+
+                _log.Add(Events.VideoConversionFailed, new
+                {
+                    ProcessingState = processingState,
+                    ffargs.Arguments
+                });
+
                 throw;
             }
             finally

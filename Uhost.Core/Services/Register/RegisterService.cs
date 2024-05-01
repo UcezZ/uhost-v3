@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Sentry;
 using System;
-using System.Net;
 using System.Threading.Tasks;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.Razor;
@@ -12,6 +11,7 @@ using Uhost.Core.Services.Email;
 using Uhost.Core.Services.Razor;
 using Uhost.Core.Services.RedisSwitcher;
 using Uhost.Core.Services.Scheduler;
+using Uhost.Core.Services.Token;
 using Uhost.Core.Services.User;
 
 namespace Uhost.Core.Services.Register
@@ -43,11 +43,6 @@ namespace Uhost.Core.Services.Register
             _users = users;
             _razor = razor;
             _schedule = schedule;
-        }
-
-        private static string GetRedisKey(string code, IPAddress ip)
-        {
-            return $"regquery_{ip}_{code}";
         }
 
         /// <summary>
@@ -92,7 +87,7 @@ namespace Uhost.Core.Services.Register
         public async Task RequestRegistrationAsync(UserRegisterModel model)
         {
             var code = new Random().Next(999999).ToString().PadLeft(6);
-            var key = GetRedisKey(code, _contextAccessor?.HttpContext?.ResolveClientIp());
+            var key = TokenService.GetRedisRegisterQueryKey(code, _contextAccessor?.HttpContext?.ResolveClientIp());
             var dataModel = new RegistrationRazorDataModel
             {
                 Title = CoreStrings.Template_Registration_Title.Format(model.Login),
@@ -112,7 +107,7 @@ namespace Uhost.Core.Services.Register
         /// <returns></returns>
         public async Task<UserViewModel> ConfirmRegistration(string code)
         {
-            var key = GetRedisKey(code, _contextAccessor?.HttpContext?.ResolveClientIp());
+            var key = TokenService.GetRedisRegisterQueryKey(code, _contextAccessor?.HttpContext?.ResolveClientIp());
             var value = await _redis.ExecuteAsync(async e => await e.StringGetAsync(key));
 
             if (value.IsNull || !value.HasValue || !value.TryCastTo<UserRegisterModel>(out var model))

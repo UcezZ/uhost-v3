@@ -8,10 +8,12 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Resources;
 using System.Threading.Tasks;
 using Uhost.Core.Properties;
 using static System.Console;
 using static Uhost.Core.Common.Tools;
+using static Uhost.Core.Data.Entities.Log;
 using static Uhost.Core.Data.Entities.Right;
 
 namespace Uhost.Core.Extensions
@@ -375,9 +377,21 @@ namespace Uhost.Core.Extensions
                 return rightName;
             }
 
+            if (value is Events ev && LogEvents.ResourceManager.TryGetString(ev.ToString(), out var strValue))
+            {
+                return strValue;
+            }
+
             var key = $"{typeof(T).FullName}_{value}";
 
-            return EnumTranslations.ResourceManager.GetString(key) ?? EnumTranslations.UndefinedFmt.Format(key);
+            if (EnumTranslations.ResourceManager.TryGetString(key, out strValue))
+            {
+                return strValue;
+            }
+            else
+            {
+                return EnumTranslations.UndefinedFmt.Format(key);
+            }
         }
 
         public static string ToHumanSize(this int size) => ToHumanSize((decimal)size);
@@ -599,6 +613,20 @@ namespace Uhost.Core.Extensions
             return _extensionProvider.TryGetContentType(fileName, out var mime)
                 ? mime
                 : "application/octet-stream";
+        }
+
+        /// <summary>
+        /// Попытка получения строкового значения ресурса по имени
+        /// </summary>
+        /// <param name="resourceManager">Менеджер ресурсов</param>
+        /// <param name="name">Имя ресурса</param>
+        /// <param name="value">Выходное значение ресурса</param>
+        /// <returns></returns>
+        public static bool TryGetString(this ResourceManager resourceManager, string name, out string value)
+        {
+            value = resourceManager?.GetString(name);
+
+            return value != null;
         }
     }
 }

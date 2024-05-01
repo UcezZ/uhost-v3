@@ -9,6 +9,9 @@ import PersonIcon from '@mui/icons-material/Person';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import TimelapseIcon from '@mui/icons-material/Timelapse';
 import { t } from 'i18next';
+import Rights from '../../utils/Rights';
+import NotesIcon from '@mui/icons-material/Notes';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
 
 const listItemSx =
 {
@@ -21,11 +24,13 @@ const listItemButtonSx = {
 };
 
 export default function MenuDrawer() {
-    const { isDrawerOpen, setIsDrawerOpen } = useContext(StateContext);
+    const { isDrawerOpen, setIsDrawerOpen, user } = useContext(StateContext);
 
     function closeDrawer() {
         setIsDrawerOpen(false);
     }
+
+    const hasAnyAdminRight = Rights.checkAnyRight(user, Rights.AdminLogAccess, Rights.AdminSessionAccess, Rights.AdminSessionTerminate);
 
     return (
         <Drawer
@@ -95,6 +100,35 @@ export default function MenuDrawer() {
                         </ListItemButton>
                     </ListItem>
                 </Link>
+                {hasAnyAdminRight && <Divider />}
+                {
+                    Rights.checkAnyRight(user, Rights.AdminLogAccess) && <Link
+                        to={`${config.webroot}/admin/logs`}
+                        onClick={closeDrawer}>
+                        <ListItem sx={{ ...listItemSx }}>
+                            <ListItemButton sx={{ ...listItemButtonSx }}>
+                                <ListItemIcon>
+                                    <NotesIcon />
+                                </ListItemIcon>
+                                <ListItemText primary={t('menu.logs')} />
+                            </ListItemButton>
+                        </ListItem>
+                    </Link>
+                }
+                {
+                    Rights.checkAnyRight(user, Rights.AdminSessionAccess, Rights.AdminSessionTerminate) && <Link
+                        to={`${config.webroot}/admin/sessions`}
+                        onClick={closeDrawer}>
+                        <ListItem sx={{ ...listItemSx }}>
+                            <ListItemButton sx={{ ...listItemButtonSx }}>
+                                <ListItemIcon>
+                                    <VpnKeyIcon />
+                                </ListItemIcon>
+                                <ListItemText primary={t('menu.sessions')} />
+                            </ListItemButton>
+                        </ListItem>
+                    </Link>
+                }
             </List>
         </Drawer >
     );

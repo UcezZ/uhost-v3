@@ -17,6 +17,7 @@ namespace Uhost.Core.Repositories
         public IQueryable<Entity> PrepareQuery(QueryModel query)
         {
             IQueryable<Entity> q = DbSet
+                .AsNoTracking()
                 .Include(e => e.User);
 
             if (query.Id > 0)
@@ -103,14 +104,15 @@ namespace Uhost.Core.Repositories
             return Get<TModel>(PrepareQuery(query));
         }
 
-        public (string Token, TimeSpan Duration) GetTokenAndDuration(int id)
+        public void GetTokenAndDuration(int id, out string token, out TimeSpan duration)
         {
             var obj = DbSet
                 .Where(e => e.Id == id && e.DeletedAt == null)
                 .Select(e => new { e.Token, e.Duration })
                 .FirstOrDefault();
 
-            return (obj.Token, obj.Duration);
+            token = obj?.Token;
+            duration = obj?.Duration ?? default;
         }
 
         public int GetId(string token)

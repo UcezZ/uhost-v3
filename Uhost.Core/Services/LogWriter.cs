@@ -12,7 +12,7 @@ namespace Uhost.Core.Services
     /// <br/>
     /// Поддерживает асинхронную запись и запись в несколько <see cref="TextWriter"/>
     /// </summary>
-    public class LogWriter : IDisposable
+    public sealed class LogWriter : IDisposable
     {
         /// <summary>
         /// Уровень события лога
@@ -40,7 +40,7 @@ namespace Uhost.Core.Services
             Error = 3
         }
 
-        private readonly List<TextWriter> _writers;
+        private readonly ICollection<TextWriter> _writers;
         private readonly Severity _minSeverity;
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace Uhost.Core.Services
         /// <param name="minSeverity">Минимальный уровень сообщения для вывода</param>
         public LogWriter(IEnumerable<TextWriter> writers, Severity minSeverity = Severity.Info)
         {
-            _writers = new List<TextWriter>(writers);
+            _writers = writers.ToList();
             _minSeverity = minSeverity;
         }
 
@@ -97,9 +97,8 @@ namespace Uhost.Core.Services
 
         public void Dispose()
         {
-            _writers.ForEach(e => e.Dispose());
+            _writers.Dispose();
             _writers.Clear();
-            GC.SuppressFinalize(this);
         }
     }
 }

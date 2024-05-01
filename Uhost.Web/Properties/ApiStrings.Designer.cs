@@ -259,6 +259,15 @@ namespace Uhost.Web.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Сессия с таким GUID не найдена.
+        /// </summary>
+        internal static string Session_Error_NotFoundByGuid {
+            get {
+                return ResourceManager.GetString("Session_Error_NotFoundByGuid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Пользователь с таким логином или email уже существует.
         /// </summary>
         internal static string User_Error_AlreadyExists {
