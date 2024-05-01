@@ -2,7 +2,7 @@
   "profiles": {
     "Uhost.Console": {
       "commandName": "Project",
-      "commandLineArgs": "hangfire --queue default,distr,ffmpeg,fetch --threads 3"
+      "commandLineArgs": "removedeletedvideofiles"
     }
   }
 }
