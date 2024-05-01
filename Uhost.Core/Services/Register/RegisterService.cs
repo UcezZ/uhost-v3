@@ -8,11 +8,13 @@ using Uhost.Core.Models.Razor;
 using Uhost.Core.Models.User;
 using Uhost.Core.Properties;
 using Uhost.Core.Services.Email;
+using Uhost.Core.Services.Log;
 using Uhost.Core.Services.Razor;
 using Uhost.Core.Services.RedisSwitcher;
 using Uhost.Core.Services.Scheduler;
 using Uhost.Core.Services.Token;
 using Uhost.Core.Services.User;
+using static Uhost.Core.Data.Entities.Log;
 
 namespace Uhost.Core.Services.Register
 {
@@ -27,6 +29,7 @@ namespace Uhost.Core.Services.Register
         private readonly IEmailService _email;
         private readonly IRazorService _razor;
         private readonly ISchedulerService _schedule;
+        private readonly ILogService _log;
         private static readonly TimeSpan _redisKeyTtl = TimeSpan.FromMinutes(30);
 
         public RegisterService(
@@ -35,7 +38,8 @@ namespace Uhost.Core.Services.Register
             IEmailService email,
             IUserService users,
             IRazorService razor,
-            ISchedulerService schedule) : base(provider)
+            ISchedulerService schedule,
+            ILogService log) : base(provider)
         {
             _contextAccessor = provider.GetService<IHttpContextAccessor>();
             _redis = redis;
@@ -43,6 +47,7 @@ namespace Uhost.Core.Services.Register
             _users = users;
             _razor = razor;
             _schedule = schedule;
+            _log = log;
         }
 
         /// <summary>
@@ -102,6 +107,8 @@ namespace Uhost.Core.Services.Register
             await _redis.ExecuteAsync(async e => await e.StringSetAsync(key, dataModel.ToJson(), _redisKeyTtl));
 
             _schedule.ScheduleRegistrationEmailSend(key);
+
+            _log.Add(Events.UserRegisterQuery, model);
         }
 
         /// <summary>
@@ -109,26 +116,28 @@ namespace Uhost.Core.Services.Register
         /// </summary>
         /// <param name="code">Код из email</param>
         /// <returns></returns>
-        public async Task<UserViewModel> ConfirmRegistration(string code)
+        public async Task<bool> ConfirmRegistration(string code)
         {
             var key = TokenService.GetRedisRegisterQueryKey(code, _contextAccessor?.HttpContext?.ResolveClientIp());
             var value = await _redis.ExecuteAsync(async e => await e.StringGetAsync(key));
 
-            if (value.IsNull || !value.HasValue || !value.TryCastTo<UserRegisterModel>(out var model))
+            if (value.IsNull || !value.HasValue || !value.TryCastTo<RegistrationRazorDataModel>(out var model) || model?.Model == null)
             {
-                return null;
+                return false;
             }
 
-            var entity = _users.Add(model);
+            var entity = _users.Add(model.Model);
 
             if (entity != null)
             {
                 await _redis.ExecuteAsync(async e => await e.KeyDeleteAsync(key));
 
-                return _users.GetOne(entity.Id);
+                _log.Add(Events.UserRegistered, model, userId: entity.Id);
+
+                return true;
             }
 
-            return null;
+            return false;
         }
     }
 }

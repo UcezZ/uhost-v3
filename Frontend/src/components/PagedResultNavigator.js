@@ -1,7 +1,7 @@
 import { Pagination } from "@mui/material";
 
 export default function PagedResultNavigator({ pager, sx, onPageToggle }) {
-    if (!pager?.totalPages || pager.totalPages < 1) {
+    if (!pager?.totalPages || pager.totalPages < 2) {
         return;
     }
 

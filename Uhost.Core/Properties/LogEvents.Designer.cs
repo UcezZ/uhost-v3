@@ -97,6 +97,15 @@ namespace Uhost.Core.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Ошибка отправки Email.
+        /// </summary>
+        internal static string EmailSendError {
+            get {
+                return ResourceManager.GetString("EmailSendError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Файл удалён.
         /// </summary>
         internal static string FileDeleted {

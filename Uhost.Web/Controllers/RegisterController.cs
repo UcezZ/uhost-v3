@@ -57,15 +57,15 @@ namespace Uhost.Web.Controllers
                 return ResponseHelper.Error(ModelState.GetErrors());
             }
 
-            var model = await _service.ConfirmRegistration(code);
+            var result = await _service.ConfirmRegistration(code);
 
-            if (model == null)
+            if (result)
             {
-                return ResponseHelper.Error(ApiStrings.Register_Error_ConfirmFail);
+                return ResponseHelper.Success();
             }
             else
             {
-                return ResponseHelper.Success(model);
+                return ResponseHelper.Error(ApiStrings.Register_Error_ConfirmFail);
             }
         }
     }

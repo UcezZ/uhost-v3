@@ -21,7 +21,7 @@ namespace Uhost.Tests
         {
             var model = new UserRegisterModel
             {
-                Email = "ee@ma.il",
+                Email = "ucezz@ucezz.sytes.net",
                 Login = "log_in",
                 Password = "ass-w0rD",
                 PasswordConfirm = "ass-w0rD",

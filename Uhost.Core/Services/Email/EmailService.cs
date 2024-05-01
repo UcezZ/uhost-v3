@@ -1,16 +1,21 @@
 ﻿using Sentry;
 using System;
 using System.Net.Mail;
+using Uhost.Core.Extensions;
+using Uhost.Core.Services.Log;
+using static Uhost.Core.Data.Entities.Log;
 
 namespace Uhost.Core.Services.Email
 {
     public sealed class EmailService : IEmailService
     {
+        private readonly ILogService _log;
         private readonly SmtpClient _client;
 
-        public EmailService()
+        public EmailService(ILogService log)
         {
             _client = CoreSettings.SmtpConfig;
+            _log = log;
         }
 
         /// <summary>
@@ -26,6 +31,19 @@ namespace Uhost.Core.Services.Email
             catch (Exception e)
             {
                 SentrySdk.CaptureException(e);
+                _log.Add(Events.EmailSendError, new
+                {
+                    Message = new
+                    {
+                        message.From,
+                        message.To,
+                        message.Subject,
+                        message.IsBodyHtml,
+                        message.Body,
+                        AttachmentsCount = message.Attachments.Count
+                    },
+                    Exception = e.ToDetailedDataObject()
+                });
                 throw;
             }
         }

@@ -16,6 +16,10 @@ ul.MuiList-root>a {
   color: inherit;
 }
 
+.MuiGrid-root.MuiGrid-item>a {
+  color: inherit;
+}
+
 #root {
   min-width: 400px !important;
 }

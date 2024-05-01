@@ -6,11 +6,13 @@ import Checkbox from '@mui/material/Checkbox';
 import Box from '@mui/material/Box';
 import AuthEndpoint from '../../api/AuthEndpoint';
 import StateContext from '../../utils/StateContext';
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, Grid, Typography } from '@mui/material';
 import Common from '../../utils/Common';
 import Validation from '../../utils/Validation';
 import Styles from '../../ui/Styles';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import config from '../../config.json';
 
 export default function AuthForm({ next, slim }) {
     const { t } = useTranslation();
@@ -19,10 +21,6 @@ export default function AuthForm({ next, slim }) {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
     const [remember, setRemember] = useState(false);
-
-    if (!next) {
-        next = () => setLoading(false);
-    }
 
     async function onSubmit(event) {
         event?.preventDefault && event.preventDefault();
@@ -105,18 +103,20 @@ export default function AuthForm({ next, slim }) {
                 >
                     {loading ? <CircularProgress size={20} /> : t('auth.login')}
                 </Button>
-                {/* <Grid container>
-                    <Grid item xs>
+                <Grid container>
+                    {/* <Grid item xs>
                         <Link href='#' variant='body2'>
                             Forgot password?
                         </Link>
-                    </Grid>
-                    <Grid item>
-                        <Link href='#' variant='body2'>
-                            {'Don't have an account? Sign Up'}
+                    </Grid> */}
+                    <Grid item xs textAlign='center' >
+                        <Typography variant='body2' component='span'>{t('register.suggest')}</Typography>
+                        <span> </span>
+                        <Link to={`${config.webroot}/register`} onClick={next}>
+                            <Typography variant='body2' component='span'>{t('register.go')}</Typography>
                         </Link>
                     </Grid>
-                </Grid> */}
+                </Grid>
             </Box>
         </Box>
     );

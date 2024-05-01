@@ -23,6 +23,7 @@ import ProfilePage from './components/pages/ProfilePage';
 import Rights from './utils/Rights';
 import LogsPage from './components/pages/LogsPage';
 import SessionPage from './components/pages/SessionsPage';
+import RegisterPage from './components/pages/RegisterPage';
 
 export default function App() {
     const { i18n } = useTranslation();
@@ -117,6 +118,8 @@ export default function App() {
                         <Route path={`${config.webroot}/video/:token`} element={<VideoPage />} />
                         <Route path={`${config.webroot}/profile/:login`} element={<ProfilePage />} />
                         <Route path={`${config.webroot}/videos/:login`} element={<VideosPage />} />
+
+                        {!user?.id && <Route path={`${config.webroot}/register`} element={<RegisterPage />} />}
 
                         {user?.id > 0 && <Route path={`${config.webroot}/videos`} element={<VideosPage />} />}
                         {user?.id > 0 && <Route path={`${config.webroot}/profile`} element={<ProfilePage />} />}

@@ -17,6 +17,7 @@ namespace Uhost.Core.Data.Entities
 
             ConsoleLoadDefaultData = 0x01,
             ConsoleCommandError = 0x02,
+            EmailSendError = 0x03,
 
             FileUploaded = 0x11,
             FileUploadFail = 0x12,
@@ -42,8 +43,7 @@ namespace Uhost.Core.Data.Entities
             CommentPosted = 0x41,
             CommentDeleted = 0x42,
 
-            SessionTerminated = 0x51,
-
+            SessionTerminated = 0x51
         }
 
         public enum SortBy

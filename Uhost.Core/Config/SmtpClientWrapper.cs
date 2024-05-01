@@ -31,17 +31,17 @@ namespace Uhost.Core.Config
         /// <inheritdoc cref="SmtpClient.Credentials"/>
         public NetworkCredential Credentials { get; set; }
 
-        public static implicit operator SmtpClient(SmtpClientWrapper client) =>
-            new SmtpClient
+        public static implicit operator SmtpClient(SmtpClientWrapper client)
+        {
+            return new SmtpClient(client.Host, client.Port)
             {
-                Host = client.Host,
-                Port = client.Port,
                 Timeout = client.Timeout,
                 EnableSsl = client.EnableSsl,
                 Credentials = client.Credentials,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 DeliveryFormat = SmtpDeliveryFormat.International,
-                UseDefaultCredentials = client.Credentials == null || string.IsNullOrWhiteSpace(client.Credentials.UserName) && string.IsNullOrWhiteSpace(client.Credentials.Password)
+                UseDefaultCredentials = string.IsNullOrWhiteSpace(client.Credentials?.UserName) && string.IsNullOrWhiteSpace(client.Credentials?.Password)
             };
+        }
     }
 }

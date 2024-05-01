@@ -129,6 +129,9 @@
   <data name="ConsoleLoadDefaultData" xml:space="preserve">
     <value>Загрузка данных по умолчанию</value>
   </data>
+  <data name="EmailSendError" xml:space="preserve">
+    <value>Ошибка отправки Email</value>
+  </data>
   <data name="FileDeleted" xml:space="preserve">
     <value>Файл удалён</value>
   </data>

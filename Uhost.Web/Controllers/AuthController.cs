@@ -90,7 +90,7 @@ namespace Uhost.Web.Controllers
                         Request = query,
                         User = user?.ToModel<UserEntity, UserShortViewModel>()
                     },
-                    userId: user.Id);
+                    userId: user?.Id ?? 0);
 
                 return ResponseHelper.ErrorMessage(nameof(query.Login), ApiStrings.Auth_Error_InvalidCredentials);
             }
