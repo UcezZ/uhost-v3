@@ -175,7 +175,7 @@ export default function RegisterForm({ next, prev }) {
                         sx={{ mt: 3, mb: 2, p: 1, minHeight: '40px' }}
                         onClick={onBack}
                     >
-                        {t('common.cancel')}
+                        {t('common.back')}
                     </Button>
                     <Button
                         type='submit'
