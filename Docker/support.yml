@@ -83,7 +83,7 @@ services:
   # nginx dev
   nginx-dev:
     container_name: "${APP_NAME}-nginx-dev"
-    image: ucezz/nginx:1.16.1-alpine-3.12-vod-lua
+    image: ucezz/nginx:1.25.5-alpine-3.18-vod-lua
     environment:
       REDIS_DBNUM: ${REDIS_DB_NUM}
       VIDEO_TOKEN_SALT: ${VIDEO_TOKEN_SALT}
