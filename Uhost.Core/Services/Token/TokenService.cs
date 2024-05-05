@@ -1,10 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using System;
 using System.Net;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Uhost.Core.Extensions;
+using Uhost.Core.Models.Session;
 using Uhost.Core.Services.RedisSwitcher;
 
 namespace Uhost.Core.Services.Token
@@ -83,11 +85,24 @@ namespace Uhost.Core.Services.Token
         /// <param name="userId"></param>
         /// <param name="jti"></param>
         /// <param name="expiry"></param>
+        /// <param name="context"></param>
         /// <returns></returns>
-        public async Task CreateAuthToken(int userId, string jti, TimeSpan expiry)
+        public async Task CreateAuthToken(int userId, string jti, TimeSpan expiry, HttpContext context = null)
         {
             var key = GetRedisAuthKey(userId, jti);
-            await _redis.ExecuteAsync(async e => await e.StringSetAsync(key, string.Empty, expiry));
+
+            string payload;
+
+            if (context == null)
+            {
+                payload = string.Empty;
+            }
+            else
+            {
+                payload = new SessionClientInfoModel(context).ToJson();
+            }
+
+            await _redis.ExecuteAsync(async e => await e.StringSetAsync(key, payload, expiry));
         }
 
         /// <summary>

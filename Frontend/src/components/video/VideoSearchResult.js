@@ -13,7 +13,7 @@ export default function VideoSearchResult({ query, userLogin, usePager, useRando
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [videos, setVideos] = useState([]);
-    const [pager, setPager] = useState();
+    const [pager, setPager] = useState({ page: 1, perPage: perPage ?? 25 });
     const { user, setError } = useContext(StateContext);
 
     function onPageToggle(page) {

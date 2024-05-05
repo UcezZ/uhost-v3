@@ -12,7 +12,7 @@ export default function SessionItem({ item, onTerminated }) {
     const [loading, setLoading] = useState(false);
     const [dialogVisible, setDialogVisible] = useState(false);
     const { t } = useTranslation();
-    const { setUser } = useContext(StateContext);
+    const { setUser, setError } = useContext(StateContext);
     var login = item?.user?.login?.length ? item.user.login : 'N/A' ?? 'N/A';
     var avaText = login.at(0).toString().toUpperCase();
 
@@ -63,6 +63,8 @@ export default function SessionItem({ item, onTerminated }) {
                 <div><b>{t('session.guid')}:</b> {item?.sessionGuid}</div>
                 <div><b>{t('session.expiresat')}:</b> {item?.expiresAt}</div>
                 <div><b>{t('session.expiresin')}:</b> {item?.expiresIn}</div>
+                {item?.clientInfo?.ipAddress?.length && <div><b>{t('session.ip')}</b>: {item?.clientInfo?.ipAddress}</div>}
+                {item?.clientInfo?.client?.length && <div><b>{t('session.client')}</b>: {item?.clientInfo?.client}</div>}
                 <div><b>{t('session.iscurrent')}:</b> {item?.isCurrent === true ? t('common.yes') : t('common.no')}</div>
             </div>
             <CardActions>

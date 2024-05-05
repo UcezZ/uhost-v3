@@ -1,4 +1,6 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -16,13 +18,15 @@ namespace Uhost.Web.Services.Auth
     {
         private readonly ITokenService _tokens;
         private readonly ILogService _log;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly DummyTokenHandler _tokenHandler;
 
-        public AuthService(ITokenService tokens, ILogService log)
+        public AuthService(ITokenService tokens, ILogService log, IServiceProvider provider)
         {
-            _tokens = tokens;
             _tokenHandler = new DummyTokenHandler();
+            _tokens = tokens;
             _log = log;
+            _httpContextAccessor = provider.GetService<IHttpContextAccessor>();
         }
 
         /// <summary>
@@ -61,7 +65,7 @@ namespace Uhost.Web.Services.Auth
                 jwtToken.Claims.TryGetUserId(out var id) &&
                 jwtToken.Claims.TryGetJti(out var jti))
             {
-                await _tokens.CreateAuthToken(id, jti, secToken.ValidTo - secToken.ValidFrom);
+                await _tokens.CreateAuthToken(id, jti, secToken.ValidTo - secToken.ValidFrom, _httpContextAccessor?.HttpContext);
 
                 return (tokenDescriptor.Expires ?? default, _tokenHandler.WriteToken(secToken));
             }

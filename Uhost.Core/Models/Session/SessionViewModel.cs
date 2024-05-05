@@ -35,6 +35,11 @@ namespace Uhost.Core.Models.Session
         public UserShortViewModel User { get; set; }
 
         /// <summary>
+        /// Инфо о клиенте
+        /// </summary>
+        public SessionClientInfoModel ClientInfo { get; set; }
+
+        /// <summary>
         /// ИД пользователя
         /// </summary>
         [JsonIgnore]

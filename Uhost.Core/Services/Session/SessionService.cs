@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -40,16 +41,30 @@ namespace Uhost.Core.Services.Session
             _log = log;
         }
 
+        private static async Task<SessionViewModel> GetSessionFromRedisAsync(IDatabase redis, RedisKey key)
+        {
+            var keyInfo = new RedisKeyInfo(key, await redis.KeyTimeToLiveAsync(key));
+            var payload = await redis.StringGetAsync(key);
+
+            var model = new SessionViewModel(keyInfo);
+
+            if (payload.TryCastTo<SessionClientInfoModel>(out var clientInfo))
+            {
+                model.ClientInfo = clientInfo;
+            }
+
+            return model;
+        }
+
         public async Task<IQueryable<SessionViewModel>> GetAll(SessionQueryModel query)
         {
             var pattern = TokenService.GetRedisAuthKey(query.UserId > 0 ? query.UserId : "*", "*");
 
             var keys = await _redis.ExecuteAsync(async e => await e.Multiplexer.GetKeysAsync(pattern).ToListAsync());
 
-            var keyInfos = await Task.WhenAll(keys.Select(e => _redis.ExecuteAsync(async r => new RedisKeyInfo(e, await r.KeyTimeToLiveAsync(e)))));
+            var models = await Task.WhenAll(keys.Select(e => _redis.ExecuteAsync(async r => await GetSessionFromRedisAsync(r, e))));
 
-            var q = keyInfos
-                .Select(e => new SessionViewModel(e))
+            var q = models
                 .AsQueryable()
                 .OrderBy(query);
 
