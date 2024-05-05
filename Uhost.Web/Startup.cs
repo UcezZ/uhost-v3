@@ -178,6 +178,7 @@ namespace Uhost.Web
 
             app.UseAuthentication();
             app.UseMiddleware<RedisTokenHandlerMiddleware>();
+            app.UseMiddleware<RightCrutchMiddleware>();
             app.UseAuthorization();
 
             app.UseEndpoints(e => e.MapDefaultControllerRoute());

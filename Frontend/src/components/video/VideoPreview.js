@@ -8,7 +8,7 @@ import Image from '../common/Image';
 
 export default function VideoPreview({ entity }) {
     const { t } = useTranslation();
-    var login = entity?.user?.login ?? 'N/A';
+    var login = entity?.user?.login?.length ? entity.user.login : 'N/A' ?? 'N/A';
     var avaText = login.at(0).toString().toUpperCase();
     var title = entity?.name ?? 'N/A';
     var createdAt = entity?.createdAt ?? 'N/A';

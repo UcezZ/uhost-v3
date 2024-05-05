@@ -12,6 +12,7 @@ import { t } from 'i18next';
 import Rights from '../../utils/Rights';
 import NotesIcon from '@mui/icons-material/Notes';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import GroupIcon from '@mui/icons-material/Group';
 
 const listItemSx =
 {
@@ -30,7 +31,13 @@ export default function MenuDrawer() {
         setIsDrawerOpen(false);
     }
 
-    const hasAnyAdminRight = Rights.checkAnyRight(user, Rights.AdminLogAccess, Rights.AdminSessionAccess, Rights.AdminSessionTerminate);
+    const hasAnyAdminRight = Rights.checkAnyRight(
+        user,
+        Rights.AdminLogAccess,
+        Rights.AdminSessionAccess,
+        Rights.AdminSessionTerminate,
+        Rights.RoleCreateUpdate,
+        Rights.RoleDelete);
 
     return (
         <Drawer
@@ -125,6 +132,20 @@ export default function MenuDrawer() {
                                     <VpnKeyIcon />
                                 </ListItemIcon>
                                 <ListItemText primary={t('menu.sessions')} />
+                            </ListItemButton>
+                        </ListItem>
+                    </Link>
+                }
+                {
+                    Rights.checkAnyRight(user, Rights.RoleCreateUpdate, Rights.RoleDelete) && <Link
+                        to={`${config.webroot}/admin/roles`}
+                        onClick={closeDrawer}>
+                        <ListItem sx={{ ...listItemSx }}>
+                            <ListItemButton sx={{ ...listItemButtonSx }}>
+                                <ListItemIcon>
+                                    <GroupIcon />
+                                </ListItemIcon>
+                                <ListItemText primary={t('menu.roles')} />
                             </ListItemButton>
                         </ListItem>
                     </Link>

@@ -7,7 +7,7 @@ namespace Uhost.Core.Data.Entities
     [Table("Rights")]
     public class Right : BaseEntity
     {
-        public enum Rights
+        public enum Rights : int
         {
             VideoCreateUpdate = 0x01,
             VideoDelete = 0x02,
@@ -23,7 +23,10 @@ namespace Uhost.Core.Data.Entities
 
             AdminLogAccess = 0x31,
             AdminSessionAccess = 0x32,
-            AdminSessionTerminate = 0x33
+            AdminSessionTerminate = 0x33,
+
+            RoleCreateUpdate = 0x41,
+            RoleDelete = 0x42
         }
 
         [Required, Column(TypeName = "text")]

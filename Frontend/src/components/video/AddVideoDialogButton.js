@@ -1,4 +1,4 @@
-import { Button, Typography } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
@@ -23,7 +23,11 @@ export default function AddVideoDialogButton() {
     };
 
     return (
-        <div>
+        <Box sx={{
+            display: 'flex',
+            justifyContent: 'space-around',
+            m: 2
+        }}>
             <Button
                 size='large'
                 variant='contained'
@@ -43,6 +47,6 @@ export default function AddVideoDialogButton() {
                     <AddVideoForm next={onClose} setCanClose={setCanClose} />
                 </DialogContent>
             </Dialog>
-        </div>
+        </Box>
     );
 }

@@ -13,7 +13,7 @@ export default function SessionItem({ item, onTerminated }) {
     const [dialogVisible, setDialogVisible] = useState(false);
     const { t } = useTranslation();
     const { setUser } = useContext(StateContext);
-    var login = item?.user?.login ?? 'N/A';
+    var login = item?.user?.login?.length ? item.user.login : 'N/A' ?? 'N/A';
     var avaText = login.at(0).toString().toUpperCase();
 
     async function onTerminateConfirm() {

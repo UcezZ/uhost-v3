@@ -65,8 +65,7 @@ export default function ProfilePage() {
         );
     }
 
-    const canModifyUser = shownUser?.id > 0 && user?.id > 0 && (shownUser.id === user.id || Rights.checkAnyRight(user, Rights.UserInteractAll));
-    const canSeePersonalData = canModifyUser || Rights.checkAnyRight(Rights.UserCreate, Rights.UserDelete);
+    const canSeePersonalData = shownUser?.id > 0 && user?.id > 0 && (shownUser.id === user.id || Rights.checkAnyRight(user, Rights.UserInteractAll)) || Rights.checkAnyRight(Rights.UserCreate, Rights.UserDelete);
     const isCurrentUser = shownUser?.id > 0 && user?.id > 0 && shownUser.id === user.id;
 
     return (
@@ -189,11 +188,11 @@ export default function ProfilePage() {
                                 </Grid>
                             </Grid>
                         </CardContent>
-                        {(isCurrentUser || canModifyUser) && <Divider />}
+                        {isCurrentUser && <Divider />}
                         {
-                            (isCurrentUser || canModifyUser) && <CardActions>
-                                {isCurrentUser && <ChangePasswordDialogButton />}
-                                {canModifyUser && <UpdateProfileDialogButton shownUser={shownUser} />}
+                            isCurrentUser && <CardActions>
+                                <ChangePasswordDialogButton />
+                                <UpdateProfileDialogButton shownUser={shownUser} />
                             </CardActions>
                         }
                     </Card>

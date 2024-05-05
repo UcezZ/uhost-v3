@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Uhost.Core.Common;
 using Uhost.Core.Data;
@@ -22,6 +21,7 @@ namespace Uhost.Core.Repositories
         {
             IQueryable<Entity> q = DbSet
                 .AsNoTracking()
+                .Include(e => e.UserRoles)
                 .Include(e => e.RoleRights)
                 .Include(e => e.Rights);
 
@@ -62,18 +62,6 @@ namespace Uhost.Core.Repositories
             var q = PrepareQuery(query);
 
             return Get<TModel>(q);
-        }
-
-        internal bool CheckIds(IEnumerable<int> ids, out int invalid)
-        {
-            var existing = DbSet
-                   .Where(e => ids.Contains(e.Id))
-                   .Select(e => e.Id)
-                   .ToList();
-
-            invalid = ids.FirstOrDefault(e => !existing.Contains(e));
-
-            return invalid == 0;
         }
     }
 }

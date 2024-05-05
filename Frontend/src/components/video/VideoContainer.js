@@ -26,7 +26,7 @@ export default function VideoContainer({ video, setVideo }) {
             })
         : [];
     const canEditVideo = user?.id && (video?.userId && user.id === video.userId || Rights.checkAnyRight(user, Rights.VideoGetAll));
-    var login = video?.user?.login ?? 'N/A';
+    var login = video?.user?.login?.length ? video.user.login : 'N/A' ?? 'N/A';
     var avaText = login.at(0).toString().toUpperCase();
 
     const [largeMode, setLargeMode] = useState(false);

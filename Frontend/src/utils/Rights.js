@@ -64,6 +64,8 @@ const Rights = {
     AdminLogAccess: 0x31,
     AdminSessionAccess: 0x32,
     AdminSessionTerminate: 0x33,
+    RoleCreateUpdate: 0x41,
+    RoleDelete: 0x42,
     checkAllRights,
     checkAnyRight
 }

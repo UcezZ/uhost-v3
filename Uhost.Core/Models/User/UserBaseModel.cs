@@ -22,7 +22,7 @@ namespace Uhost.Core.Models.User
         /// <summary>
         /// Имя входа
         /// </summary>
-        [RegExpValidation("^[a-zA-Z0-9_]*$"), StringLengthValidation(maxLength: 24)]
+        [RegExpValidation("^[a-zA-Z0-9_]*$"), StringLengthValidation(maxLength: 32, allowEmpty: false)]
         public string Login { get; set; }
 
         /// <summary>
@@ -38,9 +38,9 @@ namespace Uhost.Core.Models.User
 
         public virtual Entity FillEntity(Entity entity)
         {
+            entity.Login = Login?.Trim() ?? string.Empty;
             entity.Name = Name?.Trim() ?? string.Empty;
             entity.Desctiption = Description?.FilterWebMultilineString() ?? string.Empty;
-            entity.Login = Login?.Trim() ?? string.Empty;
             entity.Theme = Theme?.Trim() ?? string.Empty;
             entity.Locale = Locale?.Trim() ?? string.Empty;
 

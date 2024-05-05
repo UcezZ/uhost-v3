@@ -34,6 +34,22 @@ export default {
 
     /**
      * 
+     * @param {Number} id
+     * @param {String} name 
+     * @param {String} desc 
+     * @param {String} theme 
+     * @param {String} locale 
+     * @returns {Promise}
+     */
+    update: (id, name, desc, theme, locale) => api.putForm(`${config.apiroot}/users/${id}`, {
+        name: name ?? '',
+        desc: desc ?? '',
+        theme: theme ?? '',
+        locale: locale ?? ''
+    }),
+
+    /**
+     * 
      * @param {String} password 
      * @param {String} passwordConfirm 
      * @returns 

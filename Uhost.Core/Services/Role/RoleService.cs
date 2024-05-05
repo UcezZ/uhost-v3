@@ -24,7 +24,7 @@ namespace Uhost.Core.Services.Role
 
         public object GetAllPaged(QueryModel query)
         {
-            var pager = _repo.GetAll<RoleViewModel>(query).CreatePager(query);
+            var pager = _repo.GetAll<RoleShortViewModel>(query).CreatePager(query);
 
             return pager.Paginate();
         }

@@ -13,7 +13,7 @@ export default function CommentItem({ videoToken, comment, onCommentDeleted }) {
     const { user, setError } = useContext(StateContext);
     const [loading, setLoading] = useState(false);
     const [visible, setVisible] = useState(false);
-    var login = comment?.user?.login ?? 'N/A'
+    var login = comment?.user?.login?.length ? comment.user.login : 'N/A' ?? 'N/A';
     var avaText = login.at(0).toString().toUpperCase();
     var createdAt = comment?.createdAt ?? 'N/A';
     const isNarrowScreen = useMediaQuery('(max-width:600px)');

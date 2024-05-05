@@ -159,6 +159,12 @@
   <data name="File_Error_TooLarge" xml:space="preserve">
     <value>Файл слишком большой, максимально разрешённый размер: {0}</value>
   </data>
+  <data name="Right_Error_NotFound" xml:space="preserve">
+    <value>Право не найдено. Допустимые значения: {0}</value>
+  </data>
+  <data name="Role_Error_NotFoundByIds" xml:space="preserve">
+    <value>Роли с ид. {0} не найдены</value>
+  </data>
   <data name="Template_Registration_Title" xml:space="preserve">
     <value>uHost: Регистрация пользователя {0}</value>
   </data>

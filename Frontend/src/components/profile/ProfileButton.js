@@ -20,7 +20,7 @@ export default function ProfileButton() {
     const [authFormVisible, setAuthFormVisible] = useState(false);
     const { user, setUser } = useContext(StateContext);
 
-    var login = user?.login ?? 'N/A';
+    var login = user?.login?.length ? user.login : 'N/A' ?? 'N/A';
     var avaText = login.at(0).toString().toUpperCase();
 
     function onClick(event) {

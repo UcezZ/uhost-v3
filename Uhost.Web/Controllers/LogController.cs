@@ -15,7 +15,7 @@ namespace Uhost.Web.Controllers
     /// <summary>
     /// Логи
     /// </summary>
-    [Route("api/v2/logs"), Authorize, HasRightAuthorize(Rights.AdminLogAccess)]
+    [Route("api/v2/logs"), Authorize]
     public class LogController : Controller
     {
         private readonly ILogService _service;
@@ -30,7 +30,7 @@ namespace Uhost.Web.Controllers
         /// </summary>
         /// <param name="query"></param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet, HasRightAuthorize(Rights.AdminLogAccess)]
         public IActionResult GetAll(LogQueryModel query)
         {
             return ResponseHelper.Success(_service.GetAllPaged(query));
@@ -40,7 +40,7 @@ namespace Uhost.Web.Controllers
         /// Все события
         /// </summary>
         /// <returns></returns>
-        [HttpGet("events")]
+        [HttpGet("events"), HasRightAuthorize(Rights.AdminLogAccess)]
         public IActionResult GetEvents()
         {
             return ResponseHelper.Success(Enum.GetValues<Events>().Select(e => e.ToString().ToCamelCase()));

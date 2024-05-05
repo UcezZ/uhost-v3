@@ -5,7 +5,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import VideoEndpoint from '../../api/VideoEndpoint';
 import Common from '../../utils/Common';
 import StateContext from '../../utils/StateContext';
-import SearchBar from '../items/SearchBar';
+import SearchBar from '../common/SearchBar';
 import AddVideoDialogButton from '../video/AddVideoDialogButton';
 import VideoSearchResult from '../video/VideoSearchResult';
 import NotFoundPage from './NotFoundPage';
@@ -34,13 +34,7 @@ export default function Videos() {
         <Container sx={{ maxWidth: '100% !important' }}>
             <SearchBar sx={{ marginTop: 1 }} onSearch={onSearch} />
             {
-                user?.id > 0 && <Box sx={{
-                    display: 'flex',
-                    justifyContent: 'space-around',
-                    m: 2
-                }}>
-                    <AddVideoDialogButton />
-                </Box>
+                user?.id > 0 && <AddVideoDialogButton />
             }
             <Typography variant='h4' m={2}>{isSameUser ? t('video.my') : t('video.ofuser', { user: targetLogin })}</Typography>
             <VideoSearchResult

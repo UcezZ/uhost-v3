@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 using Uhost.Core.Properties;
 using static System.Console;
 using static Uhost.Core.Common.Tools;
-using static Uhost.Core.Data.Entities.Log;
 using static Uhost.Core.Data.Entities.Right;
 
 namespace Uhost.Core.Extensions
@@ -377,14 +376,9 @@ namespace Uhost.Core.Extensions
                 return rightName;
             }
 
-            if (value is Events ev && LogEvents.ResourceManager.TryGetString(ev.ToString(), out var strValue))
-            {
-                return strValue;
-            }
-
             var key = $"{typeof(T).FullName}_{value}";
 
-            if (EnumTranslations.ResourceManager.TryGetString(key, out strValue))
+            if (EnumTranslations.ResourceManager.TryGetString(key, out var strValue))
             {
                 return strValue;
             }

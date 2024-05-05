@@ -5,9 +5,11 @@ using Uhost.Core.Attributes.Validation;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.User;
 using Uhost.Core.Services.User;
+using Uhost.Web.Attributes.Authorize;
 using Uhost.Web.Common;
 using Uhost.Web.Extensions;
 using Uhost.Web.Properties;
+using static Uhost.Core.Data.Entities.Right;
 using Entity = Uhost.Core.Data.Entities.User;
 
 namespace Uhost.Web.Controllers
@@ -28,7 +30,7 @@ namespace Uhost.Web.Controllers
         /// <summary>
         /// Получить всех пользователей по запросу
         /// </summary>
-        [HttpGet]
+        [HttpGet, HasRightAuthorize(RightRequirement.CombinationRule.Or, Rights.UserCreate, Rights.UserDelete, Rights.UserInteractAll)]
         public IActionResult GetAll(UserQueryModel query)
         {
             if (!ModelState.IsValid)
@@ -83,7 +85,7 @@ namespace Uhost.Web.Controllers
         /// Создать пользователя (для админа)
         /// </summary>
         /// <param name="model">Модель данных</param>
-        [HttpPost]
+        [HttpPost, HasRightAuthorize(RightRequirement.CombinationRule.Or, Rights.UserCreate, Rights.UserInteractAll)]
         public IActionResult Create([FromForm] UserCreateModel model)
         {
             if (!ModelState.IsValid)
@@ -93,10 +95,6 @@ namespace Uhost.Web.Controllers
             if (_service.Exists(model.Name, model.Login))
             {
                 return ResponseHelper.ErrorMessage(nameof(model.Name), ApiStrings.Role_Error_AlreadyExists);
-            }
-            if (!_service.CheckRoleIds(model.RoleIds, out var invalid))
-            {
-                ModelState.AddModelError(nameof(model.RoleIds), ApiStrings.Right_Error_NotFoundByIdFmt.Format(invalid));
             }
 
             var entity = _service.Add(model);
@@ -116,7 +114,7 @@ namespace Uhost.Web.Controllers
         /// </summary>
         /// <param name="id">ИД пользователя</param>
         /// <param name="model">Модель данных</param>
-        [HttpPut("{id}")]
+        [HttpPut("{id}"), HasRightAuthorize(RightRequirement.CombinationRule.Or, Rights.UserCreate, Rights.UserInteractAll)]
         public IActionResult Update(
             [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Id), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.User_Error_NotFoundById))]
             string id,
@@ -125,10 +123,6 @@ namespace Uhost.Web.Controllers
             if (!id.TryParsePositiveInt(out var idParsed))
             {
                 return ResponseHelper.ErrorMessage(nameof(id), ApiStrings.Common_Error_Invalid);
-            }
-            if (!_service.CheckRoleIds(model.RoleIds, out var invalid))
-            {
-                ModelState.AddModelError(nameof(model.RoleIds), ApiStrings.Role_Error_NotFoundByIdFmt.Format(invalid));
             }
             if (!ModelState.IsValid)
             {
@@ -150,7 +144,7 @@ namespace Uhost.Web.Controllers
         /// <param name="id">ИД пользователя</param>
         /// <param name="model">Модель данных</param>
         /// <returns></returns>
-        [HttpPut("password/{id}")]
+        [HttpPut("password/{id}"), HasRightAuthorize(RightRequirement.CombinationRule.Or, Rights.UserInteractAll)]
         public IActionResult UpdatePassword(
             [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Id), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Role_Error_NotFoundById))]
             string id,
@@ -174,7 +168,7 @@ namespace Uhost.Web.Controllers
         /// Удаление пользователя (для админа)
         /// </summary>
         /// <param name="id">ИД пользователя</param>
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), HasRightAuthorize(RightRequirement.CombinationRule.Or, Rights.UserDelete, Rights.UserInteractAll)]
         public IActionResult Delete(
             [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Id), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Role_Error_NotFoundById))]
             string id)

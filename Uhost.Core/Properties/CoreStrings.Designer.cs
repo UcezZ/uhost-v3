@@ -187,6 +187,24 @@ namespace Uhost.Core.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Право не найдено. Допустимые значения: {0}.
+        /// </summary>
+        internal static string Right_Error_NotFound {
+            get {
+                return ResourceManager.GetString("Right_Error_NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Роли с ид. {0} не найдены.
+        /// </summary>
+        internal static string Role_Error_NotFoundByIds {
+            get {
+                return ResourceManager.GetString("Role_Error_NotFoundByIds", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на uHost: Регистрация пользователя {0}.
         /// </summary>
         internal static string Template_Registration_Title {

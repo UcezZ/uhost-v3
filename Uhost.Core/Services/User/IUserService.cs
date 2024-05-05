@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Uhost.Core.Models.User;
 using Entity = Uhost.Core.Data.Entities.User;
 
@@ -10,7 +9,6 @@ namespace Uhost.Core.Services.User
         Entity Add(UserCreateModel model);
         Entity Add(UserRegisterModel model);
         Entity Auth(UserLoginQueryModel query);
-        bool CheckRoleIds(IEnumerable<int> ids, out int invalid);
         void Delete(int id);
         void DeleteAvatar(int userId = 0);
         bool Exists(string login, string email, int excludedId = 0);

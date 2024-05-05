@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Uhost.Core.Data;
@@ -148,11 +147,6 @@ namespace Uhost.Core.Services.User
             return _repo
                 .PrepareQuery(query)
                 .Any(e => e.Login == login || e.Email == email);
-        }
-
-        public bool CheckRoleIds(IEnumerable<int> ids, out int invalid)
-        {
-            return _roleRepo.CheckIds(ids, out invalid);
         }
 
         public Entity Auth(UserLoginQueryModel query)

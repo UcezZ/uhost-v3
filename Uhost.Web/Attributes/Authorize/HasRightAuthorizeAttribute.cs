@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Uhost.Core.Extensions;
+using Uhost.Web.Common;
 using static Uhost.Core.Data.Entities.Right;
 using static Uhost.Web.Common.RightRequirement;
 
@@ -11,7 +12,8 @@ namespace Uhost.Web.Attributes.Authorize
     /// <summary>
     /// Валидация прав пользователя
     /// </summary>
-    public class HasRightAuthorizeAttribute : AuthorizeAttribute
+    [AttributeUsage(AttributeTargets.Method)]
+    public sealed class HasRightAuthorizeAttribute : AuthorizeAttribute
     {
         public const string PolicyPrefixOr = "HasRightOr";
         public const string PolicyPrefixAnd = "HasRightAnd";
@@ -40,6 +42,11 @@ namespace Uhost.Web.Attributes.Authorize
         }
 
         /// <summary>
+        /// Правило сочетания
+        /// </summary>
+        public CombinationRule CombinationRule => _rule;
+
+        /// <summary>
         /// Валидация прав пользователя
         /// </summary>
         /// <param name="rule">Правило сочетания прав</param>
@@ -55,5 +62,7 @@ namespace Uhost.Web.Attributes.Authorize
 
         /// <inheritdoc cref="HasRightAuthorizeAttribute"/>
         public HasRightAuthorizeAttribute(params Rights[] rights) : this(CombinationRule.And, rights) { }
+
+        internal RightRequirement ToRequirement() => new RightRequirement(_rights, _rule);
     }
 }

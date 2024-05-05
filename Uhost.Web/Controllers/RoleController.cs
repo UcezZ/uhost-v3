@@ -1,12 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Linq;
 using Uhost.Core.Attributes.Validation;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.Role;
 using Uhost.Core.Services.Role;
+using Uhost.Web.Attributes.Authorize;
 using Uhost.Web.Common;
 using Uhost.Web.Extensions;
 using Uhost.Web.Properties;
+using static Uhost.Core.Data.Entities.Right;
 using Entity = Uhost.Core.Data.Entities.Role;
 
 namespace Uhost.Web.Controllers
@@ -25,9 +29,19 @@ namespace Uhost.Web.Controllers
         }
 
         /// <summary>
+        /// Получить список всех прав
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("rights"), HasRightAuthorize(RightRequirement.CombinationRule.Or, Rights.RoleCreateUpdate, Rights.RoleDelete)]
+        public IActionResult GetAllRights()
+        {
+            return ResponseHelper.Success(Enum.GetValues<Rights>().Select(e => e.ToString().ToCamelCase()));
+        }
+
+        /// <summary>
         /// Получить все роли по запросу
         /// </summary>
-        [HttpGet]
+        [HttpGet, HasRightAuthorize(RightRequirement.CombinationRule.Or, Rights.RoleCreateUpdate, Rights.RoleDelete)]
         public IActionResult GetAll(RoleQueryModel query)
         {
             if (!ModelState.IsValid)
@@ -43,7 +57,7 @@ namespace Uhost.Web.Controllers
         /// </summary>
         /// <param name="id">ИД роли</param>
         /// <returns></returns>
-        [HttpGet("{id}")]
+        [HttpGet("{id}"), HasRightAuthorize(RightRequirement.CombinationRule.Or, Rights.RoleCreateUpdate, Rights.RoleDelete)]
         public IActionResult GetOne(
             [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Id), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Role_Error_NotFoundById))]
             string id)
@@ -64,8 +78,8 @@ namespace Uhost.Web.Controllers
         /// Создать роль
         /// </summary>
         /// <param name="model">Модель данных</param>
-        [HttpPost]
-        public IActionResult Create(RoleCreateModel model)
+        [HttpPost, HasRightAuthorize(Rights.RoleCreateUpdate)]
+        public IActionResult Create([FromBody] RoleCreateModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -93,19 +107,15 @@ namespace Uhost.Web.Controllers
         /// </summary>
         /// <param name="id">ИД роли</param>
         /// <param name="model">Модель данных</param>
-        [HttpPut("{id}")]
+        [HttpPut("{id}"), HasRightAuthorize(Rights.RoleCreateUpdate)]
         public IActionResult Update(
             [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Id), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Role_Error_NotFoundById))]
             string id,
-            RoleCreateModel model)
+            [FromBody] RoleCreateModel model)
         {
             if (!id.TryParsePositiveInt(out var idParsed))
             {
                 return ResponseHelper.ErrorMessage(nameof(id), ApiStrings.Common_Error_Invalid);
-            }
-            if (!_service.CheckRightIds(model.RightIds, out var invalid))
-            {
-                ModelState.AddModelError(nameof(model.RightIds), ApiStrings.Right_Error_NotFoundByIdFmt.Format(invalid));
             }
             if (!ModelState.IsValid)
             {
@@ -125,7 +135,7 @@ namespace Uhost.Web.Controllers
         /// Удаление роли
         /// </summary>
         /// <param name="id">ИД роли</param>
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), HasRightAuthorize(Rights.RoleDelete)]
         public IActionResult Delete(
             [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Id), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Role_Error_NotFoundById))]
             string id)

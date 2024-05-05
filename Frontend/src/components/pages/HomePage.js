@@ -1,6 +1,6 @@
 import { Container } from '@mui/system';
 import { useState } from 'react';
-import SearchBar from '../items/SearchBar';
+import SearchBar from '../common/SearchBar';
 import VideoSearchResult from '../video/VideoSearchResult';
 import { useTranslation } from 'react-i18next';
 import { Typography } from '@mui/material';
