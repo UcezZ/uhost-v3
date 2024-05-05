@@ -13,6 +13,7 @@ import Rights from '../../utils/Rights';
 import NotesIcon from '@mui/icons-material/Notes';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import GroupIcon from '@mui/icons-material/Group';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 const listItemSx =
 {
@@ -65,7 +66,7 @@ export default function MenuDrawer() {
                     <ListItem sx={{ ...listItemSx }}>
                         <ListItemButton sx={{ ...listItemButtonSx }}>
                             <ListItemIcon>
-                                <PersonIcon />
+                                <AccountCircleIcon />
                             </ListItemIcon>
                             <ListItemText primary={t('menu.profile')} />
                         </ListItemButton>
@@ -143,9 +144,23 @@ export default function MenuDrawer() {
                         <ListItem sx={{ ...listItemSx }}>
                             <ListItemButton sx={{ ...listItemButtonSx }}>
                                 <ListItemIcon>
-                                    <GroupIcon />
+                                    <PersonIcon />
                                 </ListItemIcon>
                                 <ListItemText primary={t('menu.roles')} />
+                            </ListItemButton>
+                        </ListItem>
+                    </Link>
+                }
+                {
+                    Rights.checkAnyRight(user, Rights.UserCreate, Rights.UserDelete, Rights.UserInteractAll) && <Link
+                        to={`${config.webroot}/admin/users`}
+                        onClick={closeDrawer}>
+                        <ListItem sx={{ ...listItemSx }}>
+                            <ListItemButton sx={{ ...listItemButtonSx }}>
+                                <ListItemIcon>
+                                    <GroupIcon />
+                                </ListItemIcon>
+                                <ListItemText primary={t('menu.users')} />
                             </ListItemButton>
                         </ListItem>
                     </Link>

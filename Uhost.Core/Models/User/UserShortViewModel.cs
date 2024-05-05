@@ -1,4 +1,6 @@
-﻿using Uhost.Core.Extensions;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Uhost.Core.Extensions;
 using Entity = Uhost.Core.Data.Entities.User;
 
 namespace Uhost.Core.Models.User
@@ -10,6 +12,7 @@ namespace Uhost.Core.Models.User
         public string LastVisitAt { get; set; }
         public string Email { get; set; }
         public string AvatarUrl { get; set; }
+        public IEnumerable<int> RoleIds { get; set; }
 
         public override void LoadFromEntity(Entity entity)
         {
@@ -19,6 +22,7 @@ namespace Uhost.Core.Models.User
             CreatedAt = entity.CreatedAt.ToHumanFmt();
             LastVisitAt = entity.LastVisitAt?.ToHumanFmt();
             Email = entity.Email;
+            RoleIds = entity.UserRoles?.Select(e => e.RoleId);
         }
     }
 }

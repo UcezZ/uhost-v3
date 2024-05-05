@@ -25,6 +25,7 @@ import LogsPage from './components/pages/LogsPage';
 import SessionPage from './components/pages/SessionsPage';
 import RegisterPage from './components/pages/RegisterPage';
 import RolePage from './components/pages/RolePage';
+import UserPage from './components/pages/UserPage';
 
 export default function App() {
     const { i18n } = useTranslation();
@@ -130,6 +131,7 @@ export default function App() {
                         {Rights.checkAnyRight(user, Rights.AdminLogAccess) && <Route path={`${config.webroot}/admin/logs`} element={<LogsPage />} />}
                         {Rights.checkAnyRight(user, Rights.AdminSessionAccess, Rights.AdminSessionTerminate) && <Route path={`${config.webroot}/admin/sessions`} element={<SessionPage />} />}
                         {Rights.checkAnyRight(user, Rights.RoleCreateUpdate, Rights.RoleDelete) && <Route path={`${config.webroot}/admin/roles`} element={<RolePage />} />}
+                        {Rights.checkAnyRight(user, Rights.UserCreate, Rights.UserDelete, Rights.UserInteractAll) && <Route path={`${config.webroot}/admin/users`} element={<UserPage />} />}
                         <Route path='*' element={<NotFoundPage />} />
                     </Routes>
                 </BrowserRouter>

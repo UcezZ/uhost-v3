@@ -86,7 +86,7 @@ namespace Uhost.Web.Controllers
         /// </summary>
         /// <param name="model">Модель данных</param>
         [HttpPost, HasRightAuthorize(RightRequirement.CombinationRule.Or, Rights.UserCreate, Rights.UserInteractAll)]
-        public IActionResult Create([FromForm] UserCreateModel model)
+        public IActionResult Create([FromBody] UserCreateModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -118,7 +118,7 @@ namespace Uhost.Web.Controllers
         public IActionResult Update(
             [DatabaseExistionValidation(typeof(Entity), nameof(Entity.Id), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.User_Error_NotFoundById))]
             string id,
-           [FromForm] UserCreateModel model)
+            [FromBody] UserCreateModel model)
         {
             if (!id.TryParsePositiveInt(out var idParsed))
             {

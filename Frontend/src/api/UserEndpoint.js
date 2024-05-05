@@ -5,6 +5,23 @@ export default {
 
     /**
      * 
+     * @param {Number} page 
+     * @param {Number} perPage 
+     * @param {String} sortBy
+     * @param {String} sortDir
+     * @returns {Promise}
+     */
+    getAll: (page, perPage, sortBy, sortDir) => api.get(`${config.apiroot}/users`, {
+        params: {
+            page: page > 0 ? page : 1,
+            perPage: perPage > 0 ? perPage : 25,
+            sortBy: sortBy?.length ? sortBy : 'id',
+            sortDirection: sortDir?.length ? sortDir : 'asc'
+        }
+    }),
+
+    /**
+     * 
      * @param {Number} id 
      * @returns {Promise}
      */
@@ -35,18 +52,30 @@ export default {
     /**
      * 
      * @param {Number} id
+     * @param {String} login 
+     * @param {String} email
      * @param {String} name 
      * @param {String} desc 
      * @param {String} theme 
      * @param {String} locale 
      * @returns {Promise}
      */
-    update: (id, name, desc, theme, locale) => api.putForm(`${config.apiroot}/users/${id}`, {
-        name: name ?? '',
-        desc: desc ?? '',
-        theme: theme ?? '',
-        locale: locale ?? ''
-    }),
+    update: (id, login, email, roles, name, desc, theme, locale) => api.put(
+        `${config.apiroot}/users/${id}`,
+        JSON.stringify({
+            login,
+            email,
+            roleIds: roles,
+            name: name ?? '',
+            desc: desc ?? '',
+            theme: theme ?? '',
+            locale: locale ?? ''
+        }),
+        {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }),
 
     /**
      * 
@@ -55,6 +84,18 @@ export default {
      * @returns 
      */
     changePasswordSelf: (password, passwordConfirm) => api.putForm(`${config.apiroot}/users/password`, {
+        password: password ?? '',
+        passwordConfirm: passwordConfirm ?? passwordConfirm
+    }),
+
+    /**
+     * 
+     * @param {Number} id
+     * @param {String} password 
+     * @param {String} passwordConfirm 
+     * @returns 
+     */
+    changePasswordSelf: (id, password, passwordConfirm) => api.putForm(`${config.apiroot}/users/password/${id}`, {
         password: password ?? '',
         passwordConfirm: passwordConfirm ?? passwordConfirm
     }),
