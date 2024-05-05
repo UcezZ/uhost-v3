@@ -34,8 +34,8 @@ export default function UserItem({ item, onUpdate }) {
                 <div><b>{t('user.roles')}</b>: {item?.roleIds?.length ?? 0}</div>
                 <div><b>{t('user.createdat')}</b>: {item?.createdAt}</div>
                 <div><b>{t('user.lastlogin')}</b>: {item?.lastVisitAt}</div>
-                <div><b>{t('user.locale')}</b>: {t(`user.locale.${item?.locale}`)}</div>
-                <div><b>{t('user.theme')}</b>: {t(`user.theme.${item?.theme}`)}</div>
+                <div><b>{t('user.locale')}</b>: {t(`user.locale.${item?.locale?.toLowerCase()}`)}</div>
+                <div><b>{t('user.theme')}</b>: {t(`user.theme.${item?.theme?.toLowerCase()}`)}</div>
             </CardContent>
             <CardActions>
                 {Rights.checkAnyRight(user, Rights.UserCreate) && <UserUpdateDialogButton user={item} next={onUpdate} />}

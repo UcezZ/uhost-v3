@@ -68,6 +68,8 @@ export default function SessionPage() {
                     <CardContent sx={{
                         display: 'flex',
                         flexDirection: 'row',
+                        flexWrap: 'wrap',
+                        justifyContent: 'space-around',
                         gap: '1em'
                     }}>
                         {/* sort by */}
