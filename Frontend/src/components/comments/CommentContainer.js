@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import CommentEndpoint from '../../api/CommentEndpoint';
 import Common from '../../utils/Common';
 import StateContext from '../../utils/StateContext';
-import LoadingBox from '../LoadingBox';
-import PagedResultNavigator from '../PagedResultNavigator';
+import LoadingBox from '../common/LoadingBox';
+import PagedResultNavigator from '../common/PagedResultNavigator';
 import CommentInput from './CommentInput';
 import CommentItem from './CommentItem';
 

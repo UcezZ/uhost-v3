@@ -1,7 +1,7 @@
 import { Button } from '@mui/material';
 import { useState, useContext } from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
-import YesNoDialog from '../YesNoDialog';
+import YesNoDialog from '../common/YesNoDialog';
 import StateContext from '../../utils/StateContext';
 import { useTranslation } from 'react-i18next';
 import UserEndpoint from '../../api/UserEndpoint';

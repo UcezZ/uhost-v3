@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using Uhost.Core.Common;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.User;
@@ -36,7 +37,8 @@ namespace Uhost.Core.Models.Session
         /// <summary>
         /// ИД пользователя
         /// </summary>
-        internal int UserId { get; set; }
+        [JsonIgnore]
+        public int UserId { get; set; }
 
         internal SessionViewModel(RedisKeyInfo keyInfo)
         {

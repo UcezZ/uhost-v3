@@ -5,7 +5,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useTranslation } from 'react-i18next';
-import PopupTransition from '../ui/PopupTransition';
+import PopupTransition from '../../ui/PopupTransition';
 
 export default function YesNoDialog({ visible, setVisible, onYes, onNo, message }) {
     const { t } = useTranslation();

@@ -3,7 +3,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { useContext, useState } from 'react';
-import YesNoDialog from '../YesNoDialog';
+import YesNoDialog from '../common/YesNoDialog';
 import AuthEndpoint from '../../api/AuthEndpoint';
 import { Link } from 'react-router-dom';
 import config from '../../config.json';
@@ -11,7 +11,7 @@ import StateContext from '../../utils/StateContext';
 import PopupAuthForm from '../auth/PopupAuthForm';
 import { useTranslation } from 'react-i18next';
 import Common from '../../utils/Common';
-import Image from '../Image';
+import Image from '../common/Image';
 
 export default function ProfileButton() {
     const { t } = useTranslation();

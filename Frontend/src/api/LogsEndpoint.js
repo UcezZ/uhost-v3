@@ -14,22 +14,29 @@ export default {
      * @param {Number} perPage 
      * @param {String} sortBy
      * @param {String} sortDir
-     * @param {Number[]} events 
+     * @param {String[]} events 
      * @param {Number} userId 
      * @param {String} dateFrom 
      * @param {String} dateTo 
      * @returns 
      */
-    get: (page, perPage, sortBy, sortDir, events, userId, dateFrom, dateTo) => api.get(`${config.apiroot}/logs`, {
-        params: {
-            page: page > 0 ? page : 1,
-            perPage: perPage > 0 ? perPage : 50,
-            sortBy: sortBy?.length ? sortBy : 'createdAt',
-            sortDirection: sortDir?.length ? sortDir : 'desc',
-            events,
-            userId,
-            dateFrom,
-            dateTo,
+    get: function (page, perPage, sortBy, sortDir, events, userId, dateFrom, dateTo) {
+        var url = `${config.apiroot}/logs`;
+
+        if (events?.length > 0) {
+            url += `?${events.map(e => `events=${e}`).join('&')}`;
         }
-    })
+
+        return api.get(url, {
+            params: {
+                page: page > 0 ? page : 1,
+                perPage: perPage > 0 ? perPage : 50,
+                sortBy: sortBy?.length ? sortBy : 'createdAt',
+                sortDirection: sortDir?.length ? sortDir : 'desc',
+                userId,
+                dateFrom,
+                dateTo,
+            }
+        })
+    }
 };

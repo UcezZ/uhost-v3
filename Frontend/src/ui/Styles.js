@@ -11,7 +11,8 @@ const Styles = {
         fontFamily: 'Consolas, monospace',
         fontSize: '10pt',
         fontWeight: 400,
-        whiteSpace: 'pre-wrap'
+        whiteSpace: 'pre-wrap',
+        wordBreak: 'break-all'
     }
 };
 

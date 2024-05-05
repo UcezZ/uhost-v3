@@ -3,9 +3,9 @@ import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import CommentEndpoint from '../../api/CommentEndpoint';
 import StateContext from '../../utils/StateContext';
-import Image from '../Image';
+import Image from '../common/Image';
 import DeleteIcon from '@mui/icons-material/Delete';
-import YesNoDialog from '../YesNoDialog';
+import YesNoDialog from '../common/YesNoDialog';
 import Common from '../../utils/Common';
 
 export default function CommentItem({ videoToken, comment, onCommentDeleted }) {

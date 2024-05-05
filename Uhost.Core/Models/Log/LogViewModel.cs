@@ -26,7 +26,7 @@ namespace Uhost.Core.Models.Log
         public void LoadFromEntity(Entity entity)
         {
             Id = entity.Id;
-            Event = ((Events)entity.EventId).Translate();
+            Event = ((Events)entity.EventId).ToString();
             CreatedAt = entity.CreatedAt.ToHumanFmt();
             CreatedAtDetail = entity.CreatedAt.ToHumanDetailFmt();
             Data = entity.Data.TryParseJson(out var data) ? data : entity.Data;

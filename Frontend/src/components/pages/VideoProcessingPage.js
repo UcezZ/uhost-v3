@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import LoadingBox from '../LoadingBox';
+import LoadingBox from '../common/LoadingBox';
 import VideoEndpoint from '../../api/VideoEndpoint';
 import StateContext from '../../utils/StateContext';
 import NotFoundPage from './NotFoundPage';

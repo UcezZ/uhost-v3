@@ -4,7 +4,7 @@ import { Box } from '@mui/system';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import config from '../../config.json';
-import Image from '../Image';
+import Image from '../common/Image';
 
 export default function VideoPreview({ entity }) {
     const { t } = useTranslation();

@@ -29,6 +29,11 @@ const IS_HLS_SUPPORTED = IS_MP4_SUPPORTED && (Hls.isSupported() || Hls.isMSESupp
 
 const KEY_TOKEN = 'access_token';
 
+const SORT_DIRECTION_LIST = [
+    'asc',
+    'desc'
+];
+
 export default class Common {
 
     static getTokenKey() {
@@ -391,5 +396,41 @@ export default class Common {
                 block: 'center'
             });
         }
+    }
+
+    /**
+     * 
+     * @returns {String[]}
+     */
+    static getSortDirections() {
+        return SORT_DIRECTION_LIST;
+    }
+
+    /**
+     * 
+     * @param {String} value 
+     * @returns {String}
+     */
+    static filterSortDirection(value) {
+        if (!SORT_DIRECTION_LIST.includes(value)) {
+            return SORT_DIRECTION_LIST[0];
+        }
+
+        return value;
+    }
+
+    /**
+     * Returns value if it is contained by array, otherwise default item of array
+     * @param {String[]} array 
+     * @param {String} value 
+     * @param {Number} defaultIndex 
+     * @returns {String}
+     */
+    static filterStringArrayValue(array, value, defaultIndex = 0) {
+        if (!array.includes(value)) {
+            return array[defaultIndex];
+        }
+
+        return value;
     }
 }

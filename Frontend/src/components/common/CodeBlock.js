@@ -1,4 +1,4 @@
-import Styles from '../ui/Styles';
+import Styles from '../../ui/Styles';
 
 export default function CodeBlock({ data, json, ...props }) {
     if (json) {

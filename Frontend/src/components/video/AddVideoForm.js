@@ -10,7 +10,7 @@ import Common from '../../utils/Common';
 import VideoEndpoint from '../../api/VideoEndpoint';
 import Validation from '../../utils/Validation';
 import Styles from '../../ui/Styles';
-import TabPanel from '../TabPanel';
+import TabPanel from '../common/TabPanel';
 import VideoFileIcon from '@mui/icons-material/VideoFile';
 import CloseIcon from '@mui/icons-material/Close';
 import VideoPreview from './VideoPreview';

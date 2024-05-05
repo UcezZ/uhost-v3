@@ -1,9 +1,7 @@
-import { Typography } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import LogsEndpoint from '../../api/LogsEndpoint';
 import StateContext from '../../utils/StateContext';
-import LoadingBox from '../LoadingBox';
+import LoadingBox from '../common/LoadingBox';
 import LogsComponent from '../logs/LogsComponent';
 
 export default function LogsPage() {

@@ -1,7 +1,7 @@
 import { Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useTranslation } from 'react-i18next';
-import CodeBlock from '../CodeBlock';
+import CodeBlock from '../common/CodeBlock';
 
 export default function LogItem({ item }) {
     const { t } = useTranslation();
@@ -9,7 +9,7 @@ export default function LogItem({ item }) {
     return (
         <Accordion sx={{ mt: 1, mb: 1 }}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                #{item?.id} | {item?.createdAt} | {item?.event}
+                #{item?.id} | {item?.createdAt} | {t(`logs.events.${item?.event?.toString().toKebabCase() ?? 'undefined'}`)}
             </AccordionSummary>
             <AccordionDetails>
                 <div>

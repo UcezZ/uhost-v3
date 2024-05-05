@@ -1,12 +1,11 @@
 import { Accordion, AccordionDetails, AccordionSummary, Box, Grid, LinearProgress, Typography, useMediaQuery } from '@mui/material';
-import Image from '../Image';
+import Image from '../common/Image';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useState, useEffect } from 'react';
 import { green, grey, red, yellow } from '@mui/material/colors';
 import Common from '../../utils/Common';
 import VideoEndpoint from '../../api/VideoEndpoint';
-import Styles from '../../ui/Styles';
-import LoadingBox from '../LoadingBox';
+import LoadingBox from '../common/LoadingBox';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import config from '../../config.json';

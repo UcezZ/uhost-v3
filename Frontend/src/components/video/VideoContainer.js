@@ -10,7 +10,7 @@ import DeleteVideoDialogButton from './DeleteVideoDialogButton';
 import VideoPlayer from './VideoPlayer';
 import config from '../../config.json';
 import { useTranslation } from 'react-i18next';
-import Image from '../Image';
+import Image from '../common/Image';
 
 export default function VideoContainer({ video, setVideo }) {
     const { t } = useTranslation();

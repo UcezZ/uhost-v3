@@ -5,8 +5,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import StateContext from '../utils/StateContext';
-import PopupTransition from '../ui/PopupTransition';
+import StateContext from '../../utils/StateContext';
+import PopupTransition from '../../ui/PopupTransition';
 import { useTranslation } from 'react-i18next';
 
 var errContent;

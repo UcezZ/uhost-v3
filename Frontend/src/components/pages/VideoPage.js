@@ -5,7 +5,7 @@ import VideoEndpoint from '../../api/VideoEndpoint';
 import Common from '../../utils/Common';
 import StateContext from '../../utils/StateContext';
 import CommentContainer from '../comments/CommentContainer';
-import LoadingBox from '../LoadingBox';
+import LoadingBox from '../common/LoadingBox';
 import VideoContainer from '../video/VideoContainer';
 import NotFoundPage from './NotFoundPage';
 

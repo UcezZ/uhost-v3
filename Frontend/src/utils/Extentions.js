@@ -1,4 +1,9 @@
 export default function applyExtentions() {
+    /**
+     * 
+     * @param {function} predicate 
+     * @returns 
+     */
     Array.prototype.firstOrDefault = function (predicate) {
         predicate ??= e => true;
 
@@ -7,6 +12,28 @@ export default function applyExtentions() {
                 return this[i];
             }
         }
+    }
+
+    /**
+     * 
+     * @param {function} keySelector 
+     * @param {function} valueSelector 
+     * @returns {{}}
+     */
+    Array.prototype.toDictionary = function (keySelector, valueSelector) {
+        keySelector ??= e => e?.toString() ?? 'n/a';
+        valueSelector ??= e => e?.toString() ?? 'n/a';
+
+        var dict = {};
+
+        for (var i in this) {
+            var key = keySelector(this[i]);
+            var value = valueSelector(this[i]);
+
+            dict[key] = value;
+        }
+
+        return dict;
     }
 
     String.prototype.toPascalCase = function () {
@@ -19,6 +46,16 @@ export default function applyExtentions() {
         }
 
         return this;
+    }
+
+    String.prototype.toKebabCase = function () {
+        var value = this.replace(/([A-Z])/g, '.$1').toLowerCase();
+
+        if (value.startsWith('.')) {
+            return value.slice(1);
+        }
+
+        return value;
     }
 
     String.prototype.trimAll = function () {

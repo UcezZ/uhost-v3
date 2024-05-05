@@ -1,11 +1,11 @@
 import { Container, Grid } from '@mui/material';
 import VideoPreview from './VideoPreview';
 import { useContext, useEffect, useState } from 'react';
-import LoadingBox from '../LoadingBox';
+import LoadingBox from '../common/LoadingBox';
 import VideoEndpoint from '../../api/VideoEndpoint';
 import StateContext from '../../utils/StateContext';
-import MessageBox from '../MessageBox';
-import PagedResultNavigator from '../PagedResultNavigator';
+import MessageBox from '../common/MessageBox';
+import PagedResultNavigator from '../common/PagedResultNavigator';
 import Common from '../../utils/Common';
 import { useTranslation } from 'react-i18next';
 

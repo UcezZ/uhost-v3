@@ -1,11 +1,12 @@
 import { Avatar, Button, Card, CardActions, CardHeader, CircularProgress, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import Image from '../Image';
+import Image from '../common/Image';
 import { useContext, useState } from 'react';
-import YesNoDialog from '../YesNoDialog';
+import YesNoDialog from '../common/YesNoDialog';
 import SessionEndpoint from '../../api/SessionEndpoint';
 import Common from '../../utils/Common';
 import StateContext from '../../utils/StateContext';
+import { red } from '@mui/material/colors';
 
 export default function SessionItem({ item, onTerminated }) {
     const [loading, setLoading] = useState(false);

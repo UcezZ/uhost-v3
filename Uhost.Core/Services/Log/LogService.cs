@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Uhost.Core.Data;
 using Uhost.Core.Extensions;
@@ -19,16 +18,6 @@ namespace Uhost.Core.Services.Log
     {
         private readonly LogRepository _repo;
         private readonly UserRepository _users;
-        private readonly static IDictionary<Events, string> _allEvents;
-
-        public IDictionary<Events, string> AllEvents => _allEvents;
-
-        static LogService()
-        {
-            _allEvents = Enum
-                .GetValues<Events>()
-                .ToDictionary(e => e, e => e.Translate());
-        }
 
         public LogService(
             IDbContextFactory<PostgreSqlDbContext> factory,
