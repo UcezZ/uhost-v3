@@ -97,9 +97,14 @@ namespace Uhost.Core.Services.Register
         {
             var code = new Random().Next(999999).ToString().PadLeft(6);
             var key = TokenService.GetRedisRegisterQueryKey(code, _contextAccessor?.HttpContext?.ResolveClientIp());
+
+            var title = model.LocaleParsed == Data.Entities.User.Locales.En
+                ? CoreStrings.Template_Registration_Title_En
+                : CoreStrings.Template_Registration_Title_Ru;
+
             var dataModel = new RegistrationRazorDataModel
             {
-                Title = CoreStrings.Template_Registration_Title.Format(model.Login),
+                Title = title.Format(model.Login),
                 Code = code,
                 Model = model
             };

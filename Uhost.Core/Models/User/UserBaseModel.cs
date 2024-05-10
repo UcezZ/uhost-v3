@@ -31,6 +31,9 @@ namespace Uhost.Core.Models.User
         [EnumValidation(typeof(Entity.Themes), ErrorMessageResourceType = typeof(CoreStrings), ErrorMessageResourceName = nameof(CoreStrings.User_Error_ThemeFail))]
         public string Theme { get; set; }
 
+        /// <summary>
+        /// Язык оформления
+        /// </summary>
         [EnumValidation(typeof(Entity.Locales), ErrorMessageResourceType = typeof(CoreStrings), ErrorMessageResourceName = nameof(CoreStrings.User_Error_LocaleFail))]
         public string Locale { get; set; }
 

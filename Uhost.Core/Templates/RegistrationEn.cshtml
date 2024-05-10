@@ -6,8 +6,8 @@
 }
 
 <div style="margin: auto; max-width: 1152px">
-    <p>Hello, <b>@(Model.Model.Login)</b>! Your e-mail was used to register on <a href="@(Uhost.Core.CoreSettings.PublicUrl)">UcezZ Host</a> video hosting.</p>
-    <p>You confirmation code:</p>
+    <p>Hello, <b>@(Model.Model.Login)</b>! Your e-mail was used to register an account on <a href="@(Uhost.Core.CoreSettings.PublicUrl)">UcezZ Host</a> video hosting.</p>
+    <p>Here is your confirmation code:</p>
     <div style="
         margin: 0.5em;
         text-align: center;
@@ -17,5 +17,6 @@
         letter-spacing: 0.125em">
         <span>@(Model.Code)</span>
     </div>
+    <p>Put this code to the confirmation code field to complete registration.</p>
     <p>If you didn't request registration, just ignore this email.</p>
 </div>

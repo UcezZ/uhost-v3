@@ -165,7 +165,10 @@
   <data name="Role_Error_NotFoundByIds" xml:space="preserve">
     <value>Роли с ид. {0} не найдены</value>
   </data>
-  <data name="Template_Registration_Title" xml:space="preserve">
+  <data name="Template_Registration_Title_En" xml:space="preserve">
+    <value>uHost: User {0} registration</value>
+  </data>
+  <data name="Template_Registration_Title_Ru" xml:space="preserve">
     <value>uHost: Регистрация пользователя {0}</value>
   </data>
   <data name="User_Error_LocaleFail" xml:space="preserve">

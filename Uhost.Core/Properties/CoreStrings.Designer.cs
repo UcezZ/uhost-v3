@@ -205,11 +205,20 @@ namespace Uhost.Core.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на uHost: User {0} registration.
+        /// </summary>
+        internal static string Template_Registration_Title_En {
+            get {
+                return ResourceManager.GetString("Template_Registration_Title_En", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на uHost: Регистрация пользователя {0}.
         /// </summary>
-        internal static string Template_Registration_Title {
+        internal static string Template_Registration_Title_Ru {
             get {
-                return ResourceManager.GetString("Template_Registration_Title", resourceCulture);
+                return ResourceManager.GetString("Template_Registration_Title_Ru", resourceCulture);
             }
         }
         
