@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using Uhost.Core.Attributes.Validation;
 using Uhost.Core.Properties;
-using Entity = Uhost.Core.Data.Entities.VideoReaction;
+using Entity = Uhost.Core.Data.Entities.Reaction;
 
-namespace Uhost.Core.Models.VideoReaction
+namespace Uhost.Core.Models.Reaction
 {
-    public class VideoReactionQueryModel : PagedQueryModel
+    public class ReactionQueryModel : PagedQueryModel
     {
         /// <summary>
         /// ИД комментария

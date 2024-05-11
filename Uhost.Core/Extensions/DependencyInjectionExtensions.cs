@@ -14,6 +14,7 @@ using Uhost.Core.Services.Graylog;
 using Uhost.Core.Services.Log;
 using Uhost.Core.Services.Playlist;
 using Uhost.Core.Services.Razor;
+using Uhost.Core.Services.Reaction;
 using Uhost.Core.Services.RedisSwitcher;
 using Uhost.Core.Services.Register;
 using Uhost.Core.Services.RestClient;
@@ -34,7 +35,7 @@ namespace Uhost.Core.Extensions
         /// <typeparam name="TContext">Тип контекста БД</typeparam>
         /// <param name="provider">Провайдер сервисов</param>
         /// <returns></returns>
-        public static TContext GetDbContextScope<TContext>(this IServiceProvider provider) where TContext : DbContext
+        public static TContext GetDbContextInstance<TContext>(this IServiceProvider provider) where TContext : DbContext
         {
             var factory = provider.GetRequiredService<IDbContextFactory<TContext>>();
 
@@ -63,6 +64,7 @@ namespace Uhost.Core.Extensions
             services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<IPlaylistService, PlaylistService>();
             services.AddScoped<ISessionService, SessionService>();
+            services.AddScoped<IReactionService, ReactionService>();
 
             services.AddSingleton<ISchedulerService, SchedulerService>();
             services.AddSingleton<IRazorService, RazorService>();

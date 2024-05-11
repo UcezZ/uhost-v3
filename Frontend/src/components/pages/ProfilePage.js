@@ -176,7 +176,7 @@ export default function ProfilePage() {
                                         {shownUser?.videoCount ?? 'N/A'}
                                     </Typography>
                                 </Grid>
-                                <Grid item xs={6} textAlign='right' alignItems='top'>
+                                {/* <Grid item xs={6} textAlign='right' alignItems='top'>
                                     <Typography variant='h6'>
                                         {t('user.playlistcount')}:
                                     </Typography>
@@ -185,7 +185,7 @@ export default function ProfilePage() {
                                     <Typography>
                                         {shownUser?.playlistCount ?? 'N/A'}
                                     </Typography>
-                                </Grid>
+                                </Grid> */}
                             </Grid>
                         </CardContent>
                         {isCurrentUser && <Divider />}

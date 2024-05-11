@@ -1,11 +1,11 @@
 ﻿using Uhost.Core.Attributes.Validation;
 using Uhost.Core.Properties;
-using Entity = Uhost.Core.Data.Entities.VideoReaction;
+using Entity = Uhost.Core.Data.Entities.Reaction;
 using VideoEntity = Uhost.Core.Data.Entities.Video;
 
-namespace Uhost.Core.Models.VideoReaction
+namespace Uhost.Core.Models.Reaction
 {
-    public class VideoReactionCreateModel : IEntityFillable<Entity>
+    public class ReactionCreateModel : IEntityFillable<Entity>
     {
         internal int UserId { get; set; }
 

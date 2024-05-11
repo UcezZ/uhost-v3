@@ -16,7 +16,7 @@ namespace Uhost.Console.Commands
     {
         protected override void Run()
         {
-            var context = Provider.GetDbContextScope<PostgreSqlDbContext>();
+            var context = Provider.GetDbContextInstance<PostgreSqlDbContext>();
 
             var repo = new FileRepository(context);
             var files = repo.GetAll<FileShortViewModel>(new FileQueryModel

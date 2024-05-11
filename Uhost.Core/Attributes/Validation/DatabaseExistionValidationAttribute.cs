@@ -37,7 +37,11 @@ namespace Uhost.Core.Attributes.Validation
         /// <exception cref="ArgumentException"></exception>
         public DatabaseExistionValidationAttribute(Type entityType, string propertyName, bool includeDeleted = false, bool nullable = false, string sqlPredicate = null)
         {
-            _tableName = Tools.GetEntityTableName(entityType) ?? throw new ArgumentException($"Invalid type specified ${entityType?.Name ?? "null"}", nameof(entityType));
+            if (string.IsNullOrEmpty(_tableName = Tools.GetEntityTableName(entityType)))
+            {
+                throw new ArgumentException($"Invalid type specified ${entityType?.Name ?? "null"}", nameof(entityType));
+            }
+
             var property = entityType.GetProperty(propertyName) ?? throw new ArgumentException($"Invalid type specified ${propertyName}", nameof(propertyName));
             _hasDeletedAtField = entityType.GetProperty("DeletedAt") != null;
             _propertyName = propertyName;
@@ -49,22 +53,43 @@ namespace Uhost.Core.Attributes.Validation
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            var isNullOrEmpty =
-                value == null
-                || value.ToString() == string.Empty
-                || int.TryParse(value?.ToString() ?? string.Empty, out var intValue) && intValue == 0
-                || value is IEnumerable && !((IEnumerable)value).Cast<object>().Any() && value is not string;
+            var enumerable = (value is string ? null : value as IEnumerable)?.Cast<object>();
+            var isEnumerable = enumerable != null;
+
+            // пришла пустота
+            var isEmpty = string.IsNullOrEmpty(value?.ToString())
+
+                // если пришёл целый ноль и поле сущности - целое
+                || _propertyType.IsAssignableTo(typeof(int)) && int.TryParse(value?.ToString(), out var intValue) && intValue == default
+
+                // если пришёл дробный ноль и поле сущности - дробное
+                || _propertyType.IsAssignableTo(typeof(double)) && double.TryParse(value?.ToString(), out var doubleValue) && doubleValue == default
+
+                // если пришло пустое перечисление
+                || isEnumerable && !enumerable.Any();
 
             // если значение пустое и мы разрешили нулабельность - выходим
-            if (isNullOrEmpty && _nullable)
+            if (isEmpty && _nullable)
             {
                 return ValidationResult.Success;
+            }
+
+            // если пришла пустота и не разрешили нулабельность - выходим с ошибкой
+            if (isEmpty && !_nullable)
+            {
+                return new ValidationResult(CoreStrings.Common_Error_RequiredFmt.Format(validationContext?.MemberName ?? _propertyName));
+            }
+
+            // если поле это Id и пришло не то - выходим с ошибкой
+            if (_propertyName == nameof(BaseEntity.Id) && !isEnumerable && !(value?.ToString() ?? string.Empty).TryParsePositiveInt(out _))
+            {
+                return new ValidationResult(CoreStrings.Common_Error_Invalid);
             }
 
             // конвертируем содержимое значения в тип поля сущности, если типы не совпали
             var converter = TypeDescriptor.GetConverter(_propertyType);
 
-            if (value.GetType() != _propertyType && !(value is IEnumerable && value is not string))
+            if (value.GetType() != _propertyType && !isEnumerable)
             {
                 if (converter == null)
                 {
@@ -81,15 +106,30 @@ namespace Uhost.Core.Attributes.Validation
             }
 
             // проверяем существование сущности
-            using (var ctx = validationContext.GetDbContextScope<PostgreSqlDbContext>())
+            using (var ctx = validationContext.GetDbContextInstance<PostgreSqlDbContext>())
             using (var cmd = ctx.Database.GetDbConnection().CreateCommand())
             {
                 var wheres = new List<string>();
 
                 // условие фильтрации - = или IN
-                if (value is not string && value is IEnumerable nonGenericEnumerable)
+                if (isEnumerable)
                 {
-                    wheres.Add($"\"{_propertyName}\" IN ({nonGenericEnumerable.Cast<object>().Select(e => $"'{e}'").Distinct().Join(", ")})");
+                    var values = enumerable
+                        .Cast<object>()
+                        .Select(e => e.TryConvertTo(_propertyType, out var converted) ? converted : null)
+                        .Where(e => e != null)
+                        .Distinct()
+                        .ToList();
+
+                    if (!values.Any())
+                    {
+                        return new ValidationResult(CoreStrings.Common_Error_Invalid);
+                    }
+
+                    var typedValues = values.ToTypedList(_propertyType);
+
+                    wheres.Add($"\"{_propertyName}\" = ANY(@val)");
+                    cmd.Parameters.Add(new NpgsqlParameter("val", typedValues));
                 }
                 else
                 {
@@ -111,14 +151,16 @@ namespace Uhost.Core.Attributes.Validation
 
                 cmd.CommandText = $"SELECT DISTINCT \"{_propertyName}\" FROM \"{_tableName}\" WHERE {wheres.Join(" AND ")}";
 
-                cmd.Connection.SafeOpen();
+                if (cmd.Connection.State != ConnectionState.Open)
+                {
+                    cmd.Connection.Open();
+                }
 
                 using (var reader = cmd.ExecuteReader(CommandBehavior.CloseConnection))
                 {
-                    if (value is IEnumerable && value is not string)
+                    if (isEnumerable)
                     {
-                        var target = (value as IEnumerable)
-                            .Cast<object>()
+                        var target = enumerable
                             .Select(e => e.ToString())
                             .Distinct()
                             .ToList();

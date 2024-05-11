@@ -30,7 +30,7 @@ ORDER BY relname";
                  .ToList();
 
             var methodInfo = typeof(DependencyInjectionExtensions).GetMethods()
-                .FirstOrDefault(e => e.Name == nameof(DependencyInjectionExtensions.GetDbContextScope) && e.IsGenericMethod);
+                .FirstOrDefault(e => e.Name == nameof(DependencyInjectionExtensions.GetDbContextInstance) && e.IsGenericMethod);
 
             var ctxObjects = ctxTypes
                 .Select(e => methodInfo.MakeGenericMethod(e).Invoke(null, Provider.AsSingleElementEnumerable().ToArray()))

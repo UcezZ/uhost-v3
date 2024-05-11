@@ -11,6 +11,7 @@ import VideoPlayer from './VideoPlayer';
 import config from '../../config.json';
 import { useTranslation } from 'react-i18next';
 import Image from '../common/Image';
+import ReactionSection from '../reactions/ReactionSection';
 
 export default function VideoContainer({ video, setVideo }) {
     const { t } = useTranslation();
@@ -57,6 +58,7 @@ export default function VideoContainer({ video, setVideo }) {
                 <DownloadButton token={video?.token} sizes={sizes} />
                 {canEditVideo && <EditVideoDialogButton video={video} setVideo={setVideo} />}
                 {canEditVideo && <DeleteVideoDialogButton video={video} setVideo={setVideo} />}
+                <ReactionSection token={video?.token} />
             </CardActions>
             <CardContent>
                 <Typography variant='h6'>{video.name}</Typography>

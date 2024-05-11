@@ -5,21 +5,21 @@ using Uhost.Core.Common;
 using Uhost.Core.Data;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.File;
+using Uhost.Core.Models.Reaction;
 using Uhost.Core.Models.User;
 using Uhost.Core.Models.Video;
-using Uhost.Core.Models.VideoReaction;
 using Uhost.Core.Repositories;
 using Uhost.Core.Services.File;
 using static Uhost.Core.Data.Entities.File;
 using static Uhost.Core.Data.Entities.Right;
-using Entity = Uhost.Core.Data.Entities.VideoReaction;
+using Entity = Uhost.Core.Data.Entities.Reaction;
 using UserEntity = Uhost.Core.Data.Entities.User;
 
-namespace Uhost.Core.Services.VideoReaction
+namespace Uhost.Core.Services.Reaction
 {
-    public sealed class VideoReactionService : BaseService, IVideoReactionService
+    public sealed class ReactionService : BaseService, IReactionService
     {
-        private static readonly string _reactionDetailSql = @$"EXPLAIN ANALYZE WITH vr AS (
+        private static readonly string _reactionDetailSql = @$"WITH vr AS (
     SELECT
         ""{nameof(Entity.UserId)}"",
         ""{nameof(Entity.Value)}"",
@@ -32,20 +32,25 @@ namespace Uhost.Core.Services.VideoReaction
 )
 SELECT * FROM vr
 WHERE num < 11";
-        private readonly VideoReactionRepository _repo;
+        private readonly ReactionRepository _repo;
         private readonly VideoRepository _videoRepo;
         private readonly UserRepository _userRepo;
         private readonly IFileService _fileService;
 
-        public VideoReactionService(IDbContextFactory<PostgreSqlDbContext> factory, IServiceProvider provider, IFileService fileService) : base(factory, provider)
+        public ReactionService(IDbContextFactory<PostgreSqlDbContext> factory, IServiceProvider provider, IFileService fileService) : base(factory, provider)
         {
-            _repo = new VideoReactionRepository(_dbContext);
+            _repo = new ReactionRepository(_dbContext);
             _videoRepo = new VideoRepository(_dbContext);
             _userRepo = new UserRepository(_dbContext);
             _fileService = fileService;
         }
 
-        public VideoReactionSummaryViewModel GetOne(string videoToken)
+        /// <summary>
+        /// Получить инфо о реакциях по токену видео
+        /// </summary>
+        /// <param name="videoToken"></param>
+        /// <returns></returns>
+        public ReactionSummaryViewModel GetOne(string videoToken)
         {
             var videoId = _videoRepo.GetId(videoToken);
 
@@ -54,7 +59,17 @@ WHERE num < 11";
                 return null;
             }
 
-            var model = new VideoReactionSummaryViewModel
+            return GetOneByVideoId(videoId);
+        }
+
+        /// <summary>
+        /// Получить инфо о реакциях по ИД видео
+        /// </summary>
+        /// <param name="videoId"></param>
+        /// <returns></returns>
+        private ReactionSummaryViewModel GetOneByVideoId(int videoId)
+        {
+            var model = new ReactionSummaryViewModel
             {
                 Reactions = _repo.GetReactionsByOneVideo(videoId)
             };
@@ -83,14 +98,36 @@ WHERE num < 11";
                 {
                     user.AvatarUrl = avatars.FirstOrDefault(e => e.DynId == user.Id)?.Url;
                 }
+
+                model.ReactedUsers = userDetails.Select(e => new
+                {
+                    Reaction = e.Value,
+                    User = users.FirstOrDefault(u => u.Id == e.UserId)
+                })
+                    .GroupBy(e => e.Reaction)
+                    .ToDictionary(e => e.Key, e => e.Select(t => t.User));
+            }
+
+            if (TryGetUserId(out var userId))
+            {
+                model.CurrentUserReaction = _repo
+                    .GetReactionByVideoAndUser(videoId, userId)?
+                    .ToString()?
+                    .ToCamelCase();
             }
 
             return model;
         }
 
+        /// <summary>
+        /// Добавить реакцию к видео
+        /// </summary>
+        /// <param name="videoToken">Токен</param>
+        /// <param name="reaction">Реакция</param>
+        /// <returns></returns>
         public Entity Set(string videoToken, Entity.Reactions reaction)
         {
-            var model = new VideoReactionCreateModel
+            var model = new ReactionCreateModel
             {
                 Value = reaction.ToString(),
                 VideoId = _videoRepo.GetId(videoToken)
@@ -104,6 +141,29 @@ WHERE num < 11";
             return _repo.AddOrUpdate(model, e => e.VideoId == model.VideoId && e.UserId == userId && e.DeletedAt == null);
         }
 
+        /// <summary>
+        /// Добавить реакцию к видео и получить инфо о реакциях
+        /// </summary>
+        /// <param name="videoToken">Токен</param>
+        /// <param name="reaction">Реакция</param>
+        /// <returns></returns>
+        public ReactionSummaryViewModel SetAndGetStats(string videoToken, Entity.Reactions reaction)
+        {
+            var entity = Set(videoToken, reaction);
+
+            if (entity == null)
+            {
+                return null;
+            }
+
+            return GetOneByVideoId(entity.VideoId);
+        }
+
+        /// <summary>
+        /// Удаляет реакцию текущего пользователя
+        /// </summary>
+        /// <param name="videoToken"></param>
+        /// <returns></returns>
         public bool Remove(string videoToken)
         {
             if (TryGetUserId(out var userId))
@@ -115,6 +175,24 @@ WHERE num < 11";
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Удаляет реакцию текущего пользователя и получает инфо о реакциях
+        /// </summary>
+        /// <param name="videoToken"></param>
+        /// <returns></returns>
+        public ReactionSummaryViewModel RemoveAndGetStats(string videoToken)
+        {
+            if (TryGetUserId(out var userId))
+            {
+                var videoId = _videoRepo.GetId(videoToken);
+                var affected = _repo.Perform(e => e.DeletedAt = DateTime.Now, e => e.UserId == userId && e.VideoId == videoId && e.DeletedAt == null);
+
+                return GetOneByVideoId(videoId);
+            }
+
+            return null;
         }
 
         public bool CheckUserRestrictions(string videoToken, out Rights missing)

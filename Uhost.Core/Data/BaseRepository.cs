@@ -556,12 +556,20 @@ WHERE ""Id"" <> {id} AND ({uniquePropNames.Select(e => $"\"{e}\" = @{e}").Join("
         public TEntity AddOrUpdate<TModel>(TModel model, Expression<Func<TEntity, bool>> selector, bool save = true, bool updateTimeField = true)
             where TModel : IEntityFillable<TEntity>
         {
-            var entity = DbSet.FirstOrDefault(selector) ?? new TEntity();
+            var entity = DbSet.FirstOrDefault(selector);
+            var entityPresent = entity != null;
+            entity ??= new TEntity();
+
             model.FillEntity(entity);
 
             if (updateTimeField && entity.Id > 0 && entity is BaseDateTimedEntity dtEntity)
             {
                 dtEntity.UpdatedAt = DateTime.Now;
+            }
+
+            if (!entityPresent)
+            {
+                DbSet.Add(entity);
             }
 
             if (save)

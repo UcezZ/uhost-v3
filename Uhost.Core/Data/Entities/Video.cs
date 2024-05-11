@@ -40,7 +40,7 @@ namespace Uhost.Core.Data.Entities
 
         public User User { get; set; }
         public ICollection<Comment> Comments { get; set; }
-        public ICollection<VideoReaction> VideoReactions { get; set; }
+        public ICollection<Reaction> Reactions { get; set; }
         public ICollection<PlaylistEntry> PlaylistEntries { get; set; }
         public ICollection<VideoProcessingState> VideoProcessingStates { get; set; }
     }

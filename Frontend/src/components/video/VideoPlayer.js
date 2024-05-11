@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import VideoDummy from './VideoDummy';
 import config from '../../config.json';
 import * as Sentry from '@sentry/browser';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
 
 const RES_AUTO = 'auto';
 const RES_WEBM = 'videoWebm';
@@ -331,6 +332,14 @@ export default function VideoPlayer({ video, largeMode }) {
         }
     }
 
+    function onFullScreenToggle() {
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        } else {
+            videoRef?.current?.requestFullscreen && videoRef.current.requestFullscreen();
+        }
+    }
+
     useEffect(() => {
         if (!videoRef?.current) {
             return;
@@ -456,6 +465,7 @@ export default function VideoPlayer({ video, largeMode }) {
                     poster={video.thumbnailUrl}
                     onTimeUpdate={onTimeUpdate}
                     onClick={onPlayPause}
+                    onDoubleClick={onFullScreenToggle}
                     onLoadedData={onVideoLoaded}
                     onEnded={onPlaybackEnded}
                     onError={console.log}
@@ -502,6 +512,9 @@ export default function VideoPlayer({ video, largeMode }) {
                 />
                 <IconButton onClick={onMute}>
                     {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
+                </IconButton>
+                <IconButton onClick={onFullScreenToggle}>
+                    <FullscreenIcon />
                 </IconButton>
             </CardActions>
             <CardActions>

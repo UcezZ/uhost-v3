@@ -17,7 +17,7 @@ namespace Uhost.Web.Common
         static Tools()
         {
             Routes = Program.Provider
-                .GetService<IActionDescriptorCollectionProvider>()?
+                .GetRequiredService<IActionDescriptorCollectionProvider>()
 
                 // все маршруты и методы контроллеров
                 .ActionDescriptors.Items
@@ -28,12 +28,19 @@ namespace Uhost.Web.Common
                 // где есть маршрут
                 .Where(e => e?.AttributeRouteInfo != null)
 
+                // разворачиваем все методы
+                .SelectMany(e => e.EndpointMetadata?.OfType<HttpMethodMetadata>().SelectMany(m => m.HttpMethods).Select(m => new
+                {
+                    ControllerActionDescriptor = e,
+                    HttpMethod = m
+                }))
+
                 // регулярка маршрута, HTTP метод и метод контроллера
                 .Select(e => new RouteInfo
                 {
-                    UrlRegex = new Regex($"^/{Regex.Replace(e.AttributeRouteInfo.Template, @"\{\w*\}", @"[\w\d]{1,}")}$"),
-                    HttpMethod = e.EndpointMetadata?.OfType<HttpMethodMetadata>().SelectMany(e => e.HttpMethods).FirstOrDefault(),
-                    ControllerMethod = e.MethodInfo
+                    UrlRegex = new Regex($"^/{Regex.Replace(e.ControllerActionDescriptor.AttributeRouteInfo.Template, @"\{\w*\}", @"[\w\d_\-]+")}$"),
+                    HttpMethod = e.HttpMethod,
+                    ControllerMethod = e.ControllerActionDescriptor.MethodInfo
                 })
 
                 // commit

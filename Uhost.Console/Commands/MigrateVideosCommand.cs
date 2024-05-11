@@ -15,7 +15,7 @@ namespace Uhost.Console.Commands
     {
         protected override void Run()
         {
-            var context = Provider.GetDbContextScope<PostgreSqlDbContext>();
+            var context = Provider.GetDbContextInstance<PostgreSqlDbContext>();
             var types = VideoService.VideoFileTypes.Select(e => e.ToString()).ToList();
             var entities = context.Files
                 .Where(e => types.Contains(e.Type) && e.DeletedAt == null)

@@ -622,5 +622,59 @@ namespace Uhost.Core.Extensions
 
             return value != null;
         }
+
+        /// <inheritdoc cref="TryConvertTo(object, Type, out object, out Exception)"/>
+        public static bool TryConvertTo<T>(this object input, out T converted)
+        {
+            if (input != null && input.TryConvertTo(typeof(T), out var objectConverted, out _))
+            {
+                converted = (T)objectConverted;
+                return true;
+            }
+            else
+            {
+                converted = default;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Попытка конвертации объекта в тип
+        /// </summary>
+        /// <param name="input">Исходные данные</param>
+        /// <param name="type">Целевой тип</param>
+        /// <param name="converted">Сконвертированные данные</param>
+        /// <param name="exception">Исключение</param>
+        /// <returns></returns>
+        public static bool TryConvertTo(this object input, Type type, out object converted, out Exception exception)
+        {
+            var converter = TypeDescriptor.GetConverter(type);
+
+            if (converter != null)
+            {
+                try
+                {
+                    converted = converter.ConvertFromString(input.ToString());
+                    exception = null;
+                    return converted != null;
+                }
+                catch (Exception e)
+                {
+                    converted = default;
+                    exception = e;
+                    return false;
+                }
+            }
+            else
+            {
+                converted = default;
+                exception = null;
+                return false;
+            }
+        }
+
+        /// <inheritdoc cref="TryConvertTo(object, Type, out object, out Exception)"/>
+        public static bool TryConvertTo(this object input, Type type, out object converted) =>
+            input.TryConvertTo(type, out converted, out _);
     }
 }

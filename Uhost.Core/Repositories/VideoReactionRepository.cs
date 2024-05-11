@@ -5,14 +5,14 @@ using Uhost.Core.Common;
 using Uhost.Core.Data;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models;
-using Entity = Uhost.Core.Data.Entities.VideoReaction;
-using QueryModel = Uhost.Core.Models.VideoReaction.VideoReactionQueryModel;
+using Entity = Uhost.Core.Data.Entities.Reaction;
+using QueryModel = Uhost.Core.Models.Reaction.ReactionQueryModel;
 
 namespace Uhost.Core.Repositories
 {
-    public class VideoReactionRepository : BaseRepository<Entity>
+    public class ReactionRepository : BaseRepository<Entity>
     {
-        public VideoReactionRepository(PostgreSqlDbContext dbContext) : base(dbContext) { }
+        public ReactionRepository(PostgreSqlDbContext dbContext) : base(dbContext) { }
 
         public IQueryable<Entity> PrepareQuery(QueryModel query)
         {
@@ -50,9 +50,9 @@ namespace Uhost.Core.Repositories
             return Get<TModel>(PrepareQuery(query));
         }
 
-        public Dictionary<Entity.Reactions, int> GetReactionsByOneVideo(int videoId)
+        internal Dictionary<Entity.Reactions, int> GetReactionsByOneVideo(int videoId)
         {
-            var q = from e in DbSet.Where(e => e.VideoId == videoId)
+            var q = from e in DbSet.Where(e => e.VideoId == videoId && e.DeletedAt == null)
                     group e by e.Value
                     into g
                     select new { g.Key, Count = g.Count() };
@@ -66,7 +66,17 @@ namespace Uhost.Core.Repositories
             return reactions;
         }
 
-        public Dictionary<int, Dictionary<Entity.Reactions, int>> GetReactionsByVideos(IEnumerable<int> videoIds)
+        internal Entity.Reactions? GetReactionByVideoAndUser(int videoId, int userId)
+        {
+            var reaction = DbSet
+                .Where(e => e.VideoId == videoId && e.UserId == userId && e.DeletedAt == null)
+                .Select(e => e.Value)
+                .FirstOrDefault();
+
+            return reaction?.ParseEnum<Entity.Reactions>();
+        }
+
+        internal Dictionary<int, Dictionary<Entity.Reactions, int>> GetReactionsByVideos(IEnumerable<int> videoIds)
         {
             var q = from e in DbSet.Where(e => videoIds.Contains(e.VideoId))
                     group e by new { e.Id, e.Value }
@@ -83,15 +93,6 @@ namespace Uhost.Core.Repositories
             return reactions
                 .GroupBy(e => e.Id)
                 .ToDictionary(e => e.Key, e => e.ToDictionary(r => r.Value, r => r.Count));
-        }
-
-        public Entity.Reactions? GetByUserAndVideo(int userId, string videoToken)
-        {
-            return DbSet
-                .Where(e => e.UserId == userId && e.Video.Token == videoToken)
-                .Select(e => e.Value)
-                .FirstOrDefault()?
-                .ParseEnum<Entity.Reactions>();
         }
     }
 }

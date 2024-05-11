@@ -18,7 +18,7 @@ namespace Uhost.Core.Data
         public DbSet<User> Users { get; private set; }
         public DbSet<UserRole> UserRoles { get; private set; }
         public DbSet<Video> Videos { get; private set; }
-        public DbSet<VideoReaction> Reactions { get; private set; }
+        public DbSet<Reaction> Reactions { get; private set; }
         public DbSet<Comment> Comments { get; private set; }
         public DbSet<Playlist> Playlists { get; private set; }
         public DbSet<PlaylistEntry> PlaylistEntries { get; private set; }
@@ -101,15 +101,15 @@ namespace Uhost.Core.Data
                 .HasPrincipalKey(e => e.Id);
 
             // реакции
-            builder.Entity<VideoReaction>()
+            builder.Entity<Reaction>()
                 .HasOne(e => e.User)
-                .WithMany(e => e.VideoReactions)
+                .WithMany(e => e.Reactions)
                 .HasForeignKey(e => e.UserId)
                 .HasPrincipalKey(e => e.Id);
 
-            builder.Entity<VideoReaction>()
+            builder.Entity<Reaction>()
                 .HasOne(e => e.Video)
-                .WithMany(e => e.VideoReactions)
+                .WithMany(e => e.Reactions)
                 .HasForeignKey(e => e.VideoId)
                 .HasPrincipalKey(e => e.Id);
 
@@ -262,7 +262,7 @@ namespace Uhost.Core.Data
                 .HasDefaultValue(string.Empty);
 
             // реакции
-            builder.Entity<VideoReaction>()
+            builder.Entity<Reaction>()
                 .Property(e => e.CreatedAt)
                 .HasDefaultValueSql(_sqlNow);
 

@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Uhost.Core.Data.Entities
 {
-    [Table("VideoReactions")]
-    public class VideoReaction : BaseDateTimedEntity
+    [Table("Reactions")]
+    public class Reaction : BaseDateTimedEntity
     {
         public enum SortBy
         {

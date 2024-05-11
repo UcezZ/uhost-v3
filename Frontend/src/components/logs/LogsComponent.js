@@ -85,7 +85,7 @@ export default function LogsComponent({ events }) {
                         gap: '1em'
                     }}>
                         {/* events */}
-                        <FormControl sx={{ width: '100%' }}>
+                        <FormControl sx={{ flex: 1, minWidth: '300px', maxHeight: '300px' }}>
                             <InputLabel id='select-events'>{eventLabelValue}</InputLabel>
                             <Select
                                 labelId='select-events'
@@ -94,7 +94,6 @@ export default function LogsComponent({ events }) {
                                 onChange={e => setSelectedEvents(e.target.value.filter(v => events.includes(v)))}
                                 label={eventLabelValue}
                                 renderValue={e => e.map(k => t(`logs.events.${k.toString().toKebabCase()}`)).join('; ')}
-                            // MenuProps={MenuProps}
                             >
                                 {events.map((e, i) => (
                                     <MenuItem key={i} value={e}>

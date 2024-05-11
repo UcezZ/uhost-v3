@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -76,6 +77,26 @@ namespace Uhost.Core.Extensions
             {
                 return null;
             }
+        }
+
+        public static IEnumerable<T> AsTypedEnumerable<T, S>(this IEnumerable<S> enumerable)
+        {
+            return enumerable.Select(e => e.TryConvertTo<T>(out var converted) ? converted : default);
+        }
+
+        public static object ToTypedList<T>(this IEnumerable<T> enumerable, Type target)
+        {
+            var typedEnumerableMethod = typeof(ReflectionExtentions)
+                .GetMethod(nameof(AsTypedEnumerable))
+                .MakeGenericMethod(target, typeof(T));
+            var typedEnumerable = typedEnumerableMethod.Invoke(null, new object[] { enumerable });
+
+            var toListMethod = typeof(Enumerable)
+                .GetMethod(nameof(Enumerable.ToList))?
+                .MakeGenericMethod(target);
+            var typedValues = toListMethod.Invoke(null, new object[] { typedEnumerable });
+
+            return typedValues;
         }
     }
 }
