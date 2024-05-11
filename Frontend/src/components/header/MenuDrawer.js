@@ -98,7 +98,7 @@ export default function MenuDrawer() {
                         </ListItemButton>
                     </ListItem>
                 </Link>
-                <Link
+                {/* <Link
                     to={`${config.webroot}/playlists`}
                     onClick={closeDrawer}>
                     <ListItem sx={{ ...listItemSx }}>
@@ -109,7 +109,7 @@ export default function MenuDrawer() {
                             <ListItemText primary={t('menu.playlists')} />
                         </ListItemButton>
                     </ListItem>
-                </Link>
+                </Link> */}
                 {hasAnyAdminRight && <Divider />}
                 {
                     Rights.checkAnyRight(user, Rights.AdminLogAccess) && <Link
