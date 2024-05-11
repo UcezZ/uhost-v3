@@ -95,6 +95,8 @@ export default function ReactionSection({ token }) {
         onLoad();
     }, [loading]);
 
+    useEffect(() => setLoading(true), [user]);
+
     function oneReactionButton(data, index) {
         const equalsCurrent = data.key === currentReaction;
         const textValue = data.key in reactions

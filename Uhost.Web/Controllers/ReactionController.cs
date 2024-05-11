@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using Uhost.Core.Attributes.Validation;
 using Uhost.Core.Services.Reaction;
@@ -29,7 +30,7 @@ namespace Uhost.Web.Controllers
         /// </summary>
         /// <param name="token">Токен видео</param>
         /// <returns></returns>
-        [HttpGet("{token}")]
+        [HttpGet("{token}"), AllowAnonymous]
         public IActionResult GetReactionsStatsByVideo(
             [DatabaseExistionValidation(typeof(VideoEntity), nameof(VideoEntity.Token), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Video_Error_NotFound))]
             string token)
