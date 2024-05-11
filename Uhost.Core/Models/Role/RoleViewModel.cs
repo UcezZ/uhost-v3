@@ -11,7 +11,7 @@ namespace Uhost.Core.Models.Role
 {
     public class RoleViewModel : RoleShortViewModel
     {
-        public IEnumerable<RightViewModel> Rights { get; set; }
+        public new IEnumerable<RightViewModel> Rights { get; set; }
 
         internal IEnumerable<Rights> RightsCasted => Rights?.Select(e => e.RightCasted);
 
