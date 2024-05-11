@@ -54,7 +54,7 @@ namespace Uhost.Web.Controllers
         public IActionResult PostReaction(
             [DatabaseExistionValidation(typeof(VideoEntity), nameof(VideoEntity.Token), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Video_Error_NotFound))]
             string token,
-            [EnumValidation(typeof(Entity.Reactions))]
+            [EnumValidation(typeof(Entity.Reactions), ErrorMessageResourceType = typeof(ApiStrings), ErrorMessageResourceName = nameof(ApiStrings.Reaction_Error_ParseFail))]
             string reaction)
         {
             if (!ModelState.IsValid)

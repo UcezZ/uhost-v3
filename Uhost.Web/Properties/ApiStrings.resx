@@ -156,6 +156,9 @@
   <data name="Reaction_Error_NotAllowed" xml:space="preserve">
     <value>Реакции к этому видео отключены</value>
   </data>
+  <data name="Reaction_Error_ParseFail" xml:space="preserve">
+    <value>Недопустимое значение реакции. Допустимые значения: {0}</value>
+  </data>
   <data name="Register_EmailSent" xml:space="preserve">
     <value>Письмо с кодом подтверждения успешно отправлено</value>
   </data>

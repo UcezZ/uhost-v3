@@ -178,6 +178,15 @@ namespace Uhost.Web.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Недопустимое значение реакции. Допустимые значения: {0}.
+        /// </summary>
+        internal static string Reaction_Error_ParseFail {
+            get {
+                return ResourceManager.GetString("Reaction_Error_ParseFail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Письмо с кодом подтверждения успешно отправлено.
         /// </summary>
         internal static string Register_EmailSent {
