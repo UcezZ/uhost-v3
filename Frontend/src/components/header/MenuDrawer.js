@@ -2,7 +2,7 @@ import { Drawer, Divider, List, ListItemButton, ListItemIcon, ListItemText, List
 import { Link } from 'react-router-dom';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import config from '../../config.json';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import StateContext from '../../utils/StateContext';
 import HomeIcon from '@mui/icons-material/Home';
 import PersonIcon from '@mui/icons-material/Person';
@@ -39,6 +39,8 @@ export default function MenuDrawer() {
         Rights.AdminSessionTerminate,
         Rights.RoleCreateUpdate,
         Rights.RoleDelete);
+
+    useEffect(() => closeDrawer(), [user]);
 
     return (
         <Drawer
