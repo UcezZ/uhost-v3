@@ -36,11 +36,14 @@ export default function AuthForm({ next, slim }) {
                         sessionStorage.setItem(Common.getTokenKey(), e.data.result.token);
                     }
 
-                    next && next();
+                    setLogin('');
+                    setPassword('');
                     setUser(e?.data?.result?.user);
+
+                    next && next();
                 }
                 else {
-                    showError(JSON.stringify(e.data));
+                    setError(Common.transformErrorData(e));
                 }
             })
             .catch(e => setError(Common.transformErrorData(e)));
