@@ -123,7 +123,8 @@ export default function AddVideoForm({ next, setCanClose }) {
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    minWidth: '32em'
+                    width: '100%',
+                    maxWidth: '32em'
                 }}
             >
                 <VideoPreview entity={video} />
@@ -302,7 +303,6 @@ export default function AddVideoForm({ next, setCanClose }) {
                         <TextField
                             fullWidth
                             label={t('video.add.source.url.caption')}
-                            defaultValue={Common.sizeToHuman(videoFile?.size)}
                             error={!Validation.Video.url(videoUrl)}
                             variant='outlined'
                             value={videoUrl}
@@ -312,7 +312,6 @@ export default function AddVideoForm({ next, setCanClose }) {
                             fullWidth
                             required
                             label={t('video.add.soutce.url.maxduration')}
-                            defaultValue={Common.sizeToHuman(videoFile?.size)}
                             error={!Validation.Video.maxDuration(maxDuration)}
                             variant='outlined'
                             value={maxDuration}
