@@ -36,11 +36,11 @@ export default function AuthForm({ next, slim }) {
                         sessionStorage.setItem(Common.getTokenKey(), e.data.result.token);
                     }
 
+                    next && next();
+
                     setLogin('');
                     setPassword('');
                     setUser(e?.data?.result?.user);
-
-                    next && next();
                 }
                 else {
                     setError(Common.transformErrorData(e));
@@ -75,6 +75,7 @@ export default function AuthForm({ next, slim }) {
                     autoComplete='login'
                     error={!Validation.Auth.login(login)}
                     disabled={loading}
+                    value={login}
                     autoFocus
                     onChange={e => setLogin(e.target.value)}
                 />
@@ -87,6 +88,7 @@ export default function AuthForm({ next, slim }) {
                     type='password'
                     id='password'
                     error={!Validation.Auth.password(password)}
+                    value={password}
                     disabled={loading}
                     autoComplete='current-password'
                     onChange={e => setPassword(e.target.value)}
