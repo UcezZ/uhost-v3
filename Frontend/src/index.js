@@ -19,7 +19,10 @@ i18next.init({
     resources: lang
 });
 
-Sentry.init(config.sentryConfig);
+Sentry.init({
+    ...config.sentryConfig,
+    environment: process.env.NODE_ENV
+});
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
