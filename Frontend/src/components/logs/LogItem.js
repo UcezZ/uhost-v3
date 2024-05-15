@@ -5,7 +5,7 @@ import CodeBlock from '../common/CodeBlock';
 
 export default function LogItem({ item }) {
     const { t } = useTranslation();
-    const hasData = /^\s*\{\s*\S+\s*\}\s*$/gm.test(item?.data);
+    const hasData = Object.keys(item?.data ?? {}).length > 0;
 
     return (
         <Accordion sx={{ mt: 1, mb: 1 }}>
