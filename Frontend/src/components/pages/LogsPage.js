@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import LogsEndpoint from '../../api/LogsEndpoint';
+import Common from '../../utils/Common';
 import StateContext from '../../utils/StateContext';
 import LoadingBox from '../common/LoadingBox';
 import LogsComponent from '../logs/LogsComponent';
