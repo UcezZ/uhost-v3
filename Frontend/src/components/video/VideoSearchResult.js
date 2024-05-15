@@ -9,7 +9,7 @@ import PagedResultNavigator from '../common/PagedResultNavigator';
 import Common from '../../utils/Common';
 import { useTranslation } from 'react-i18next';
 
-export default function VideoSearchResult({ query, userLogin, usePager, useRandomOnEmpryQuery, perPage, sortBy, sortDir, showHidden, showPrivate }) {
+export default function VideoSearchResult({ query, userLogin, usePager, useRandomOnEmpryQuery, perPage, sortBy, sortDir, showHidden, showPrivate, onPagerFetched }) {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [videos, setVideos] = useState([]);
@@ -46,9 +46,11 @@ export default function VideoSearchResult({ query, userLogin, usePager, useRando
                         if (useRandom) {
                             setVideos(e.data.result);
                             setPager();
+                            onPagerFetched && onPagerFetched();
                         } else {
                             setVideos(e.data.result.items);
                             setPager(e.data.result.pager);
+                            onPagerFetched && onPagerFetched(e.data.result.pager);
                         }
                     } else {
                         setError(Common.transformErrorData(e));

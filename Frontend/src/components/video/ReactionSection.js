@@ -125,13 +125,15 @@ export default function ReactionSection({ token }) {
     }
 
     return (
-        <Box sx={{
+        <div style={{
             borderRadius: '0.25em',
             overflow: 'hidden',
             borderColor: 'primary',
-            borderWidth: '1px'
+            borderWidth: '1px',
+            display: 'flex',
+            flexWrap: 'nowrap'
         }}>
             {REACTIONS.map(oneReactionButton)}
-        </Box>
+        </div>
     );
 }

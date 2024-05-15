@@ -54,7 +54,11 @@ export default function VideoContainer({ video, setVideo }) {
                 />
             </Link>
             <VideoPlayer video={video} largeMode={largeMode} />
-            <CardActions>
+            <CardActions sx={{
+                flexWrap: 'wrap',
+                gap: 1,
+                rowGap: 2
+            }}>
                 <DownloadButton token={video?.token} sizes={sizes} />
                 {canEditVideo && <EditVideoDialogButton video={video} setVideo={setVideo} />}
                 {canEditVideo && <DeleteVideoDialogButton video={video} setVideo={setVideo} />}

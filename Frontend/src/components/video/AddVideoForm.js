@@ -123,8 +123,7 @@ export default function AddVideoForm({ next, setCanClose }) {
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    width: '100%',
-                    maxWidth: '32em'
+                    width: '100%'
                 }}
             >
                 <VideoPreview entity={video} />

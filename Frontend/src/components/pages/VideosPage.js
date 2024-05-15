@@ -13,8 +13,8 @@ import PerPageSelect from '../common/PerPageSelect';
 
 const SORT_BY_LIST = [
     'name',
-    'duration',
-    'createdat'
+    'createdat',
+    'duration'
 ];
 
 export default function Videos() {
@@ -24,6 +24,7 @@ export default function Videos() {
     const [sortBy, setSortBy] = useState(SORT_BY_LIST[1]);
     const [sortDir, setSortDir] = useState(Common.getSortDirections()[1]);
     const [perPage, setPerPage] = useState(25);
+    const [pager, setPager] = useState();
     const { login } = useParams()
     const targetLogin = login ?? user.login;
     const isSameUser = targetLogin === user.login;
@@ -40,10 +41,16 @@ export default function Videos() {
         );
     }
 
+    var label = isSameUser ? t('video.my') : t('video.ofuser', { user: targetLogin });
+
+    if (pager?.total > 0) {
+        label += ` (${pager.total})`;
+    }
+
     return (
         <Container sx={{ maxWidth: '100% !important' }}>
             <SearchBar sx={{ marginTop: 1 }} onSearch={onSearch} />
-            <Typography variant='h4' m={2}>{isSameUser ? t('video.my') : t('video.ofuser', { user: targetLogin })}</Typography>
+            <Typography variant='h4' m={2}>{label}</Typography>
             {
                 user?.id > 0 && <Box
                     display='flex'
@@ -95,7 +102,8 @@ export default function Videos() {
                 perPage={perPage}
                 showHidden
                 showPrivate
-                usePager />
+                usePager
+                onPagerFetched={e => setPager(e)} />
         </Container>
     );
 }

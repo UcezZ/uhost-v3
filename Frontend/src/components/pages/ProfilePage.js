@@ -1,6 +1,6 @@
-import { Card, CardActions, CardContent, Container, Divider, Grid, Typography, useMediaQuery } from '@mui/material';
+import { Button, Card, CardActions, CardContent, Container, Divider, Grid, Typography, useMediaQuery } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
-import { useParams, } from 'react-router-dom';
+import { Link, useParams, } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ChangePasswordDialogButton from '../profile/ChangePasswordDialogButton';
 import DeleteAvatarDialogButton from '../profile/DeleteAvatarDialogButton';
@@ -12,6 +12,7 @@ import StateContext from '../../utils/StateContext';
 import UpdateProfileDialogButton from '../profile/UpdateProfileDialogButton';
 import UploadAvatarDialogButton from '../profile/UploadAvatarDialogButton';
 import UserEndpoint from '../../api/UserEndpoint';
+import config from '../../config.json';
 
 export default function ProfilePage() {
     const { t } = useTranslation();
@@ -171,10 +172,20 @@ export default function ProfilePage() {
                                         {t('user.videocount')}:
                                     </Typography>
                                 </Grid>
-                                <Grid item xs={6} mt={0.5}>
+                                <Grid item xs={6} mt={0.5} sx={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    gap: 1
+                                }}>
                                     <Typography>
                                         {shownUser?.videoCount ?? 'N/A'}
                                     </Typography>
+                                    {
+                                        shownUser?.login?.length > 0 && shownUser?.videoCount > 0 &&
+                                        <Link to={`${config.webroot}/videos/${shownUser?.login}`}>
+                                            {t('common.goto')}
+                                        </Link>
+                                    }
                                 </Grid>
                                 {/* <Grid item xs={6} textAlign='right' alignItems='top'>
                                     <Typography variant='h6'>
