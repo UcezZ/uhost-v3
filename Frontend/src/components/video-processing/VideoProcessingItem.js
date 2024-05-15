@@ -1,5 +1,5 @@
 import { Accordion, AccordionDetails, AccordionSummary, Box, Grid, LinearProgress, Typography, useMediaQuery } from '@mui/material';
-import Image from '../common/Image';
+import SafeImage from '../common/SafeImage';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useState, useEffect } from 'react';
 import { green, grey, red, yellow } from '@mui/material/colors';
@@ -118,7 +118,7 @@ export default function VideoProcessingItem({ video, expanded }) {
                 <Grid container spacing={2} >
                     <Grid item  >
                         <Link to={`${config.webroot}/video/${video?.token}`}>
-                            <Image
+                            <SafeImage
                                 src={video?.thumbnailUrl}
                                 height='5.5em'
                                 width='9em'

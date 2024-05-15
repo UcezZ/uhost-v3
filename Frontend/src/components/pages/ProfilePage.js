@@ -4,7 +4,7 @@ import { useParams, } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ChangePasswordDialogButton from '../profile/ChangePasswordDialogButton';
 import DeleteAvatarDialogButton from '../profile/DeleteAvatarDialogButton';
-import Image from '../common/Image';
+import SafeImage from '../common/SafeImage';
 import LoadingBox from '../common/LoadingBox';
 import NotFoundPage from './NotFoundPage';
 import Rights from '../../utils/Rights';
@@ -207,7 +207,7 @@ export default function ProfilePage() {
                         </CardContent>
                         <Divider />
                         <CardContent>
-                            <Image
+                            <SafeImage
                                 src={shownUser?.avatarUrl}
                                 height={400}
                             />

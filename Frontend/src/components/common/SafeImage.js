@@ -2,7 +2,7 @@ import ImageIcon from '@mui/icons-material/Image';
 import { Box } from '@mui/material';
 import { useState } from 'react';
 
-export default function Image({ src, alt, height, width, ...props }) {
+export default function SafeImage({ src, alt, height, width, altElement, ...props }) {
     const [success, setSuccess] = useState(true);
     const style = {
         ...props?.sx,
@@ -19,7 +19,7 @@ export default function Image({ src, alt, height, width, ...props }) {
             onError={e => setSuccess(false)}
             style={style}
             {...props} />
-        : <Box
+        : altElement ?? <Box
             height={height ?? 'auto'}
             width={width ?? 'auto'}
             {...props}>

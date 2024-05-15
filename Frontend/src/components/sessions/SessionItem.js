@@ -1,6 +1,6 @@
 import { Avatar, Button, Card, CardActions, CardHeader, CircularProgress, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import Image from '../common/Image';
+import SafeImage from '../common/SafeImage';
 import { useContext, useState } from 'react';
 import YesNoDialog from '../common/YesNoDialog';
 import SessionEndpoint from '../../api/SessionEndpoint';
@@ -51,7 +51,7 @@ export default function SessionItem({ item, onTerminated }) {
                     <Avatar sx={{ bgcolor: item?.user?.avatarUrl?.length > 0 ? '#0000' : red[500] }} aria-label='recipe'>
                         {
                             item?.user?.avatarUrl?.length > 0
-                                ? <Image src={item.user.avatarUrl} />
+                                ? <SafeImage src={item.user.avatarUrl} />
                                 : avaText
                         }
                     </Avatar>

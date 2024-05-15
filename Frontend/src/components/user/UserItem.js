@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import Rights from '../../utils/Rights';
 import StateContext from '../../utils/StateContext';
 import UserUpdateDialogButton from './UserUpdateDialogButton';
-import Image from '../common/Image';
+import SafeImage from '../common/SafeImage';
 import { red } from '@mui/material/colors';
 
 export default function UserItem({ item, onUpdate }) {
@@ -20,7 +20,7 @@ export default function UserItem({ item, onUpdate }) {
                     <Avatar sx={{ bgcolor: item?.avatarUrl?.length > 0 ? '#0000' : red[500] }} >
                         {
                             item?.avatarUrl?.length > 0
-                                ? <Image src={item.avatarUrl} />
+                                ? <SafeImage src={item.avatarUrl} />
                                 : avaText
                         }
                     </Avatar>

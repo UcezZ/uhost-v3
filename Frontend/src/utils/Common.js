@@ -1,5 +1,6 @@
 import Hls from 'hls.js';
 import * as Sentry from '@sentry/browser';
+import lang from '../lang.json';
 
 const COLOR_EMPTY = { r: 0, g: 0, b: 0, a: 0 };
 
@@ -432,5 +433,22 @@ export default class Common {
         }
 
         return value;
+    }
+
+    /**
+     * Crutch to use i18n feature without hooks
+     * @param {String} key 
+     * @returns {String}
+     */
+    static i18n(key) {
+        var locale = this.getBrowserLocale();
+
+        if (key in lang[locale].translation) {
+            return lang[locale].translation[key];
+        } else if (key in lang[LOCALE_EN].translation) {
+            return lang[LOCALE_EN].translation[key];
+        } {
+            return key;
+        }
     }
 }

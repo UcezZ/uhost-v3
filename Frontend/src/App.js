@@ -26,6 +26,11 @@ import SessionPage from './components/pages/SessionsPage';
 import RegisterPage from './components/pages/RegisterPage';
 import RolePage from './components/pages/RolePage';
 import UserPage from './components/pages/UserPage';
+import ErrorBoundary from './components/common/ErrorBoundary';
+
+function ThworsError() {
+    throw new Error('throw-error route');
+}
 
 export default function App() {
     const { i18n } = useTranslation();
@@ -106,37 +111,42 @@ export default function App() {
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
-            <StateContext.Provider value={{
-                error, setError,
-                user, setUser,
-                isDrawerOpen, setIsDrawerOpen
-            }}>
-                <BrowserRouter>
-                    <MenuDrawer open={isDrawerOpen} />
-                    <Header />
-                    <Routes>
-                        <Route path={`${config.webroot}/`} element={<SearchPage />} />
-                        <Route path={`${config.webroot}/login`} element={<AuthPage />} />
-                        <Route path={`${config.webroot}/video/:token`} element={<VideoPage />} />
-                        <Route path={`${config.webroot}/profile/:login`} element={<ProfilePage />} />
-                        <Route path={`${config.webroot}/videos/:login`} element={<VideosPage />} />
+            <ErrorBoundary>
+                <StateContext.Provider value={{
+                    error, setError,
+                    user, setUser,
+                    isDrawerOpen, setIsDrawerOpen
+                }}>
+                    <BrowserRouter>
+                        <MenuDrawer open={isDrawerOpen} />
+                        <Header />
+                        <Routes>
+                            <Route path={`${config.webroot}/`} element={<SearchPage />} />
+                            <Route path={`${config.webroot}/login`} element={<AuthPage />} />
+                            <Route path={`${config.webroot}/video/:token`} element={<VideoPage />} />
+                            <Route path={`${config.webroot}/profile/:login`} element={<ProfilePage />} />
+                            <Route path={`${config.webroot}/videos/:login`} element={<VideosPage />} />
 
-                        {!user?.id && <Route path={`${config.webroot}/register`} element={<RegisterPage />} />}
+                            {!user?.id && <Route path={`${config.webroot}/register`} element={<RegisterPage />} />}
 
-                        {user?.id > 0 && <Route path={`${config.webroot}/videos`} element={<VideosPage />} />}
-                        {user?.id > 0 && <Route path={`${config.webroot}/profile`} element={<ProfilePage />} />}
-                        {user?.id > 0 && <Route path={`${config.webroot}/video-processing`} element={<VideoProcessingPage />} />}
-                        {user?.id > 0 && <Route path={`${config.webroot}/video-processing/:token`} element={<VideoProcessingPage />} />}
+                            {user?.id > 0 && <Route path={`${config.webroot}/videos`} element={<VideosPage />} />}
+                            {user?.id > 0 && <Route path={`${config.webroot}/profile`} element={<ProfilePage />} />}
+                            {user?.id > 0 && <Route path={`${config.webroot}/video-processing`} element={<VideoProcessingPage />} />}
+                            {user?.id > 0 && <Route path={`${config.webroot}/video-processing/:token`} element={<VideoProcessingPage />} />}
 
-                        {Rights.checkAnyRight(user, Rights.AdminLogAccess) && <Route path={`${config.webroot}/admin/logs`} element={<LogsPage />} />}
-                        {Rights.checkAnyRight(user, Rights.AdminSessionAccess, Rights.AdminSessionTerminate) && <Route path={`${config.webroot}/admin/sessions`} element={<SessionPage />} />}
-                        {Rights.checkAnyRight(user, Rights.RoleCreateUpdate, Rights.RoleDelete) && <Route path={`${config.webroot}/admin/roles`} element={<RolePage />} />}
-                        {Rights.checkAnyRight(user, Rights.UserCreate, Rights.UserDelete, Rights.UserInteractAll) && <Route path={`${config.webroot}/admin/users`} element={<UserPage />} />}
-                        <Route path='*' element={<NotFoundPage />} />
-                    </Routes>
-                </BrowserRouter>
-                <ErrorDialog />
-            </StateContext.Provider>
+                            {Rights.checkAnyRight(user, Rights.AdminLogAccess) && <Route path={`${config.webroot}/admin/logs`} element={<LogsPage />} />}
+                            {Rights.checkAnyRight(user, Rights.AdminSessionAccess, Rights.AdminSessionTerminate) && <Route path={`${config.webroot}/admin/sessions`} element={<SessionPage />} />}
+                            {Rights.checkAnyRight(user, Rights.RoleCreateUpdate, Rights.RoleDelete) && <Route path={`${config.webroot}/admin/roles`} element={<RolePage />} />}
+                            {Rights.checkAnyRight(user, Rights.UserCreate, Rights.UserDelete, Rights.UserInteractAll) && <Route path={`${config.webroot}/admin/users`} element={<UserPage />} />}
+
+                            <Route path={`${config.webroot}/throw-error`} element={<ThworsError />} />
+
+                            <Route path='*' element={<NotFoundPage />} />
+                        </Routes>
+                    </BrowserRouter>
+                    <ErrorDialog />
+                </StateContext.Provider>
+            </ErrorBoundary>
         </ThemeProvider>
     );
 }

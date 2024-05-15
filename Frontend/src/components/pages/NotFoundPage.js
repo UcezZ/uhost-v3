@@ -4,6 +4,7 @@ import { red } from '@mui/material/colors';
 import { Link } from 'react-router-dom';
 import config from '../../config.json';
 import { useTranslation } from 'react-i18next';
+import SafeImage from '../common/SafeImage';
 
 export default function NotFoundPage() {
     const { t } = useTranslation();
@@ -23,9 +24,11 @@ export default function NotFoundPage() {
                 textAlign: 'center'
             }}>
                 <CardContent>
-                    <Typography variant='h1' color={red[500]}>
-                        404
-                    </Typography>
+                    <SafeImage
+                        src={`${config.webroot}/assets/idk.webp`}
+                        width={256}
+                        altElement={<Typography variant='h1' color={red[500]}>404</Typography>}
+                    />
                     <Typography variant='content' component='p'>
                         {t('notfound.title')}
                     </Typography>

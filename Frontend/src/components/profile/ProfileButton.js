@@ -11,7 +11,7 @@ import StateContext from '../../utils/StateContext';
 import PopupAuthForm from '../auth/PopupAuthForm';
 import { useTranslation } from 'react-i18next';
 import Common from '../../utils/Common';
-import Image from '../common/Image';
+import SafeImage from '../common/SafeImage';
 
 export default function ProfileButton() {
     const { t } = useTranslation();
@@ -70,7 +70,7 @@ export default function ProfileButton() {
                         }} >
                             {
                                 user?.avatarUrl?.length > 0
-                                    ? <Image src={user.avatarUrl} height={32} width={32} />
+                                    ? <SafeImage src={user.avatarUrl} height={32} width={32} />
                                     : avaText
                             }
                         </Avatar>

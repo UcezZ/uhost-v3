@@ -4,7 +4,7 @@ import { Box } from '@mui/system';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import config from '../../config.json';
-import Image from '../common/Image';
+import SafeImage from '../common/SafeImage';
 
 export default function VideoPreview({ entity }) {
     const { t } = useTranslation();
@@ -22,7 +22,7 @@ export default function VideoPreview({ entity }) {
                         <Avatar sx={{ bgcolor: entity?.user?.avatarUrl?.length > 0 ? '#0000' : red[500] }} aria-label='recipe'>
                             {
                                 entity?.user?.avatarUrl?.length > 0
-                                    ? <Image src={entity.user.avatarUrl} />
+                                    ? <SafeImage src={entity.user.avatarUrl} />
                                     : avaText
                             }
                         </Avatar>
@@ -33,7 +33,7 @@ export default function VideoPreview({ entity }) {
             </Link>
             <Link style={{ textDecoration: 'inherit', color: 'inherit', position: 'relative' }} to={`${config.webroot}/video/${alias}`}>
                 <CardMedia>
-                    <Image
+                    <SafeImage
                         src={entity?.thumbnailUrl}
                         height={180} />
                 </CardMedia>

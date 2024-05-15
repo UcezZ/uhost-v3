@@ -10,7 +10,7 @@ import DeleteVideoDialogButton from './DeleteVideoDialogButton';
 import VideoPlayer from './VideoPlayer';
 import config from '../../config.json';
 import { useTranslation } from 'react-i18next';
-import Image from '../common/Image';
+import SafeImage from '../common/SafeImage';
 import ReactionSection from './ReactionSection';
 
 export default function VideoContainer({ video, setVideo }) {
@@ -44,7 +44,7 @@ export default function VideoContainer({ video, setVideo }) {
                         <Avatar sx={{ bgcolor: video?.user?.avatarUrl?.length > 0 ? '#0000' : red[500] }} aria-label='recipe'>
                             {
                                 video?.user?.avatarUrl?.length > 0
-                                    ? <Image src={video.user.avatarUrl} />
+                                    ? <SafeImage src={video.user.avatarUrl} />
                                     : avaText
                             }
                         </Avatar>

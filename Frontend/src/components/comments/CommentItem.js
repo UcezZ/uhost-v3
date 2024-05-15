@@ -3,10 +3,11 @@ import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import CommentEndpoint from '../../api/CommentEndpoint';
 import StateContext from '../../utils/StateContext';
-import Image from '../common/Image';
+import SafeImage from '../common/SafeImage';
 import DeleteIcon from '@mui/icons-material/Delete';
 import YesNoDialog from '../common/YesNoDialog';
 import Common from '../../utils/Common';
+import { red } from '@mui/material/colors';
 
 export default function CommentItem({ videoToken, comment, onCommentDeleted }) {
     const { t } = useTranslation();
@@ -57,7 +58,7 @@ export default function CommentItem({ videoToken, comment, onCommentDeleted }) {
                 <Avatar sx={{ bgcolor: comment?.user?.avatarUrl?.length > 0 ? '#0000' : red[500] }} aria-label='recipe'>
                     {
                         comment?.user?.avatarUrl?.length > 0
-                            ? <Image src={comment.user.avatarUrl} />
+                            ? <SafeImage src={comment.user.avatarUrl} />
                             : avaText
                     }
                 </Avatar>
