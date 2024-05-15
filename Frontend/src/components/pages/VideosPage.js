@@ -25,9 +25,9 @@ export default function Videos() {
     const [sortDir, setSortDir] = useState(Common.getSortDirections()[1]);
     const [perPage, setPerPage] = useState(25);
     const [pager, setPager] = useState();
-    const { login } = useParams()
-    const targetLogin = login ?? user.login;
-    const isSameUser = targetLogin === user.login;
+    const { login } = useParams();
+    const targetLogin = login ?? user?.login;
+    const isSameUser = targetLogin === user?.login;
 
     function onSearch(value) {
         if (value?.toLowerCase() !== search?.toLocaleLowerCase()) {
