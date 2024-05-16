@@ -16,7 +16,6 @@ tmp
 /deploy-win
 /Docker/postgres.conf
 Dump_*.json
-Dump_*.json.gz
 
 # front
 /Frontend/node_modules
@@ -24,3 +23,6 @@ Dump_*.json.gz
 /Frontend/package-lock.json
 Frontend/src/config.json
 Docker/sentry/.vscode
+
+# common
+*.gz

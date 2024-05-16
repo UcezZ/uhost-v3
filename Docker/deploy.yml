@@ -31,12 +31,12 @@ services:
     image: ucezz/dotnet-sdk:5.0-gdi
     container_name: "${APP_NAME}-backend-deploy"
     volumes:
-      - ../:/src:ro
+      - ../:/src
       - "${EXTERNAL_DIR}:/storage"
       - "${EXTERNAL_DIR}/deploy-win:/deploy/win"
       - deploy_volume:/deploy
-      - "${BUILD_DIR}:/build"
-      - "${BUILD_DIR}/packages:/root/.nuget/packages"
+      - build_volume:/build
+      - build_volume:/root/.nuget
     depends_on:
       pgsql:
         condition: service_healthy
@@ -44,6 +44,11 @@ services:
         condition: service_healthy
     command: >
       bash -c "
+
+      /src/Docker/increment-version.sh /src/Uhost.Core/appsettings.json SentryConfig.Release || exit 1;
+      /src/Docker/increment-version.sh /src/Uhost.Core/appsettings.docker.json SentryConfig.Release || exit 1;
+      /src/Docker/increment-version.sh /src/Uhost.Core/appsettings.deploy-win.json SentryConfig.Release || exit 1;
+
       rm -rf /build/back;
       mkdir -p /build/back;
       rsync -vhra /src/ /build/back/ --include='**.gitignore' --exclude='/.git' --exclude='/Frontend' --exclude='/Docker' --exclude='/.vscode' --exclude='*.template' --filter=':- .gitignore' --delete-after;
@@ -114,8 +119,9 @@ services:
     image: ucezz/node:18.19-rsync-alpine
     container_name: "${APP_NAME}-frontend-deploy"
     volumes:
-      - ../Frontend:/src:ro
-      - "${BUILD_DIR}:/build"
+      - ../Docker:/src-docker:ro
+      - ../Frontend:/src
+      - build_volume:/build
       - deploy_volume:/deploy
     environment:
       PUBLIC_URL: "${REACT_PUBLIC_URL}"
@@ -130,6 +136,8 @@ services:
       if [ -d /build/tmp/node_modules ]; then
         mv -f /build/tmp/node_modules /build/front/node_modules;
       fi;
+
+      /src-docker/increment-version.sh /src/src/config.json sentryConfig.release || exit 1;
 
       rsync -vhra /src/ /build/front/ --exclude='node_modules' --exclude='package-lock.json' --exclude='build' --exclude='*.template' --delete;
 
@@ -174,6 +182,7 @@ services:
     entrypoint: /entrypoint.sh
 
 volumes:
+  build_volume:
   deploy_volume:
   postgres_volume:
   redis_volume:

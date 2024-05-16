@@ -18,9 +18,7 @@ export default function LogsPage() {
         await LogsEndpoint.events()
             .then(e => {
                 if (e?.data?.success && e?.data?.result) {
-
                     setEvents(e.data.result);
-
                 } else {
                     setError(Common.transformErrorData(e));
                 }

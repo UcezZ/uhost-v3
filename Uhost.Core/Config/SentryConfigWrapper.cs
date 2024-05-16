@@ -10,6 +10,7 @@ namespace Uhost.Core.Config
         public bool Debug { get; set; }
         public SentryLevel DiagnosticsLevel { get; set; }
         public bool AttachStacktrace { get; set; }
+        public string Release { get; set; }
 
         public void Configure(SentryOptions options)
         {
@@ -17,6 +18,7 @@ namespace Uhost.Core.Config
             options.Debug = Debug;
             options.DiagnosticsLevel = DiagnosticsLevel;
             options.AttachStacktrace = AttachStacktrace;
+            options.Release = Release;
             options.Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
         }
     }

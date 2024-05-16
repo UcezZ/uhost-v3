@@ -1,0 +1,1 @@
+@docker run --rm -itv "%~dp0:/src" --entrypoint "/bin/sh" alpine:3.18 -c "apk add --no-cache nano micro jq bash && bash"
