@@ -1,4 +1,4 @@
-import { CardActions, CardMedia, FormControl, InputLabel, MenuItem, Select, Typography, Box } from '@mui/material';
+import { CardActions, CardMedia, FormControl, InputLabel, MenuItem, Select, Typography, Box, useMediaQuery } from '@mui/material';
 import { useState, useRef, useEffect } from 'react';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
@@ -104,6 +104,8 @@ export default function VideoPlayer({ video, largeMode }) {
     const [time, setTime] = useState(0);
     const [playerType, setPlayerType] = useState(loadPlayerType());
     const [playerRes, setPlayerRes] = useState(loadResolution());
+
+    const isNarrowScreen = useMediaQuery('(max-width:600px)');
 
     if (IS_HLS_SUPPORTED) {
         setHeaderFunc = xhr => xhr.setRequestHeader('Access-Token', video?.accessToken);
@@ -272,7 +274,11 @@ export default function VideoPlayer({ video, largeMode }) {
             onTimeSeek(null, value);
         }
 
-        videoRef.current.volume = loadPlayerVolume() / 100;
+        if (isNarrowScreen) {
+            videoRef.current.volume = 1;
+        } else {
+            videoRef.current.volume = loadPlayerVolume() / 100;
+        }
 
         if (videoRef.current.paused && isPlaying) {
             videoRef.current.play();
@@ -340,6 +346,16 @@ export default function VideoPlayer({ video, largeMode }) {
         }
     }
 
+    // когда скрыт слайдер громкости громкость определяется по муту
+    useEffect(() => {
+        if (isNarrowScreen) {
+            videoRef.current.volume = 1;
+        } else {
+            videoRef.current.volume = volume / 100;
+        }
+    }, [isNarrowScreen]);
+
+    // переключение видео
     useEffect(() => {
         if (!videoRef?.current) {
             return;
@@ -410,7 +426,7 @@ export default function VideoPlayer({ video, largeMode }) {
 
         if (videoElement) {
             try {
-                videoElement.play();
+                // videoElement.play();
             }
             catch { }
         }
@@ -498,18 +514,20 @@ export default function VideoPlayer({ video, largeMode }) {
                 <Typography>
                     {Common.timeToHuman(time - duration)}
                 </Typography>
-                <Slider
-                    min={0}
-                    max={100}
-                    value={volume}
-                    onChange={onVolumeChange}
-                    valueLabelDisplay='auto'
-                    size='small'
-                    style={{
-                        width: 100,
-                        margin: '0 10px',
-                    }}
-                />
+                {
+                    !isNarrowScreen && <Slider
+                        min={0}
+                        max={100}
+                        value={volume}
+                        onChange={onVolumeChange}
+                        valueLabelDisplay='auto'
+                        size='small'
+                        style={{
+                            width: 100,
+                            margin: '0 10px',
+                        }}
+                    />
+                }
                 <IconButton onClick={onMute}>
                     {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
                 </IconButton>

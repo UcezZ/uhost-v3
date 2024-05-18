@@ -176,6 +176,11 @@ namespace Uhost.Core.Services.Video
                 return;
             }
 
+            if (model.UrlPaths == null || !model.UrlPaths.Any())
+            {
+                return;
+            }
+
             var keyTtl = model.DurationObj.Add(TimeSpan.FromHours(24));
 
             TryGetUserIp(out var ip);
@@ -855,15 +860,15 @@ namespace Uhost.Core.Services.Video
         /// <param name="query"></param>
         public void OverrideByUserRestrictions(QueryModel query)
         {
-            if (TryGetUserRights(out var rights) && TryGetUserId(out var userId))
+            if (TryGetUserRights(out var rights) && TryGetUser(out var user))
             {
-                query.ShowHidden &= rights.Contains(Rights.VideoGetAll) || query.UserId == userId;
-                query.ShowPrivate &= rights.Contains(Rights.VideoGetAll) || query.UserId == userId;
+                query.ShowHidden &= rights.Contains(Rights.VideoGetAll) || query.UserId == user.Id || user.Login.Equals(query.UserLogin, StringComparison.InvariantCulture);
+                query.ShowPrivate &= rights.Contains(Rights.VideoGetAll) || query.UserId == user.Id || user.Login.Equals(query.UserLogin, StringComparison.InvariantCulture);
 
                 if (query.ForceShowForUser)
                 {
-                    query.ShowHiddenForUserId = userId;
-                    query.ShowPrivateForUserId = userId;
+                    query.ShowHiddenForUserId = user.Id;
+                    query.ShowPrivateForUserId = user.Id;
                 }
             }
             else

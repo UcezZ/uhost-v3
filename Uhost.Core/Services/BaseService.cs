@@ -13,6 +13,7 @@ using Uhost.Core.Data;
 using Uhost.Core.Extensions;
 using static Uhost.Core.Data.Entities.Right;
 using RoleRightEntity = Uhost.Core.Data.Entities.RoleRight;
+using UserEntity = Uhost.Core.Data.Entities.User;
 using UserRoleEntity = Uhost.Core.Data.Entities.UserRole;
 
 namespace Uhost.Core.Services
@@ -46,6 +47,19 @@ ORDER BY
             userId = default;
 
             return _httpContextAccessor?.HttpContext?.User != null && _httpContextAccessor.HttpContext.User.TryGetUserId(out userId);
+        }
+
+        protected bool TryGetUser(out UserEntity user)
+        {
+            if (!TryGetUserId(out var userId))
+            {
+                user = null;
+                return false;
+            }
+
+            user = _dbContext.Users.FirstOrDefault(e => e.Id == userId);
+
+            return user != null;
         }
 
         protected bool TryGetUserJti(out string jti)

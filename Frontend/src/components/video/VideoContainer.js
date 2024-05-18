@@ -12,6 +12,7 @@ import config from '../../config.json';
 import { useTranslation } from 'react-i18next';
 import SafeImage from '../common/SafeImage';
 import ReactionSection from './ReactionSection';
+import NotFoundPage from '../pages/NotFoundPage';
 
 export default function VideoContainer({ video, setVideo }) {
     const { t } = useTranslation();
@@ -34,6 +35,12 @@ export default function VideoContainer({ video, setVideo }) {
 
     function toggleLargeMode() {
         setLargeMode && setLargeMode(!largeMode);
+    }
+
+    if (!sizes.length) {
+        return (
+            <NotFoundPage />
+        );
     }
 
     return (

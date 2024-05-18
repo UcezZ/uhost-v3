@@ -278,7 +278,7 @@ namespace Uhost.Core.Extensions
             {
                 case FileTypes.Video240p:
                     options = options
-                        .WithAudioBitrate(48)
+                        .WithAudioBitrate(64)
                         .WithVideoFilters(vf => vf.Scale(mediaInfo.PrimaryVideoStream.GetSize().FitToMin(240)))
                         .WithVideoBitrate(240)
                         .WithMaxRate(384)

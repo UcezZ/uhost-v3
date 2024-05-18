@@ -33,9 +33,9 @@
             "common.search": "Type a search query...",
             "common.selectedfile": "Selected file",
             "common.yes": "Yes",
-            "error.title": "Oops!",
             "error.text1": "Something went wrong. Try reload the page or turn back later",
             "error.text2": "The developer has been already notified about this problem and it might be solved soon",
+            "error.title": "Oops!",
             "filter.caption": "Filters",
             "filter.common.perpage": "Results per page",
             "filter.common.sortby.caption": "Sort by",
@@ -216,7 +216,9 @@
             "video.resolution.video480p": "480p",
             "video.resolution.video720p": "720p",
             "video.resolution.videoWebm": "WebM",
-            "video.search.notfound": "No videos was found"
+            "video.search.notfound": "No videos was found",
+            "video.showhidden": "Show hidden",
+            "video.showprivate": "Show private"
         }
     },
     "ru": {
@@ -253,9 +255,9 @@
             "common.search": "Введите поисковой запрос...",
             "common.selectedfile": "Выбранный файл",
             "common.yes": "Да",
-            "error.title": "Ой!",
             "error.text1": "Что-то сломалось. Попробуйте обновить страницу или посетить её позже",
             "error.text2": "Разработчик уведомлён о проблеме и в скором времени сможет её решить",
+            "error.title": "Ой!",
             "filter.caption": "Фильтры",
             "filter.common.perpage": "Результатов на странице",
             "filter.common.sortby.caption": "Сортировать по",
@@ -426,7 +428,9 @@
             "video.processing.type.videowebm": "Видео Webm",
             "video.resolution": "Разрешение",
             "video.resolution.auto": "Авто",
-            "video.search.notfound": "Не найдено ни одного видео по запросу"
+            "video.search.notfound": "Не найдено ни одного видео по запросу",
+            "video.showhidden": "Показывать скрытые из поиска",
+            "video.showprivate": "Показывать скрытые из общего доступа"
         }
     }
 }

@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, CardActions, Container, FormControl, InputLabel, Select, MenuItem, Typography, Button } from '@mui/material';
+import { Box, Card, CardContent, FormControlLabel, Checkbox, Container, FormControl, InputLabel, Select, MenuItem, Typography, Button } from '@mui/material';
 import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
@@ -10,6 +10,8 @@ import VideoSearchResult from '../video/VideoSearchResult';
 import NotFoundPage from './NotFoundPage';
 import SortDirSelect from '../common/SortDirSelect';
 import PerPageSelect from '../common/PerPageSelect';
+import Rights from '../../utils/Rights';
+import Styles from '../../ui/Styles';
 
 const SORT_BY_LIST = [
     'name',
@@ -17,17 +19,21 @@ const SORT_BY_LIST = [
     'duration'
 ];
 
-export default function Videos() {
+export default function VideosPage() {
     const { t } = useTranslation();
     const { user } = useContext(StateContext);
     const [search, setSearch] = useState('');
     const [sortBy, setSortBy] = useState(SORT_BY_LIST[1]);
     const [sortDir, setSortDir] = useState(Common.getSortDirections()[1]);
     const [perPage, setPerPage] = useState(25);
+    const [showHidden, setShowHidden] = useState(false);
+    const [showPrivate, setShowPrivate] = useState(false);
     const [pager, setPager] = useState();
     const { login } = useParams();
+
     const targetLogin = login ?? user?.login;
     const isSameUser = targetLogin === user?.login;
+    const canFilterHidden = Rights.checkAnyRight(user, Rights.VideoGetAll) || isSameUser;
 
     function onSearch(value) {
         if (value?.toLowerCase() !== search?.toLocaleLowerCase()) {
@@ -67,7 +73,8 @@ export default function Videos() {
                             flexDirection: 'row',
                             flexWrap: 'wrap',
                             justifyContent: 'space-around',
-                            gap: '1em'
+                            gap: '1em',
+                            maxWidth: '48em'
                         }}>
 
                             {/* sort by */}
@@ -87,6 +94,22 @@ export default function Videos() {
                             <SortDirSelect sortDir={sortDir} setSortDir={setSortDir} />
 
                             <PerPageSelect perPage={perPage} setPerPage={setPerPage} />
+
+                            {
+                                canFilterHidden && <div style={{ textAlign: 'center' }}>
+                                    <FormControlLabel
+                                        control={<Checkbox color='primary' checked={showHidden || showPrivate} onClick={e => setShowHidden(!showHidden)} />}
+                                        label={t('video.showhidden')}
+                                        sx={Styles.noSelectSx}
+                                        disabled={showPrivate}
+                                    />
+                                    <FormControlLabel
+                                        control={<Checkbox color='primary' checked={showPrivate} onClick={e => setShowPrivate(!showPrivate)} />}
+                                        label={t('video.showprivate')}
+                                        sx={Styles.noSelectSx}
+                                    />
+                                </div>
+                            }
                         </CardContent>
                     </Card>
                 </Box>
@@ -100,8 +123,8 @@ export default function Videos() {
                 sortBy={sortBy}
                 sortDir={sortDir}
                 perPage={perPage}
-                showHidden
-                showPrivate
+                showHidden={showHidden || showPrivate}
+                showPrivate={showPrivate}
                 usePager
                 onPagerFetched={e => setPager(e)} />
         </Container>
