@@ -246,13 +246,18 @@ export default function VideoPlayer({ video, largeMode }) {
         var t = Number(videoRef?.current?.currentTime);
 
         if (!isNaN(t) && t !== time) {
-            sessionStorage.setItem(`${storageKey}_time`, Math.floor(t));
+            try {
+                sessionStorage.setItem(`${storageKey}_time`, Math.floor(t));
+            }
+            catch { }
             setTime(t);
         }
     }
 
     function onPlaybackEnded(e) {
-        sessionStorage.removeItem(`${storageKey}_time`);
+        try {
+            sessionStorage.removeItem(`${storageKey}_time`);
+        } catch { }
     }
 
     function onTimeSeek(e, newValue) {
