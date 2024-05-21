@@ -22,7 +22,7 @@ services:
           "-d",
           "${PGSQL_DATABASE}",
           "-U",
-          "${PGSQL_USERNAME}",
+          "${PGSQL_USERNAME}"
         ]
       retries: 3
       timeout: 10s
@@ -35,7 +35,7 @@ services:
     volumes:
       - redis_volume:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       retries: 3
       timeout: 10s
 
@@ -73,7 +73,7 @@ services:
 
   sentry-migrations:
     container_name: "${APP_NAME}-sentry-migrations"
-    image: sentry:latest
+    image: $SENTRY_IMAGE
     depends_on:
       - redis
       - pgsql
@@ -95,17 +95,14 @@ services:
       SENTRY_REDIS_PORT: 6379
       SENTRY_REDIS_DB: 0
     entrypoint: >
-      bash -c "
-      sentry upgrade --noinput;
-      if [ ! -f /var/lib/sentry/files/.firstrun ]; then
+      bash -c " sentry upgrade --noinput; if [ ! -f /var/lib/sentry/files/.firstrun ]; then
         sentry createuser --email ${SENTRY_USER_EMAIL} --password ${SENTRY_USER_PASSWORD} --superuser --no-input || echo 'User already exists';
         touch /var/lib/sentry/files/.firstrun;
-      fi;
-      "
+      fi; "
 
   sentry-cron:
     container_name: "${APP_NAME}-sentry-cron"
-    image: sentry:latest
+    image: $SENTRY_IMAGE
     restart: unless-stopped
     depends_on:
       pgsql:
@@ -136,7 +133,7 @@ services:
 
   sentry-worker:
     container_name: "${APP_NAME}-sentry-worker"
-    image: sentry:latest
+    image: $SENTRY_IMAGE
     restart: unless-stopped
     depends_on:
       pgsql:
@@ -168,7 +165,7 @@ services:
 
   sentry-web:
     container_name: "${APP_NAME}-sentry-web"
-    image: sentry:latest
+    image: $SENTRY_IMAGE
     restart: unless-stopped
     depends_on:
       pgsql:
