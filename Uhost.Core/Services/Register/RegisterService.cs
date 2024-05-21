@@ -2,11 +2,13 @@
 using Microsoft.Extensions.DependencyInjection;
 using Sentry;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.Razor;
 using Uhost.Core.Models.User;
 using Uhost.Core.Properties;
+using Uhost.Core.Repositories;
 using Uhost.Core.Services.Email;
 using Uhost.Core.Services.Log;
 using Uhost.Core.Services.Razor;
@@ -23,6 +25,8 @@ namespace Uhost.Core.Services.Register
     /// </summary>
     public sealed class RegisterService : BaseService, IRegisterService
     {
+        private static readonly TimeSpan _redisKeyTtl = TimeSpan.FromMinutes(30);
+
         private readonly IRedisSwitcherService _redis;
         private readonly IUserService _users;
         private readonly IHttpContextAccessor _contextAccessor;
@@ -30,7 +34,7 @@ namespace Uhost.Core.Services.Register
         private readonly IRazorService _razor;
         private readonly ISchedulerService _schedule;
         private readonly ILogService _log;
-        private static readonly TimeSpan _redisKeyTtl = TimeSpan.FromMinutes(30);
+        private readonly RoleRepository _roles;
 
         public RegisterService(
             IServiceProvider provider,
@@ -48,6 +52,7 @@ namespace Uhost.Core.Services.Register
             _razor = razor;
             _schedule = schedule;
             _log = log;
+            _roles = new RoleRepository(_dbContext);
         }
 
         /// <summary>
@@ -129,6 +134,14 @@ namespace Uhost.Core.Services.Register
             if (value.IsNull || !value.HasValue || !value.TryCastTo<RegistrationRazorDataModel>(out var model) || model?.Model == null)
             {
                 return false;
+            }
+
+            if (CoreSettings.NewUserRoleIds != null)
+            {
+                model.Model.RoleIds = _roles
+                    .PrepareQuery(new Models.Role.RoleQueryModel { Ids = CoreSettings.NewUserRoleIds })
+                    .Select(e => e.Id)
+                    .ToList();
             }
 
             var entity = _users.Add(model.Model);

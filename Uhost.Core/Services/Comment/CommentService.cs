@@ -8,7 +8,9 @@ using Uhost.Core.Models.File;
 using Uhost.Core.Models.Video;
 using Uhost.Core.Repositories;
 using Uhost.Core.Services.File;
+using Uhost.Core.Services.Log;
 using static Uhost.Core.Data.Entities.File;
+using static Uhost.Core.Data.Entities.Log;
 using static Uhost.Core.Data.Entities.Right;
 using Entity = Uhost.Core.Data.Entities.Comment;
 using QueryModel = Uhost.Core.Models.Comment.CommentQueryModel;
@@ -21,12 +23,18 @@ namespace Uhost.Core.Services.Comment
         private readonly CommentRepository _repo;
         private readonly VideoRepository _videoRepo;
         private readonly IFileService _fileService;
+        private readonly ILogService _log;
 
-        public CommentService(IDbContextFactory<PostgreSqlDbContext> factory, IServiceProvider provider, IFileService fileService) : base(factory, provider)
+        public CommentService(
+            IDbContextFactory<PostgreSqlDbContext> factory,
+            IServiceProvider provider,
+            IFileService fileService,
+            ILogService log) : base(factory, provider)
         {
             _repo = new CommentRepository(_dbContext);
             _videoRepo = new VideoRepository(_dbContext);
             _fileService = fileService;
+            _log = log;
         }
 
         public object GetAllPaged(QueryModel query)
@@ -80,12 +88,21 @@ namespace Uhost.Core.Services.Comment
                 model.UserId = userId;
             }
 
+            _log.Add(Events.CommentPosted, model);
+
             return _repo.Add(model);
         }
 
         public bool Delete(string videoToken, int id)
         {
             var affected = _repo.Perform(e => e.DeletedAt = DateTime.Now, e => e.Id == id && e.DeletedAt == null && e.Video.Token == videoToken);
+
+            _log.Add(Events.CommentDeleted, new
+            {
+                videoToken,
+                id,
+                affected
+            });
 
             return affected > 0;
         }

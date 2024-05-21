@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -67,6 +68,12 @@ namespace Uhost.Core
         /// </summary>
         [Unnecessary(DefaultValue = Speed.Slow)]
         public static Speed EncodingSpeed { get; private set; }
+
+        /// <summary>
+        /// ИД ролей для нового пользователя по умолчанию
+        /// </summary>
+        [Unnecessary]
+        public static IEnumerable<int> NewUserRoleIds { get; private set; }
 
         static CoreSettings()
         {
