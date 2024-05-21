@@ -22,7 +22,7 @@ namespace Uhost.Core.Models.User
         /// <summary>
         /// Имя входа
         /// </summary>
-        [RegExpValidation("^[a-zA-Z0-9_]*$"), StringLengthValidation(maxLength: 32, allowEmpty: false)]
+        [RegExpValidation("^[a-zA-Z0-9\\-_\\.]*$"), StringLengthValidation(maxLength: 32, allowEmpty: false)]
         public string Login { get; set; }
 
         /// <summary>

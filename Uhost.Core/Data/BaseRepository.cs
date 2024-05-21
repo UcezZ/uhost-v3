@@ -611,7 +611,7 @@ WHERE ""Id"" <> {id} AND ({uniquePropNames.Select(e => $"\"{e}\" = @{e}").Join("
 
         public void Dispose()
         {
-            _dbContext.Dispose();
+            _dbContext?.Dispose();
         }
     }
 }
