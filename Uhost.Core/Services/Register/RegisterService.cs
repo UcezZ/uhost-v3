@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Sentry;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Uhost.Core.Data;
 using Uhost.Core.Extensions;
 using Uhost.Core.Models.Razor;
 using Uhost.Core.Models.User;
@@ -37,13 +39,14 @@ namespace Uhost.Core.Services.Register
         private readonly RoleRepository _roles;
 
         public RegisterService(
+            IDbContextFactory<PostgreSqlDbContext> factory,
             IServiceProvider provider,
             IRedisSwitcherService redis,
             IEmailService email,
             IUserService users,
             IRazorService razor,
             ISchedulerService schedule,
-            ILogService log) : base(provider)
+            ILogService log) : base(factory, provider)
         {
             _contextAccessor = provider.GetService<IHttpContextAccessor>();
             _redis = redis;
