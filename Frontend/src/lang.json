@@ -308,7 +308,7 @@
             "logs.events.video.conversion.completed": "Преобразование видео завершено",
             "logs.events.video.conversion.failed": "Не удалось преобразовать видео",
             "logs.events.video.deleted": "Пользователь удалил видео",
-            "logs.events.video.edited": "Видео, отредактированное пользователем",
+            "logs.events.video.edited": "Пользователь отредактировал видео",
             "logs.events.video.fetch.completed": "Загрузка видео завершена",
             "logs.events.video.fetch.failed": "Не удалось загрузить видео",
             "logs.events.video.uploaded": "Видео загружено",
