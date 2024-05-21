@@ -146,7 +146,7 @@ services:
       npm i;
       npm run build;
 
-      if [ -f /build/front/index.html ]; then
+      if ![ -f /build/front/build/index.html ]; then
         echo Bad build, index.html was not found;
         exit 1;
       fi;

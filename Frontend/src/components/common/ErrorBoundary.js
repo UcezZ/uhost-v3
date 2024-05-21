@@ -3,6 +3,7 @@ import { Button, Card, CardContent, Typography } from '@mui/material';
 import { Container } from '@mui/system';
 import config from '../../config.json';
 import Common from '../../utils/Common';
+import * as Sentry from '@sentry/browser';
 
 export default class ErrorBoundary extends Component {
     constructor(props) {
@@ -11,6 +12,7 @@ export default class ErrorBoundary extends Component {
     }
 
     static getDerivedStateFromError(error) {
+        Sentry.captureException(error);
         return { hasError: true };
     }
 

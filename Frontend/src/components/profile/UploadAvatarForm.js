@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next';
 import UserEndpoint from '../../api/UserEndpoint';
 import CloseIcon from '@mui/icons-material/Close';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
-import { setUser } from '@sentry/browser';
 
 const MAX_FILE_SIZE = 5242880;
 
