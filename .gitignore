@@ -26,3 +26,4 @@ Docker/sentry/.vscode
 
 # common
 *.gz
+Docker/logs
