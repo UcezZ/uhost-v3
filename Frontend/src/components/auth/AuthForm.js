@@ -20,7 +20,7 @@ export default function AuthForm({ next, slim }) {
     const [loading, setLoading] = useState(false);
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
-    const [remember, setRemember] = useState(false);
+    const [remember, setRemember] = useState(true);
 
     async function onSubmit(event) {
         event?.preventDefault && event.preventDefault();
@@ -94,9 +94,8 @@ export default function AuthForm({ next, slim }) {
                     onChange={e => setPassword(e.target.value)}
                 />
                 <FormControlLabel
-                    control={<Checkbox value='remember' color='primary' onChange={e => setRemember(e.target.value)} />}
+                    control={<Checkbox checked={remember} color='primary' onChange={e => setRemember(!remember)} />}
                     label={t('auth.remember')}
-                    onClick={e => setRemember(e.target.value)}
                     sx={Styles.noSelectSx}
                 />
                 <Button

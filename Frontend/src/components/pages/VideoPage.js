@@ -43,7 +43,7 @@ export default function VideoPage() {
         );
     }
 
-    if (video) {
+    if (video && video?.thumbnailUrl?.length > 0) {
         return (
             <Container sx={{ maxWidth: '100% !important' }}>
                 <VideoContainer video={video} setVideo={setVideo} />

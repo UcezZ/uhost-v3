@@ -6,15 +6,14 @@ import StateContext from '../../utils/StateContext';
 import NotFoundPage from './NotFoundPage';
 import VideoProcessingItem from '../video-processing/VideoProcessingItem';
 import { Container } from '@mui/material';
+import PagedResultNavigator from '../common/PagedResultNavigator';
 
 export default function VideoProcessingPage() {
     const { user } = useContext(StateContext);
     const { token } = useParams();
     const [loading, setLoading] = useState(true);
     const [processings, setProcessings] = useState([]);
-    const [pager, setPager] = useState({});
-    const [page, setPage] = useState(1);
-    const [perPage, setPerPage] = useState(25);
+    const [pager, setPager] = useState({ page: 1, perPage: 25 });
 
     if (!user?.id) {
         return (
@@ -24,7 +23,7 @@ export default function VideoProcessingPage() {
 
     async function onLoad() {
         if (loading) {
-            await VideoEndpoint.getAllProgresses(null, user.id, page, perPage, 'CreatedAt', 'Desc')
+            await VideoEndpoint.getAllProgresses(null, user.id, pager?.page ?? 1, pager?.perPage ?? 25, 'CreatedAt', 'Desc')
                 .then(e => {
                     if (e?.data?.success && e?.data?.result?.pager && e?.data?.result?.items) {
                         setPager(e.data.result.pager);
@@ -36,6 +35,13 @@ export default function VideoProcessingPage() {
                     setError(Common.transformErrorData(e));
                 });
             setLoading(false);
+        }
+    }
+
+    function onPageToggle(page) {
+        if (pager?.page !== page) {
+            setPager({ ...pager, page: page });
+            setLoading(true);
         }
     }
 
@@ -51,7 +57,9 @@ export default function VideoProcessingPage() {
 
     return (
         <Container sx={{ maxWidth: '1152px !important' }}>
+            <PagedResultNavigator pager={pager} onPageToggle={onPageToggle} />
             {processings.map((e, i) => <VideoProcessingItem key={i} video={e} />)}
+            <PagedResultNavigator pager={pager} onPageToggle={onPageToggle} />
         </Container>
     );
 }
