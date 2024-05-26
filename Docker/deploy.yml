@@ -166,9 +166,11 @@ services:
       VIDEO_TOKEN_SALT: ${VIDEO_TOKEN_SALT}
     volumes:
       - deploy_volume:/deploy:ro
+      - ${EXTERNAL_DIR}/tmp:/usr/local/nginx/client_body_temp
       - ${EXTERNAL_DIR}/tmp:/usr/local/nginx/proxy_temp
       - ${EXTERNAL_DIR}/uploads:/opt/static/uploads:ro
       - ${EXTERNAL_DIR}/videos:/opt/static/videos:ro
+      - ./logs:/usr/local/nginx/logs
       - ./nginx/nginx.conf:/usr/local/nginx/conf/nginx.conf:ro
       - ./nginx/lua:/opt/lua:ro
       - ./nginx/entrypoint.sh:/entrypoint.sh:ro

@@ -353,6 +353,10 @@ export default function VideoPlayer({ video, largeMode }) {
 
     // когда скрыт слайдер громкости громкость определяется по муту
     useEffect(() => {
+        if (!videoRef?.current) {
+            return;
+        }
+
         if (isNarrowScreen) {
             videoRef.current.volume = 1;
         } else {
