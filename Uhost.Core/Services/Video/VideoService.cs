@@ -35,6 +35,9 @@ using UserEntity = Uhost.Core.Data.Entities.User;
 
 namespace Uhost.Core.Services.Video
 {
+    /// <summary>
+    /// Сервис видео
+    /// </summary>
     public sealed class VideoService : BaseService, IVideoService
     {
         private readonly VideoRepository _repo;
@@ -85,7 +88,7 @@ namespace Uhost.Core.Services.Video
         /// <summary>
         /// Получение всех видео по запросу
         /// </summary>
-        /// <param name="query"></param>
+        /// <param name="query">Модель запроса</param>
         /// <returns></returns>
         public PagerResultModel<VideoShortViewModel> GetAllPaged(QueryModel query)
         {
@@ -126,7 +129,7 @@ namespace Uhost.Core.Services.Video
         /// <summary>
         /// Получение случайных видео
         /// </summary>
-        /// <param name="count"></param>
+        /// <param name="count">Количество видео</param>
         /// <returns></returns>
         public IEnumerable<VideoShortViewModel> GetRandom(int count)
         {
@@ -145,7 +148,7 @@ namespace Uhost.Core.Services.Video
         /// <summary>
         /// Получение одного видео по ИД
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">ИД видео</param>
         /// <returns></returns>
         public VideoViewModel GetOne(int id)
         {
@@ -167,7 +170,7 @@ namespace Uhost.Core.Services.Video
         /// <summary>
         /// Создаёт ключи redis для проверуки токена
         /// </summary>
-        /// <param name="model"></param>
+        /// <param name="model">Полученная модель видео</param>
         /// <returns></returns>
         private async Task CreateRedisKeys(VideoViewModel model)
         {
@@ -204,37 +207,9 @@ namespace Uhost.Core.Services.Video
         }
 
         /// <summary>
-        /// Получение одного видео по токену
-        /// </summary>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        public async Task<VideoViewModel> GetOne(string token)
-        {
-            var query = new QueryModel
-            {
-                Token = token,
-                ForceShowForUser = true
-            };
-
-            OverrideByUserRestrictions(query);
-
-            var model = _repo
-                .GetAll<VideoViewModel>(query)
-                .FirstOrDefault();
-
-            if (model != null)
-            {
-                FillViewModel(model);
-                await CreateRedisKeys(model);
-            }
-
-            return model;
-        }
-
-        /// <summary>
         /// Заполнение модели видео
         /// </summary>
-        /// <param name="model"></param>
+        /// <param name="model">Полученная модель видео</param>
         /// <returns></returns>
         private VideoViewModel FillViewModel(VideoViewModel model)
         {
@@ -283,9 +258,37 @@ namespace Uhost.Core.Services.Video
         }
 
         /// <summary>
+        /// Получение одного видео по токену
+        /// </summary>
+        /// <param name="token">Токен видео</param>
+        /// <returns></returns>
+        public async Task<VideoViewModel> GetOne(string token)
+        {
+            var query = new QueryModel
+            {
+                Token = token,
+                ForceShowForUser = true
+            };
+
+            OverrideByUserRestrictions(query);
+
+            var model = _repo
+                .GetAll<VideoViewModel>(query)
+                .FirstOrDefault();
+
+            if (model != null)
+            {
+                FillViewModel(model);
+                await CreateRedisKeys(model);
+            }
+
+            return model;
+        }
+
+        /// <summary>
         /// Загрузка видео из файла
         /// </summary>
-        /// <param name="model"></param>
+        /// <param name="model">Модель данных</param>
         /// <returns></returns>
         public Entity Add(VideoUploadFileModel model)
         {
@@ -327,7 +330,7 @@ namespace Uhost.Core.Services.Video
         /// <summary>
         /// Загрузка видео из URL
         /// </summary>
-        /// <param name="model"></param>
+        /// <param name="model">Модель данных</param>
         /// <returns></returns>
         public Entity Add(VideoUploadUrlModel model)
         {
@@ -361,8 +364,8 @@ namespace Uhost.Core.Services.Video
         /// <summary>
         /// Обновление видео
         /// </summary>
-        /// <param name="token"></param>
-        /// <param name="model"></param>
+        /// <param name="token">Токен видео</param>
+        /// <param name="model">Модель данных</param>
         public void Update(string token, VideoUpdateModel model)
         {
             _repo.Update(e => e.Token == token, model);
@@ -376,7 +379,7 @@ namespace Uhost.Core.Services.Video
         /// <summary>
         /// Удаление видео
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">ИД видео</param>
         public void Delete(int id)
         {
             _repo.SoftDelete(id);
@@ -389,7 +392,7 @@ namespace Uhost.Core.Services.Video
         /// <summary>
         /// Удаление видео
         /// </summary>
-        /// <param name="token"></param>
+        /// <param name="token">Токен видео</param>
         public void Delete(string token)
         {
             _repo.Perform(e => e.DeletedAt = DateTime.Now, e => e.Token == token && e.DeletedAt == null);
@@ -400,10 +403,10 @@ namespace Uhost.Core.Services.Video
         }
 
         /// <summary>
-        /// Планирует скачивание видео
+        /// Планирует скачивание видео со стороннего сервера
         /// </summary>
-        /// <param name="videoId"></param>
-        /// <param name="url"></param>
+        /// <param name="videoId">ИД видео</param>
+        /// <param name="url">Ссылка на сторонний сервер</param>
         private void EnqueueFetch(int videoId, string url)
         {
             var model = new VideoProcessingStateCreateModel
@@ -422,7 +425,7 @@ namespace Uhost.Core.Services.Video
         /// </summary>
         /// <param name="entity">Сущность видео</param>
         /// <param name="url"></param>
-        /// <param name="maxDuration"></param>
+        /// <param name="maxDuration">Максимальная длительность, если это трансляция без определённого конца</param>
         /// <returns></returns>
         private bool PrepareVideo(Entity entity, string url, TimeSpan? maxDuration)
         {
