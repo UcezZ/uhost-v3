@@ -14,7 +14,6 @@ tmp
 /Uhost.Web/wwwroot
 /Docker/build
 /deploy-win
-/Docker/postgres.conf
 Dump_*.json
 
 # front
