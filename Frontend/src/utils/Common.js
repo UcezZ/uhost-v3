@@ -462,7 +462,6 @@ export default class Common {
         const bowsr = Bowser.getParser(window.navigator.userAgent);
 
         if (!bowsr.satisfies({ 'safari': '>0' }) && !bowsr.satisfies({ 'internet explorer': '>0' })) {
-            console.log('not');
             return false;
         }
 

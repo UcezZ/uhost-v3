@@ -214,12 +214,12 @@ export default function VideoPlayer({ video, largeMode }) {
         }
     }
 
-    function onPlayPause() {
+    async function onPlayPause() {
         if (videoRef.current.paused) {
-            videoRef.current.play();
+            await videoRef.current.play();
             setIsPlaying(true);
         } else {
-            videoRef.current.pause();
+            await videoRef.current.pause();
             setIsPlaying(false);
         }
     };
