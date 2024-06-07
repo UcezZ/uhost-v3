@@ -31,18 +31,18 @@
   },
   "browserslist": {
     "production": [
-      "chrome >= 20",
-      "firefox >= 20",
-      "safari >= 8",
-      "opera >= 20",
-      "IE >= 8"
+      "chrome >= 30",
+      "firefox >= 25",
+      "safari >= 11",
+      "opera >= 26",
+      "IE >= 11"
     ],
     "development": [
-      "chrome >= 20",
-      "firefox >= 20",
-      "safari >= 8",
-      "opera >= 20",
-      "IE >= 8"
+      "chrome >= 30",
+      "firefox >= 25",
+      "safari >= 11",
+      "opera >= 26",
+      "IE >= 11"
     ]
   }
 }
