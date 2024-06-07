@@ -38,6 +38,8 @@ namespace Uhost.Core.Data.Entities
 
         public bool AllowReactions { get; set; }
 
+        public bool LoopPlayback { get; set; }
+
         public User User { get; set; }
         public ICollection<Comment> Comments { get; set; }
         public ICollection<Reaction> Reactions { get; set; }

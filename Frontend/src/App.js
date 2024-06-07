@@ -145,6 +145,7 @@ export default function App() {
                         </Routes>
                     </BrowserRouter>
                     <ErrorDialog />
+                    {Common.checkSetSafariExplorerAlert() && <ErrorDialog message={t('common.safariexploreralert')} />}
                 </StateContext.Provider>
             </ErrorBoundary>
         </ThemeProvider>

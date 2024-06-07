@@ -9,6 +9,7 @@
     "@mui/material": "^5.14.12",
     "@sentry/browser": "5.30.0",
     "axios": "^1.5.1",
+    "bowser": "^2.11.0",
     "core-js": "3",
     "hls.js": "^1.5.7",
     "i18next": "^23.10.1",

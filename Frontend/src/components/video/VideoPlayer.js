@@ -428,17 +428,6 @@ export default function VideoPlayer({ video, largeMode }) {
         }
     }, [playerType, playerRes, videoRef?.current]);
 
-    useEffect(() => {
-        const videoElement = document.querySelector('video');
-
-        if (videoElement) {
-            try {
-                // videoElement.play();
-            }
-            catch { }
-        }
-    }, [videoRef?.current]);
-
     // останавливаем HLS при размонтировании компонента
     useEffect(() => {
         return () => {
@@ -494,6 +483,7 @@ export default function VideoPlayer({ video, largeMode }) {
                     onError={console.log}
                     onContextMenu={e => false}
                     onContextMenuCapture={e => false}
+                    loop={video?.loopPlayback === true}
                     autoPlay
                 />
             </CardMedia>

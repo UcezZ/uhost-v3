@@ -117,7 +117,7 @@ namespace Uhost.Core
                 }
                 catch (Exception e)
                 {
-                    Error.WriteLine($"[WARN] Failed to instantiate unnecessary field '{prop.Name}' of type '{prop.PropertyType.FullName}': {e.Message}");
+                    Error.WriteLine($"[WARN] Failed to instantiate unnecessary field '{prop.Name}' of type '{prop.PropertyType.Name}': {e.Message}");
                 }
             }
             else

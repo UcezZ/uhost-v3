@@ -30,10 +30,17 @@ export default function AuthForm({ next, slim }) {
         await AuthEndpoint.login(login, password)
             .then(e => {
                 if (e?.data?.success && e?.data?.result?.token) {
-                    if (remember) {
-                        localStorage.setItem(Common.getTokenKey(), e.data.result.token);
-                    } else {
-                        sessionStorage.setItem(Common.getTokenKey(), e.data.result.token);
+                    try {
+                        if (remember) {
+                            localStorage.setItem(Common.getTokenKey(), e.data.result.token);
+                            localStorage.getItem(Common.getTokenKey());
+                        } else {
+                            sessionStorage.setItem(Common.getTokenKey(), e.data.result.token);
+                            sessionStorage.getItem(Common.getTokenKey());
+                        }
+                    } catch {
+                        setError(t('common.storageerror'));
+                        return;
                     }
 
                     next && next();
