@@ -17,12 +17,15 @@ const api = axios.create({
 api.interceptors.request.use(
     (cfg) => {
         try {
-            const local = localStorage.getItem(Common.getTokenKey());
-            const session = sessionStorage.getItem(Common.getTokenKey());
-            if (local) {
-                cfg.headers.Authorization = `Bearer ${local}`;
-            } else if (session) {
-                cfg.headers.Authorization = `Bearer ${session}`;
+            var token = sessionStorage.getItem(Common.getTokenKey());
+            if (token) {
+                cfg.headers.Authorization = `Bearer ${token}`;
+            } else {
+                token = localStorage.getItem(Common.getTokenKey());
+
+                if (token) {
+                    cfg.headers.Authorization = `Bearer ${token}`;
+                }
             }
         } catch (err) {
             Sentry.withScope(scope => {

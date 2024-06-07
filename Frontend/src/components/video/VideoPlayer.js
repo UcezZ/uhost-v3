@@ -393,7 +393,9 @@ export default function VideoPlayer({ video, largeMode }) {
                     hls.on(Hls.Events.MANIFEST_PARSED, (ev, data) => {
                         updateHlsLevel();
                         if (videoRef.current.paused && wasPlaying) {
-                            videoRef.current.play();
+                            try {
+                                videoRef.current.play();
+                            } catch { }
                         }
                     });
                     break;
