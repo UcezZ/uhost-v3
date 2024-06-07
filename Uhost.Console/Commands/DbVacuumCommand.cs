@@ -35,7 +35,7 @@ namespace Uhost.Console.Commands
                 using (var timer = new Timer())
                 {
                     var before = ctx.Database.GetSize();
-                    ctx.Database.ExecuteSqlRaw("VACUUM");
+                    ctx.Database.ExecuteSqlRaw("VACUUM FULL");
                     var after = ctx.Database.GetSize();
                     WriteLine($"{ctx.GetType().Name}: {(before - after).ToHumanSize()} освобождено за {timer.Milliseconds} мс");
                 }
