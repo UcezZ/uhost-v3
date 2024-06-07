@@ -27,13 +27,14 @@ import RegisterPage from './components/pages/RegisterPage';
 import RolePage from './components/pages/RolePage';
 import UserPage from './components/pages/UserPage';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import ErrorDialog2 from './components/common/ErrorDialog2';
 
 function ThworsError() {
     throw new Error('throw-error route');
 }
 
 export default function App() {
-    const { i18n } = useTranslation();
+    const { i18n, t } = useTranslation();
     const [error, setError] = useState(null);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -145,7 +146,7 @@ export default function App() {
                         </Routes>
                     </BrowserRouter>
                     <ErrorDialog />
-                    {Common.checkSetSafariExplorerAlert() && <ErrorDialog message={t('common.safariexploreralert')} />}
+                    {Common.checkSetSafariExplorerAlert() && <ErrorDialog2 message={t('common.safariexploreralert')} onClose={Common.setSafariExplorerAlert} />}
                 </StateContext.Provider>
             </ErrorBoundary>
         </ThemeProvider>

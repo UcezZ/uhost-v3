@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { forwardRef, useContext } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -11,11 +11,9 @@ import { useTranslation } from 'react-i18next';
 
 var errContent;
 
-export default function ErrorDialog({ message }) {
+export default function ErrorDialog() {
     const { t } = useTranslation();
-    const { error, setError } = message
-        ? { error: message, setError: () => { } }
-        : useContext(StateContext);
+    const { error, setError } = useContext(StateContext);
 
     const handleClose = () => {
         setError(null);
@@ -26,24 +24,29 @@ export default function ErrorDialog({ message }) {
     }
 
     return (
-        <Dialog
-            open={error != null}
-            TransitionComponent={PopupTransition}
-            keepMounted
-            onClose={handleClose}
-            sx={{ zIndex: 1333 }}
-        >
-            <DialogTitle>{t('common.error')}</DialogTitle>
-            <DialogContent color='red'>
-                {
-                    errContent?.map
-                        ? errContent.map((e, i) => <DialogContentText key={i}>{e}</DialogContentText>)
-                        : <DialogContentText>{errContent}</DialogContentText>
-                }
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={handleClose}>{t('common.close')}</Button>
-            </DialogActions>
-        </Dialog>
+        <div>
+            <Dialog
+                open={error != null}
+                TransitionComponent={PopupTransition}
+                keepMounted
+                onClose={handleClose}
+                aria-describedby="alert-dialog-slide-description"
+                sx={{ zIndex: 1333 }}
+            >
+                <DialogTitle>{t('common.error')}</DialogTitle>
+                <DialogContent color='red'>
+                    {/* <DialogContentText id="alert-dialog-slide-description"> */}
+                    {
+                        errContent?.map
+                            ? errContent.map((e, i) => <DialogContentText key={i}>{e}</DialogContentText>)
+                            : <DialogContentText>{errContent}</DialogContentText>
+                    }
+                    {/* </DialogContentText> */}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>{t('common.close')}</Button>
+                </DialogActions>
+            </Dialog>
+        </div>
     );
 }

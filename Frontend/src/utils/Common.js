@@ -461,16 +461,19 @@ export default class Common {
     static checkSetSafariExplorerAlert() {
         const bowsr = Bowser.getParser(window.navigator.userAgent);
 
-        if (!bowsr.satisfies({ 'safari': '*' }) && !bowsr.satisfies({ 'internet explorer': '*' })) {
+        if (!bowsr.satisfies({ 'safari': '>0' }) && !bowsr.satisfies({ 'internet explorer': '>0' })) {
+            console.log('not');
             return false;
         }
 
-        if (!localStorage.getItem(KEY_SAFARIEXPLORERALERT)) {
-            localStorage.setItem(KEY_SAFARIEXPLORERALERT);
-
-            return true;
+        if (localStorage.getItem(KEY_SAFARIEXPLORERALERT)?.length > 0) {
+            return false;
         }
 
-        return false;
+        return true;
+    }
+
+    static setSafariExplorerAlert() {
+        localStorage.setItem(KEY_SAFARIEXPLORERALERT, 'true');
     }
 }
