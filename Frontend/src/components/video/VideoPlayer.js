@@ -289,8 +289,6 @@ export default function VideoPlayer({ video, largeMode }) {
             videoRef.current.play();
             setIsPlaying(true);
         }
-
-        videoRef.current.muted = false;
     }
 
     function onPlayerTypeChange(e, obj) {
@@ -496,7 +494,6 @@ export default function VideoPlayer({ video, largeMode }) {
                     onError={console.log}
                     onContextMenu={e => false}
                     onContextMenuCapture={e => false}
-                    muted
                     autoPlay
                 />
             </CardMedia>
