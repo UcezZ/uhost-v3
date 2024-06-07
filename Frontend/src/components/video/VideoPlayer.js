@@ -232,8 +232,10 @@ export default function VideoPlayer({ video, largeMode }) {
     }, [videoRef?.current?.paused]);
 
     function onMute() {
-        setIsMuted(!isMuted);
-        videoRef.current.muted = !videoRef.current.muted;
+        if (videoRef?.current) {
+            videoRef.current.muted = !videoRef.current.muted;
+            setIsMuted(videoRef.current.muted);
+        }
     };
 
     function onVolumeChange(event, newValue) {
@@ -285,9 +287,11 @@ export default function VideoPlayer({ video, largeMode }) {
             videoRef.current.volume = loadPlayerVolume() / 100;
         }
 
-        if (videoRef.current.paused && isPlaying) {
-            videoRef.current.play();
-            setIsPlaying(true);
+        if (videoRef.current.paused) {
+            try {
+                videoRef.current.play();
+                setIsPlaying(true);
+            } catch { }
         }
     }
 
