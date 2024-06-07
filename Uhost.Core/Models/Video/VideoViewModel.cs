@@ -17,6 +17,11 @@ namespace Uhost.Core.Models.Video
         public bool AllowReactions { get; set; }
 
         /// <summary>
+        /// Зациклить воспроизведение
+        /// </summary>
+        public bool LoopPlayback { get; set; }
+
+        /// <summary>
         /// URL для отдачи клиенту
         /// </summary>
         public IDictionary<string, string> Urls { get; set; }
@@ -27,7 +32,7 @@ namespace Uhost.Core.Models.Video
         public IDictionary<string, string> DownloadSizes { get; set; }
 
         /// <summary>
-        /// Токен доступа для установки в куку
+        /// Токен доступа для просмотра
         /// </summary>
         public string AccessToken { get; } = Guid.NewGuid().ToString().Replace("-", string.Empty);
 
@@ -43,6 +48,7 @@ namespace Uhost.Core.Models.Video
             Description = entity.Description;
             AllowComments = entity.AllowComments;
             AllowReactions = entity.AllowReactions;
+            LoopPlayback = entity.LoopPlayback;
         }
     }
 }

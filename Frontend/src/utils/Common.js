@@ -1,6 +1,7 @@
 import Hls from 'hls.js';
 import * as Sentry from '@sentry/browser';
 import lang from '../lang.json';
+import Bowser from 'bowser';
 
 const COLOR_EMPTY = { r: 0, g: 0, b: 0, a: 0 };
 
@@ -29,6 +30,7 @@ const IS_MP4_SUPPORTED = SUPPORT_STATES.some(e => e === document.createElement('
 const IS_HLS_SUPPORTED = IS_MP4_SUPPORTED && (Hls.isSupported() || Hls.isMSESupported());
 
 const KEY_TOKEN = 'access_token';
+const KEY_SAFARIEXPLORERALERT = 'safari_explorer_alert';
 
 const SORT_DIRECTION_LIST = [
     'asc',
@@ -450,5 +452,25 @@ export default class Common {
         } {
             return key;
         }
+    }
+
+    /**
+     * Checks if safari/explorer alert should bw shown
+     * @returns {Boolean}
+     */
+    static checkSetSafariExplorerAlert() {
+        const bowsr = Bowser.getParser(window.navigator.userAgent);
+
+        if (!bowsr.satisfies({ 'safari': '*' }) && !bowsr.satisfies({ 'internet explorer': '*' })) {
+            return false;
+        }
+
+        if (!localStorage.getItem(KEY_SAFARIEXPLORERALERT)) {
+            localStorage.setItem(KEY_SAFARIEXPLORERALERT);
+
+            return true;
+        }
+
+        return false;
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Threading.Tasks;
 
 namespace Uhost.Core.Extensions
@@ -22,12 +23,50 @@ namespace Uhost.Core.Extensions
         /// <returns></returns>
         public static object Instantiate(this Type type, params object[] args)
         {
-            var types = args
+            var argTypes = args
                 .Select(e => e.GetType())
                 .ToArray();
-            var constructor = type.GetConstructor(types) ?? throw new InvalidOperationException($"The type '{type?.FullName}' has no constructor with args: [{args?.Select(e => $"{e?.GetType().Name}: {e}").Join(", ")}]");
 
-            return constructor.Invoke(args);
+            var constructor = type.GetConstructor(argTypes);
+
+            if (constructor == null)
+            {
+                if (type.IsInterface)
+                {
+                    var implementingClassType = FindImplementingClass(type, argTypes) ?? throw new InvalidOperationException($"Interface '{type.Name}' has no implementation with constructor having args [{argTypes.Select(e => e.FullName).Join(", ")}]");
+                    constructor = implementingClassType.GetConstructor(argTypes);
+                }
+                else
+                {
+                    throw new InvalidOperationException($"The type '{type?.Name}' has no constructor with args: [{args?.Select(e => $"{e?.GetType().Name}: {e}").Join(", ")}]");
+                }
+            }
+
+            var instance = constructor.Invoke(args);
+
+            return instance;
+        }
+
+        /// <summary>
+        /// Поиск класса, реализуюшего интерфейс типа <paramref name="interfaceType"/>, и имеющего аргументы конструктора <paramref name="argTypes"/>.
+        /// </summary>
+        /// <param name="interfaceType">Тип интерфейса</param>
+        /// <param name="argTypes">Типы параметров конструктора класса</param>
+        /// <returns></returns>
+        public static Type FindImplementingClass(this Type interfaceType, Type[] argTypes)
+        {
+            if (!interfaceType.IsInterface)
+            {
+                return interfaceType;
+            }
+
+            var assemblies = AssemblyLoadContext.GetLoadContext(Assembly.GetCallingAssembly()).Assemblies;
+
+            return assemblies
+                .Where(e => e != null)
+                .SelectMany(e => e.GetTypes())
+                .Where(e => e != null && !e.IsInterface && !e.IsAbstract && e.IsAssignableTo(interfaceType))
+                .FirstOrDefault(e => e.GetConstructor(argTypes) != null);
         }
 
         /// <summary>

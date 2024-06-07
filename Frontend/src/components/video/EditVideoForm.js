@@ -22,12 +22,13 @@ export default function EditVideoForm({ video, setVideo, next }) {
     const [isHidden, setIsHidden] = useState(video?.isHidden ?? false);
     const [allowComments, setAllowComments] = useState(video?.allowComments ?? true);
     const [allowReactions, setAllowReactions] = useState(video?.allowReactions ?? true);
+    const [loopPlayback, setLoopPlayback] = useState(video?.loopPlayback && Common.parseTime(video?.duration) < 60);
 
     async function onSubmit(event) {
         event?.preventDefault && event.preventDefault();
 
         setLoading(true);
-        await VideoEndpoint.edit(video.token, name, desc, isPrivate, isHidden, allowComments, allowReactions)
+        await VideoEndpoint.edit(video.token, name, desc, isPrivate, isHidden, allowComments, allowReactions, loopPlayback)
             .then(e => {
                 if (e?.data?.success && e?.data?.result) {
                     setVideo(e.data.result);
@@ -108,6 +109,13 @@ export default function EditVideoForm({ video, setVideo, next }) {
                     label={t('video.allowreactions')}
                     sx={Styles.noSelectSx}
                 />
+                {
+                    Common.parseTime(video?.duration) < 60 && <FormControlLabel
+                        control={<Checkbox color='primary' checked={loopPlayback} onClick={e => setLoopPlayback(!loopPlayback)} />}
+                        label={t('video.loopplayback')}
+                        sx={Styles.noSelectSx}
+                    />
+                }
                 <Box sx={{
                     display: 'flex',
                     flexDirection: 'row',

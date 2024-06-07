@@ -26,6 +26,8 @@ namespace Uhost.Core.Models.Video
 
         public bool AllowReactions { get; set; }
 
+        public bool LoopPlayback { get; set; }
+
         public virtual Entity FillEntity(Entity entity)
         {
             entity.Name = Name ?? string.Empty;
@@ -34,6 +36,7 @@ namespace Uhost.Core.Models.Video
             entity.IsHidden = IsHidden;
             entity.AllowComments = AllowComments;
             entity.AllowReactions = AllowReactions;
+            entity.LoopPlayback = LoopPlayback;
 
             return entity;
         }

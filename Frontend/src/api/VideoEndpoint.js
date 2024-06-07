@@ -58,15 +58,17 @@ export default {
      * @param {Boolean} isHidden 
      * @param {Boolean} allowComments 
      * @param {Boolean} allowReactions 
+     * @param {Boolean} loopPlayback 
      * @returns {Promise}
      */
-    edit: (token, name, desc, isPrivate, isHidden, allowComments, allowReactions) => api.putForm(`${config.apiroot}/videos/${token}`, {
+    edit: (token, name, desc, isPrivate, isHidden, allowComments, allowReactions, loopPlayback) => api.putForm(`${config.apiroot}/videos/${token}`, {
         name: name ?? '',
         description: desc ?? '',
         isPrivate: isPrivate ?? false,
         isHidden: isHidden ?? false,
         allowComments: allowComments ?? false,
-        allowReactions: allowReactions ?? false
+        allowReactions: allowReactions ?? false,
+        loopPlayback: loopPlayback ?? false
     }),
 
     /**
