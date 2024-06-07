@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AuthPage from './components/pages/AuthPage';
 import StateContext from './utils/StateContext';
 import ErrorDialog from './components/common/ErrorDialog';

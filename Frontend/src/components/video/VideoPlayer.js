@@ -1,5 +1,5 @@
 import { CardActions, CardMedia, FormControl, InputLabel, MenuItem, Select, Typography, Box, useMediaQuery } from '@mui/material';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useContext } from 'react';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
@@ -12,6 +12,7 @@ import VideoDummy from './VideoDummy';
 import config from '../../config.json';
 import * as Sentry from '@sentry/browser';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import StateContext from '../../utils/StateContext';
 
 const RES_AUTO = 'auto';
 const RES_WEBM = 'videoWebm';
@@ -99,7 +100,7 @@ export default function VideoPlayer({ video, largeMode }) {
 
     const videoRef = useRef();
     const [isPlaying, setIsPlaying] = useState(true);
-    const [isMuted, setIsMuted] = useState(false);
+    const [isMuted, setIsMuted] = useState(true);
     const [volume, setVolume] = useState(loadPlayerVolume());
     const [time, setTime] = useState(0);
     const [playerType, setPlayerType] = useState(loadPlayerType());
@@ -233,8 +234,9 @@ export default function VideoPlayer({ video, largeMode }) {
 
     function onMute() {
         if (videoRef?.current) {
-            videoRef.current.muted = !videoRef.current.muted;
-            setIsMuted(videoRef.current.muted);
+            // videoRef.current.muted = !videoRef.current.muted;
+            // setIsMuted(videoRef.current.muted);
+            setIsMuted(!isMuted);
         }
     };
 
@@ -293,6 +295,8 @@ export default function VideoPlayer({ video, largeMode }) {
                 setIsPlaying(true);
             } catch { }
         }
+
+        setIsMuted(false);
     }
 
     function onPlayerTypeChange(e, obj) {
@@ -490,6 +494,7 @@ export default function VideoPlayer({ video, largeMode }) {
                     onContextMenu={e => false}
                     onContextMenuCapture={e => false}
                     loop={video?.loopPlayback === true}
+                    muted={isMuted}
                     autoPlay
                 />
             </CardMedia>
